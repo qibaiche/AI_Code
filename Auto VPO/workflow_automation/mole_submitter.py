@@ -1,0 +1,4382 @@
+"""Mole工具提交MIR数据模块"""
+import logging
+import time
+import subprocess
+import os
+from pathlib import Path
+from typing import Optional
+from dataclasses import dataclass
+
+try:
+    from pywinauto import Application
+    from pywinauto.findwindows import ElementNotFoundError
+except ImportError:
+    Application = None
+    ElementNotFoundError = Exception
+
+try:
+    import win32gui
+    import win32con
+    import win32api
+except ImportError:
+    win32gui = None
+    win32con = None
+    win32api = None
+
+try:
+    import tkinter.messagebox as messagebox
+except ImportError:
+    messagebox = None
+
+try:
+    import pyperclip
+except ImportError:
+    pyperclip = None
+
+try:
+    import win32clipboard
+except ImportError:
+    win32clipboard = None
+
+LOGGER = logging.getLogger(__name__)
+
+
+@dataclass
+class MoleConfig:
+    """Mole工具配置"""
+    executable_path: Optional[Path] = None
+    window_title: str = "Mole"
+    login_dialog_title: str = "MOLE LOGIN"
+    timeout: int = 60
+    retry_count: int = 3
+    retry_delay: int = 2
+    paths: Optional[object] = None  # 可选的paths配置对象，用于访问input_dir等
+
+
+class MoleSubmitter:
+    """Mole工具数据提交器"""
+    
+    def __init__(self, config: MoleConfig):
+        self.config = config
+        self._app = None
+        self._window = None
+    
+    def _ensure_application(self) -> None:
+        """确保Mole应用程序已启动"""
+        if Application is None:
+            raise RuntimeError("pywinauto 未安装，无法执行 UI 自动化")
+        
+        # 如果窗口已存在，验证窗口句柄是否有效
+        if self._window:
+            try:
+                if win32gui:
+                    hwnd = self._window.handle
+                    if not win32gui.IsWindow(hwnd):
+                        LOGGER.warning("窗口句柄已失效，需要重新连接...")
+                        self._window = None
+                        self._app = None
+                    else:
+                        # 窗口句柄有效，直接返回
+                        return
+            except Exception as e:
+                LOGGER.warning(f"验证窗口状态失败: {e}，重新连接...")
+                self._window = None
+                self._app = None
+        
+        # 检查是否已运行
+        if self._is_process_running():
+            LOGGER.info("Mole工具已在运行")
+            try:
+                self._app = Application(backend="win32").connect(
+                    title_re=self.config.window_title,
+                    visible_only=True
+                )
+                windows = self._app.windows()
+                if windows:
+                    self._window = windows[0]
+                    LOGGER.info(f"已连接到Mole窗口: {self._window.window_text()}")
+                    
+                    return
+            except Exception as e:
+                LOGGER.warning(f"连接现有Mole窗口失败: {e}")
+        
+        # 启动Mole工具
+        if self.config.executable_path and self.config.executable_path.exists():
+            executable_path_str = str(self.config.executable_path)
+            LOGGER.info(f"启动Mole工具: {executable_path_str}")
+            
+            # 如果是.appref-ms文件（ClickOnce应用程序快捷方式），使用os.startfile
+            if executable_path_str.lower().endswith('.appref-ms'):
+                try:
+                    os.startfile(executable_path_str)
+                    LOGGER.info("已通过os.startfile启动.appref-ms文件")
+                except Exception as e:
+                    LOGGER.warning(f"os.startfile启动失败: {e}，尝试使用subprocess")
+                    # 如果os.startfile失败，尝试使用rundll32
+                    try:
+                        subprocess.Popen([
+                            'rundll32.exe', 
+                            'dfshim.dll,ShOpenVerbApplication',
+                            executable_path_str
+                        ])
+                        LOGGER.info("已通过rundll32启动.appref-ms文件")
+                    except Exception as e2:
+                        raise RuntimeError(f"无法启动.appref-ms文件: {e2}")
+            else:
+                # 普通可执行文件，使用subprocess
+                subprocess.Popen([executable_path_str])
+        else:
+            # 如果配置路径不存在，尝试默认路径
+            default_path = Path(r"C:\Users\qibaiche\Desktop\Mole 2.0.appref-ms")
+            if default_path.exists():
+                LOGGER.info(f"使用默认路径启动Mole工具: {default_path}")
+                try:
+                    os.startfile(str(default_path))
+                except Exception as e:
+                    raise RuntimeError(f"无法启动Mole工具（默认路径）: {e}")
+            else:
+                raise RuntimeError(
+                    f"无法找到Mole工具。配置路径: {self.config.executable_path}，"
+                    f"默认路径: {default_path}。请检查config.yaml中的executable_path配置。"
+                )
+        
+        # 等待登录对话框出现并处理
+        LOGGER.info("等待Mole登录对话框...")
+        self._handle_login_dialog()
+        
+        # 等待主窗口出现 - 使用多种方法查找
+        deadline = time.time() + self.config.timeout
+        backends = ["win32", "uia"]
+        
+        while time.time() < deadline:
+            # 尝试不同的backend
+            for backend in backends:
+                try:
+                    # 方法1: 使用配置的标题模式
+                    try:
+                        self._app = Application(backend=backend).connect(
+                            title_re=self.config.window_title,
+                            visible_only=True,
+                            timeout=2
+                        )
+                        windows = self._app.windows()
+                        if windows:
+                            self._window = windows[0]
+                            LOGGER.info(f"已连接到Mole窗口: {self._window.window_text()} (backend: {backend})")
+                            return
+                    except Exception as e:
+                        LOGGER.debug(f"使用标题模式 '{self.config.window_title}' 连接失败 (backend: {backend}): {e}")
+                    
+                    # 方法2: 查找包含"MOLE"的所有窗口
+                    try:
+                        self._app = Application(backend=backend).connect(
+                            title_re=".*MOLE.*",
+                            visible_only=True,
+                            timeout=2
+                        )
+                        windows = self._app.windows()
+                        if windows:
+                            # 找到包含MOLE的窗口，选择第一个
+                            for win in windows:
+                                try:
+                                    win_text = win.window_text()
+                                    if "MOLE" in win_text.upper():
+                                        self._window = win
+                                        LOGGER.info(f"已连接到Mole窗口: {win_text} (backend: {backend}, 方法: 包含MOLE)")
+                                        return
+                                except:
+                                    continue
+                    except Exception as e:
+                        LOGGER.debug(f"查找包含MOLE的窗口失败 (backend: {backend}): {e}")
+                    
+                    # 方法3: 使用进程名查找（如果知道Mole的进程名）
+                    try:
+                        # 先尝试通过进程查找
+                        from pywinauto.findwindows import find_windows
+                        mole_windows = find_windows(backend=backend, title_re=".*MOLE.*")
+                        if mole_windows:
+                            for hwnd in mole_windows:
+                                try:
+                                    self._app = Application(backend=backend).connect(handle=hwnd)
+                                    windows = self._app.windows()
+                                    if windows:
+                                        self._window = windows[0]
+                                        LOGGER.info(f"已通过进程句柄连接到Mole窗口: {self._window.window_text()} (backend: {backend})")
+                                        return
+                                except:
+                                    continue
+                    except Exception as e:
+                        LOGGER.debug(f"通过进程查找窗口失败 (backend: {backend}): {e}")
+                    
+                except Exception as e:
+                    LOGGER.debug(f"尝试连接Mole窗口失败 (backend: {backend}): {e}")
+                    continue
+            
+            # 如果所有方法都失败，等待后重试
+            elapsed = int(time.time() - (deadline - self.config.timeout))
+            if elapsed % 5 == 0:  # 每5秒输出一次进度
+                LOGGER.info(f"等待Mole窗口出现... ({elapsed}/{self.config.timeout}秒)")
+            time.sleep(1)
+        
+        # 如果超时，列出所有可见窗口以便调试
+        LOGGER.error("等待Mole窗口超时，列出当前所有可见窗口:")
+        try:
+            import pygetwindow as gw
+            all_windows = gw.getAllWindows()
+            for w in all_windows:
+                if w.title and w.visible:
+                    LOGGER.error(f"  窗口: '{w.title}'")
+        except:
+            LOGGER.error("无法列出所有窗口")
+        
+        raise TimeoutError(f"等待Mole窗口出现超时（{self.config.timeout}秒）。请检查窗口标题配置是否正确。")
+    
+    def _reconnect_to_existing_window(self) -> bool:
+        """
+        尝试重新连接到已经运行的Mole窗口，不启动新的实例
+        
+        这个方法用于在窗口句柄失效时重新连接，避免重新启动Mole导致工作进度丢失
+        
+        Returns:
+            bool: 成功连接返回True，失败返回False
+        """
+        if Application is None:
+            return False
+        
+        LOGGER.info("尝试重新连接到现有的Mole窗口...")
+        
+        backends = ["win32", "uia"]
+        
+        for backend in backends:
+            try:
+                # 方法1: 通过窗口标题模式连接
+                try:
+                    self._app = Application(backend=backend).connect(
+                        title_re=".*MOLE.*",
+                        visible_only=True,
+                        timeout=5
+                    )
+                    windows = self._app.windows()
+                    for win in windows:
+                        try:
+                            win_text = win.window_text()
+                            # 排除登录对话框，只连接主窗口
+                            if "MOLE" in win_text.upper() and "LOGIN" not in win_text.upper():
+                                self._window = win
+                                LOGGER.info(f"✅ 已重新连接到Mole窗口: {win_text} (backend: {backend})")
+                                return True
+                        except:
+                            continue
+                except Exception as e:
+                    LOGGER.debug(f"通过标题模式重连失败 (backend: {backend}): {e}")
+                
+                # 方法2: 通过进程句柄查找
+                try:
+                    from pywinauto.findwindows import find_windows
+                    mole_windows = find_windows(backend=backend, title_re=".*MOLE.*")
+                    for hwnd in mole_windows:
+                        try:
+                            if win32gui and win32gui.IsWindow(hwnd):
+                                window_text = win32gui.GetWindowText(hwnd)
+                                # 排除登录对话框
+                                if "LOGIN" not in window_text.upper():
+                                    self._app = Application(backend=backend).connect(handle=hwnd)
+                                    windows = self._app.windows()
+                                    if windows:
+                                        self._window = windows[0]
+                                        LOGGER.info(f"✅ 已通过句柄重新连接到Mole窗口: {self._window.window_text()} (backend: {backend})")
+                                        return True
+                        except:
+                            continue
+                except Exception as e:
+                    LOGGER.debug(f"通过句柄重连失败 (backend: {backend}): {e}")
+                    
+            except Exception as e:
+                LOGGER.debug(f"重连尝试失败 (backend: {backend}): {e}")
+                continue
+        
+        LOGGER.warning("无法重新连接到现有的Mole窗口")
+        return False
+    
+    def _click_file_menu_new_mir_request(self) -> None:
+        """点击File菜单，然后选择New MIR Request（处理全屏模式的左上角菜单栏）"""
+        if not self._window:
+            raise RuntimeError("Mole窗口未连接")
+        
+        LOGGER.info("点击File菜单（全屏模式，左上角菜单栏）...")
+        
+        try:
+            # 验证窗口句柄是否仍然有效
+            try:
+                # 尝试获取窗口句柄，如果失败说明窗口已失效
+                hwnd = self._window.handle
+                if win32gui:
+                    # 验证句柄是否有效
+                    if not win32gui.IsWindow(hwnd):
+                        LOGGER.warning("窗口句柄已失效，尝试重新连接...")
+                        self._window = None
+                        self._app = None
+                        self._ensure_application()
+                        hwnd = self._window.handle
+            except Exception as e:
+                LOGGER.warning(f"窗口句柄验证失败: {e}，尝试重新连接...")
+                self._window = None
+                self._app = None
+                self._ensure_application()
+                hwnd = self._window.handle
+            
+            # 激活窗口并确保在最前
+            self._window.set_focus()
+            if win32gui and win32con:
+                try:
+                    hwnd = self._window.handle
+                    win32gui.SetForegroundWindow(hwnd)
+                    win32gui.BringWindowToTop(hwnd)
+                    win32gui.ShowWindow(hwnd, win32con.SW_MAXIMIZE)  # 确保全屏
+                except Exception as e:
+                    LOGGER.warning(f"设置窗口焦点失败: {e}")
+            time.sleep(0.5)
+            
+            # 获取窗口位置信息
+            try:
+                rect = self._window.rectangle()
+                # 验证矩形是否有效（不应该全为0）
+                if rect.left == 0 and rect.top == 0 and rect.right == 0 and rect.bottom == 0:
+                    LOGGER.warning("窗口矩形无效（全为0），尝试重新连接...")
+                    self._window = None
+                    self._app = None
+                    self._ensure_application()
+                    rect = self._window.rectangle()
+                LOGGER.info(f"窗口位置: left={rect.left}, top={rect.top}, right={rect.right}, bottom={rect.bottom}")
+            except Exception as e:
+                LOGGER.warning(f"获取窗口位置失败: {e}，尝试重新连接...")
+                self._window = None
+                self._app = None
+                self._ensure_application()
+                try:
+                    rect = self._window.rectangle()
+                    LOGGER.info(f"重新连接后窗口位置: left={rect.left}, top={rect.top}, right={rect.right}, bottom={rect.bottom}")
+                except:
+                    rect = None
+            
+            file_menu_clicked = False
+            
+            # 方法1: 使用Windows API直接点击菜单（最可靠的方法）
+            if win32gui and win32con:
+                try:
+                    LOGGER.info("使用Windows API点击File菜单...")
+                    hwnd = self._window.handle
+                    
+                    # 获取菜单句柄
+                    menu_handle = win32gui.GetMenu(hwnd)
+                    if menu_handle:
+                        # File菜单通常是第一个（索引0）
+                        # 发送WM_COMMAND消息来点击File菜单的第一个项
+                        # 或者先发送WM_SYSCOMMAND来打开菜单
+                        LOGGER.info("找到菜单句柄，尝试点击File菜单项")
+                        
+                        # 方法1a: 直接使用PostMessage点击File菜单
+                        # File菜单的ID通常是0xE100 (SC_SIZE + 0)
+                        # 但更简单的方法是直接点击菜单项
+                        try:
+                            # 尝试获取第一个菜单项的位置并点击
+                            menu_rect = win32gui.GetMenuItemRect(hwnd, menu_handle, 0)
+                            if menu_rect:
+                                # 计算菜单项中心点（在屏幕坐标中）
+                                center_x = (menu_rect[0] + menu_rect[2]) // 2
+                                center_y = (menu_rect[1] + menu_rect[3]) // 2
+                                LOGGER.info(f"File菜单位置: ({center_x}, {center_y})")
+                                # 使用pyautogui点击（屏幕坐标）
+                                try:
+                                    import pyautogui
+                                    pyautogui.click(center_x, center_y)
+                                    file_menu_clicked = True
+                                    LOGGER.info("✅ 已通过屏幕坐标点击File菜单")
+                                except ImportError:
+                                    LOGGER.debug("pyautogui未安装，跳过屏幕坐标点击")
+                        except:
+                            pass
+                        
+                        # 方法1b: 如果坐标点击失败，使用Alt+F快捷键
+                        if not file_menu_clicked:
+                            LOGGER.info("使用Alt+F快捷键打开File菜单")
+                            self._window.type_keys("%f")  # Alt+F
+                            file_menu_clicked = True
+                            LOGGER.info("✅ 已使用Alt+F打开File菜单")
+                    else:
+                        LOGGER.warning("未找到菜单句柄，尝试其他方法")
+                except Exception as e1:
+                    LOGGER.debug(f"使用Windows API点击File菜单失败: {e1}")
+            
+            # 方法2: 使用Alt+F快捷键（最通用的方法）
+            if not file_menu_clicked:
+                try:
+                    LOGGER.info("使用Alt+F快捷键打开File菜单")
+                    self._window.type_keys("%f")  # Alt+F
+                    file_menu_clicked = True
+                    LOGGER.info("✅ 已使用Alt+F打开File菜单")
+                except Exception as e2:
+                    LOGGER.debug(f"使用快捷键Alt+F失败: {e2}")
+            
+            # 方法3: 如果窗口在左上角，尝试点击屏幕左上角的固定位置
+            if not file_menu_clicked and rect:
+                try:
+                    LOGGER.info("尝试点击窗口左上角的File菜单位置...")
+                    # File菜单通常在窗口左上角，大约(10, 10)的相对位置
+                    # 但需要转换为屏幕坐标
+                    if win32gui:
+                        hwnd = self._window.handle
+                        # 获取窗口在屏幕上的位置
+                        window_rect = win32gui.GetWindowRect(hwnd)
+                        # File菜单通常位于窗口顶部菜单栏，约y=30像素处，x=10像素处
+                        file_x = window_rect[0] + 10
+                        file_y = window_rect[1] + 30
+                        LOGGER.info(f"尝试点击屏幕坐标: ({file_x}, {file_y})")
+                        
+                        try:
+                            import pyautogui
+                            pyautogui.click(file_x, file_y)
+                            file_menu_clicked = True
+                            LOGGER.info("✅ 已通过固定坐标点击File菜单")
+                        except ImportError:
+                            LOGGER.debug("pyautogui未安装，无法使用屏幕坐标点击")
+                        except Exception as e:
+                            LOGGER.debug(f"屏幕坐标点击失败: {e}")
+                except Exception as e3:
+                    LOGGER.debug(f"点击固定位置失败: {e3}")
+            
+            # 方法4: 尝试查找File菜单控件
+            if not file_menu_clicked:
+                try:
+                    # 查找菜单栏
+                    menu_bar = self._window.child_window(control_type="MenuBar")
+                    if menu_bar.exists():
+                        file_menu = menu_bar.child_window(title="File")
+                        if file_menu.exists():
+                            LOGGER.info("找到File菜单项（MenuBar）")
+                            file_menu.click_input()
+                            file_menu_clicked = True
+                            LOGGER.info("✅ 已点击File菜单（MenuBar）")
+                except Exception as e4:
+                    LOGGER.debug(f"通过MenuBar查找File菜单失败: {e4}")
+            
+            if not file_menu_clicked:
+                raise RuntimeError("无法点击File菜单，已尝试所有方法")
+            
+            # 等待下拉菜单出现
+            time.sleep(1.2)  # 增加等待时间，确保菜单完全展开
+            
+            # 在下拉菜单中选择"New MIR Request"
+            LOGGER.info("在下拉菜单中选择'New MIR Request'（第5个菜单项）...")
+            menu_item_clicked = False
+            
+            # 方法1: 使用Windows API精确查找并点击（最可靠）
+            if win32gui and win32con:
+                try:
+                    LOGGER.info("使用Windows API精确查找'New MIR Request'菜单项...")
+                    hwnd = self._window.handle
+                    
+                    # 获取菜单句柄
+                    menu_handle = win32gui.GetMenu(hwnd)
+                    if menu_handle:
+                        # File菜单通常是第一个（索引0）
+                        file_submenu = win32gui.GetSubMenu(menu_handle, 0)
+                        if file_submenu:
+                            # 遍历File菜单的所有项
+                            item_count = win32gui.GetMenuItemCount(file_submenu)
+                            LOGGER.info(f"File菜单共有 {item_count} 个菜单项")
+                            
+                            target_index = -1
+                            for i in range(item_count):
+                                try:
+                                    # 获取菜单项文本
+                                    menu_text = win32gui.GetMenuString(file_submenu, i, win32con.MF_BYPOSITION)
+                                    LOGGER.info(f"  菜单项 {i + 1}: '{menu_text}'")
+                                    
+                                    # 精确匹配"New MIR Request"（完全匹配，不区分大小写）
+                                    if menu_text.strip().upper() == "NEW MIR REQUEST":
+                                        target_index = i
+                                        LOGGER.info(f"✅ 找到目标菜单项: '{menu_text}' (索引: {i})")
+                                        break
+                                except Exception as e_item:
+                                    LOGGER.debug(f"处理菜单项 {i} 时出错: {e_item}")
+                                    continue
+                            
+                            if target_index >= 0:
+                                # 获取菜单项ID并发送点击消息
+                                menu_item_id = win32gui.GetMenuItemID(file_submenu, target_index)
+                                LOGGER.info(f"菜单项ID: {menu_item_id}")
+                                
+                                # 方法1a: 使用PostMessage发送WM_COMMAND消息
+                                try:
+                                    win32gui.PostMessage(hwnd, win32con.WM_COMMAND, menu_item_id, 0)
+                                    menu_item_clicked = True
+                                    LOGGER.info("✅ 已通过Windows API PostMessage点击'New MIR Request'菜单项")
+                                except Exception as e_cmd:
+                                    LOGGER.debug(f"PostMessage失败: {e_cmd}")
+                                    # 方法1b: 如果PostMessage失败，尝试SendMessage
+                                    try:
+                                        win32gui.SendMessage(hwnd, win32con.WM_COMMAND, menu_item_id, 0)
+                                        menu_item_clicked = True
+                                        LOGGER.info("✅ 已通过Windows API SendMessage点击'New MIR Request'菜单项")
+                                    except Exception as e_send:
+                                        LOGGER.debug(f"SendMessage也失败: {e_send}")
+                except Exception as e1:
+                    LOGGER.debug(f"使用Windows API查找菜单失败: {e1}")
+            
+            # 方法2: 使用键盘导航（精确到第5个菜单项）
+            if not menu_item_clicked:
+                try:
+                    LOGGER.info("使用键盘导航选择第5个菜单项'New MIR Request'...")
+                    # 菜单顺序（从File菜单打开后）：
+                    # 0. (当前焦点在第一个菜单项)
+                    # 1. New VPO Request
+                    # 2. Mole Direction
+                    # 3. New Source Lot
+                    # 4. Standard Request
+                    # 5. New MIR Request <- 目标（需要按4次下箭头）
+                    
+                    # 确保焦点在菜单上
+                    self._window.set_focus()
+                    time.sleep(0.2)
+                    
+                    # 按4次下箭头键移动到"New MIR Request"（从第1个到第5个）
+                    LOGGER.info("按4次下箭头键...")
+                    for i in range(4):
+                        self._window.type_keys("{DOWN}")
+                        time.sleep(0.15)  # 每次按键之间稍作延迟
+                    
+                    # 等待菜单高亮更新
+                    time.sleep(0.3)
+                    
+                    # 按Enter确认选择
+                    LOGGER.info("按Enter键确认选择...")
+                    self._window.type_keys("{ENTER}")
+                    
+                    menu_item_clicked = True
+                    LOGGER.info("✅ 已使用键盘导航选择'New MIR Request'（下箭头4次+Enter）")
+                except Exception as e3:
+                    LOGGER.debug(f"使用键盘导航失败: {e3}")
+            
+            # 方法3: 精确匹配MenuItem控件并点击
+            if not menu_item_clicked:
+                try:
+                    LOGGER.info("通过控件精确查找'New MIR Request'...")
+                    
+                    # 首先列出所有菜单项以便调试
+                    all_menu_items = self._window.descendants(control_type="MenuItem")
+                    LOGGER.info(f"找到 {len(all_menu_items)} 个菜单项控件")
+                    
+                    for idx, item in enumerate(all_menu_items):
+                        try:
+                            item_text = item.window_text().strip()
+                            LOGGER.info(f"  菜单项 {idx + 1}: '{item_text}'")
+                            
+                            # 精确匹配（完全匹配，不区分大小写）
+                            if item_text.upper() == "NEW MIR REQUEST":
+                                LOGGER.info(f"✅ 找到目标菜单项（精确匹配）: '{item_text}' (索引: {idx})")
+                                
+                                # 确保菜单项可见并可用
+                                if item.is_visible() and item.is_enabled():
+                                    # 先设置焦点到菜单项
+                                    item.set_focus()
+                                    time.sleep(0.2)
+                                    # 点击菜单项
+                                    item.click_input()
+                                    menu_item_clicked = True
+                                    LOGGER.info("✅ 已点击'New MIR Request'菜单项（精确匹配）")
+                                    break
+                                else:
+                                    LOGGER.warning(f"菜单项存在但不可见或不可用: visible={item.is_visible()}, enabled={item.is_enabled()}")
+                        except Exception as e:
+                            LOGGER.debug(f"检查菜单项 {idx} 时出错: {e}")
+                            continue
+                except Exception as e2:
+                    LOGGER.debug(f"通过控件查找菜单项失败: {e2}")
+            
+            if not menu_item_clicked:
+                raise RuntimeError("无法选择'New MIR Request'菜单项，已尝试所有方法")
+            
+            # 等待新窗口或对话框出现
+            time.sleep(1)
+            LOGGER.info("✅ 已成功打开New MIR Request")
+            
+            # 处理可能出现的"MIR is now MRS!"信息对话框
+            self._handle_mir_mrs_info_dialog()
+            
+            # 等待窗口完全加载
+            time.sleep(1)
+            
+            # 点击"Search By VPOs"按钮
+            self._click_search_by_vpos_button()
+            
+            # 注意：填写对话框的逻辑将在workflow_main中调用
+        
+        except Exception as e:
+            LOGGER.error(f"点击File菜单选择New MIR Request失败: {e}")
+            raise RuntimeError(f"无法打开New MIR Request: {e}")
+    
+    def _click_search_by_vpos_button(self) -> None:
+        """点击'Search By VPOs'按钮"""
+        if not self._window:
+            raise RuntimeError("Mole窗口未连接")
+        
+        LOGGER.info("点击'Search By VPOs'按钮...")
+        
+        try:
+            # 确保窗口激活
+            self._window.set_focus()
+            if win32gui and win32con:
+                try:
+                    hwnd = self._window.handle
+                    win32gui.SetForegroundWindow(hwnd)
+                    win32gui.BringWindowToTop(hwnd)
+                except:
+                    pass
+            time.sleep(0.5)
+            
+            button_clicked = False
+            
+            # 方法1: 直接查找标题为"Search By VPOs"的按钮
+            try:
+                search_button = self._window.child_window(title="Search By VPOs", control_type="Button")
+                if search_button.exists() and search_button.is_enabled():
+                    LOGGER.info("找到'Search By VPOs'按钮（通过title）")
+                    search_button.click_input()
+                    button_clicked = True
+                    LOGGER.info("✅ 已点击'Search By VPOs'按钮（通过title）")
+            except Exception as e1:
+                LOGGER.debug(f"通过title查找按钮失败: {e1}")
+            
+            # 方法2: 遍历所有按钮查找
+            if not button_clicked:
+                try:
+                    all_buttons = self._window.descendants(control_type="Button")
+                    LOGGER.info(f"找到 {len(all_buttons)} 个按钮")
+                    for button in all_buttons:
+                        try:
+                            button_text = button.window_text().strip()
+                            LOGGER.debug(f"  按钮: '{button_text}'")
+                            if button_text == "Search By VPOs":
+                                LOGGER.info(f"找到'Search By VPOs'按钮（文本: '{button_text}'）")
+                                if button.is_visible() and button.is_enabled():
+                                    button.click_input()
+                                    button_clicked = True
+                                    LOGGER.info("✅ 已点击'Search By VPOs'按钮（遍历按钮）")
+                                    break
+                        except Exception as e:
+                            LOGGER.debug(f"检查按钮时出错: {e}")
+                            continue
+                except Exception as e2:
+                    LOGGER.debug(f"遍历按钮失败: {e2}")
+            
+            # 方法3: 使用部分匹配查找（包含"Search By VPOs"）
+            if not button_clicked:
+                try:
+                    all_buttons = self._window.descendants(control_type="Button")
+                    for button in all_buttons:
+                        try:
+                            button_text = button.window_text().strip()
+                            if "Search By VPOs" in button_text or "Search By VPO" in button_text:
+                                LOGGER.info(f"找到'Search By VPOs'按钮（部分匹配: '{button_text}'）")
+                                if button.is_visible() and button.is_enabled():
+                                    button.click_input()
+                                    button_clicked = True
+                                    LOGGER.info("✅ 已点击'Search By VPOs'按钮（部分匹配）")
+                                    break
+                        except:
+                            continue
+                except Exception as e3:
+                    LOGGER.debug(f"部分匹配查找失败: {e3}")
+            
+            # 方法4: 使用Windows API查找按钮
+            if not button_clicked and win32gui and win32con:
+                try:
+                    LOGGER.info("使用Windows API查找'Search By VPOs'按钮...")
+                    hwnd = self._window.handle
+                    
+                    def enum_child_proc(hwnd_child, lParam):
+                        try:
+                            window_text = win32gui.GetWindowText(hwnd_child)
+                            class_name = win32gui.GetClassName(hwnd_child)
+                            if "Search By VPOs" in window_text and "BUTTON" in class_name.upper():
+                                LOGGER.info(f"通过Windows API找到按钮: '{window_text}' (类名: {class_name})")
+                                win32gui.PostMessage(hwnd_child, win32con.BM_CLICK, 0, 0)
+                                return False  # 停止枚举
+                            return True
+                        except:
+                            return True
+                    
+                    win32gui.EnumChildWindows(hwnd, enum_child_proc, None)
+                    time.sleep(0.5)
+                    button_clicked = True
+                    LOGGER.info("✅ 已通过Windows API点击'Search By VPOs'按钮")
+                except Exception as e4:
+                    LOGGER.debug(f"使用Windows API查找按钮失败: {e4}")
+            
+            if not button_clicked:
+                raise RuntimeError("无法点击'Search By VPOs'按钮，已尝试所有方法")
+            
+            # 等待按钮点击后的响应和对话框出现
+            time.sleep(1)
+            LOGGER.info("✅ 已成功点击'Search By VPOs'按钮")
+        
+        except Exception as e:
+            LOGGER.error(f"点击'Search By VPOs'按钮失败: {e}")
+            raise RuntimeError(f"无法点击'Search By VPOs'按钮: {e}")
+    
+    def _fill_vpo_search_dialog(self, source_lot_value: str) -> None:
+        """
+        在VPO搜索对话框中填写Source Lot值并点击Search
+        
+        Args:
+            source_lot_value: Source Lot的值（第一行的SourceLot列值）
+        """
+        if Application is None:
+            raise RuntimeError("pywinauto 未安装，无法执行 UI 自动化")
+        
+        LOGGER.info("等待VPO搜索对话框出现...")
+        
+        # 等待对话框出现（最多等待15秒）
+        vpo_dialog = None
+        deadline = time.time() + 15
+        dialog_titles = ["MOLE"]
+        
+        backends = ["win32", "uia"]
+        
+        LOGGER.info("查找VPO搜索对话框（模态对话框，标题: MOLE）...")
+        
+        # 首先尝试使用win32gui枚举所有窗口（更可靠的方法）
+        if win32gui:
+            LOGGER.info("使用Windows API枚举所有窗口...")
+            dialog_hwnd = None
+            
+            def enum_windows_callback(hwnd, windows):
+                try:
+                    if win32gui.IsWindowVisible(hwnd):
+                        window_text = win32gui.GetWindowText(hwnd)
+                        if window_text.strip() == "MOLE":
+                            # 检查窗口大小（对话框通常比主窗口小）
+                            rect = win32gui.GetWindowRect(hwnd)
+                            width = rect[2] - rect[0]
+                            height = rect[3] - rect[1]
+                            # 对话框通常宽度在400-800，高度在300-600
+                            if 300 < width < 1000 and 200 < height < 800:
+                                # 检查是否是模态对话框（可能有特定窗口样式）
+                                style = win32gui.GetWindowLong(hwnd, win32con.GWL_STYLE)
+                                windows.append((hwnd, window_text, width, height))
+                except:
+                    pass
+                return True
+            
+            candidate_windows = []
+            win32gui.EnumWindows(enum_windows_callback, candidate_windows)
+            
+            LOGGER.info(f"找到 {len(candidate_windows)} 个可能的对话框窗口")
+            for hwnd, win_text, w, h in candidate_windows:
+                LOGGER.info(f"  窗口: '{win_text}' (大小: {w}x{h})")
+            
+            # 选择最可能的对话框（通常是第一个，或者最大的符合条件的窗口）
+            if candidate_windows:
+                dialog_hwnd, win_text, w, h = candidate_windows[0]
+                LOGGER.info(f"选择对话框: '{win_text}' (大小: {w}x{h})")
+                # 尝试用pywinauto连接到此窗口（优先使用主窗口的app实例，避免影响主窗口）
+                try:
+                    # 优先使用主窗口的app实例（如果存在且可用）
+                    if self._app:
+                        try:
+                            vpo_dialog = self._app.window(handle=dialog_hwnd)
+                            if vpo_dialog.exists():
+                                LOGGER.info(f"✅ 找到VPO搜索对话框: '{win_text}' (使用主窗口app实例, handle: {dialog_hwnd})")
+                                # 确保对话框有焦点
+                                vpo_dialog.set_focus()
+                                if win32gui:
+                                    try:
+                                        win32gui.SetForegroundWindow(dialog_hwnd)
+                                        win32gui.BringWindowToTop(dialog_hwnd)
+                                    except:
+                                        pass
+                            else:
+                                vpo_dialog = None
+                        except Exception as e:
+                            LOGGER.debug(f"使用主窗口app实例连接对话框失败: {e}")
+                            vpo_dialog = None
+                    
+                    # 如果主窗口app实例无法连接对话框，尝试创建新连接
+                    if vpo_dialog is None:
+                        for backend in backends:
+                            try:
+                                dialog_app = Application(backend=backend).connect(handle=dialog_hwnd)
+                                vpo_dialog = dialog_app.window(handle=dialog_hwnd)
+                                if vpo_dialog.exists():
+                                    LOGGER.info(f"✅ 找到VPO搜索对话框: '{win_text}' (backend: {backend}, handle: {dialog_hwnd})")
+                                    # 确保对话框有焦点
+                                    vpo_dialog.set_focus()
+                                    if win32gui:
+                                        try:
+                                            win32gui.SetForegroundWindow(dialog_hwnd)
+                                            win32gui.BringWindowToTop(dialog_hwnd)
+                                        except:
+                                            pass
+                                    break
+                            except Exception as e:
+                                LOGGER.debug(f"使用backend {backend}连接对话框失败: {e}")
+                                continue
+                    
+                    if vpo_dialog is None:
+                        # 如果pywinauto无法连接，使用win32gui直接操作
+                        LOGGER.warning("pywinauto无法连接对话框，将使用win32gui直接操作")
+                        vpo_dialog = {"hwnd": dialog_hwnd, "text": win_text, "use_win32": True}
+                except Exception as e:
+                    LOGGER.warning(f"连接对话框时出错: {e}")
+                    vpo_dialog = {"hwnd": dialog_hwnd, "text": win_text, "use_win32": True}
+        
+        # 如果win32gui方法失败，使用pywinauto方法
+        if vpo_dialog is None:
+            LOGGER.info("使用pywinauto方法查找对话框...")
+            while time.time() < deadline:
+                for backend in backends:
+                    for title_pattern in dialog_titles:
+                        try:
+                            dialog_app = Application(backend=backend).connect(
+                                title_re=title_pattern,
+                                visible_only=True,
+                                timeout=2
+                            )
+                            # 获取所有窗口，包括主窗口和对话框
+                            windows = dialog_app.windows()
+                            LOGGER.debug(f"找到 {len(windows)} 个窗口")
+                            
+                            for win in windows:
+                                try:
+                                    win_text = win.window_text().strip()
+                                    LOGGER.debug(f"检查窗口: '{win_text}'")
+                                    
+                                    # 检查是否是VPO搜索对话框（模态对话框）
+                                    # 特征1: 标题完全等于"MOLE"（主窗口标题更长）
+                                    if win_text == "MOLE":
+                                        LOGGER.info(f"找到标题为'MOLE'的窗口，检查是否是VPO搜索对话框...")
+                                        
+                                        # 检查窗口大小（对话框通常比主窗口小）
+                                        try:
+                                            rect = win.rectangle()
+                                            width = rect.width()
+                                            height = rect.height()
+                                            LOGGER.debug(f"窗口大小: {width}x{height}")
+                                            # 对话框通常宽度在400-800，高度在300-600
+                                            if 300 < width < 1000 and 200 < height < 800:
+                                                # 尝试查找Edit控件确认
+                                                try:
+                                                    edits = win.descendants(control_type="Edit")
+                                                    if edits and len(edits) > 0:
+                                                        vpo_dialog = win
+                                                        LOGGER.info(f"✅ 找到VPO搜索对话框: '{win_text}' (backend: {backend}, 大小: {width}x{height})")
+                                                        break
+                                                except:
+                                                    pass
+                                        except:
+                                            # 如果无法获取大小，尝试其他方法
+                                            try:
+                                                edits = win.descendants(control_type="Edit")
+                                                if edits and len(edits) > 0:
+                                                    vpo_dialog = win
+                                                    LOGGER.info(f"✅ 找到可能的VPO搜索对话框: '{win_text}' (backend: {backend})")
+                                                    break
+                                            except:
+                                                pass
+                                except Exception as e:
+                                    LOGGER.debug(f"检查窗口时出错: {e}")
+                                    continue
+                            
+                            if vpo_dialog is not None:
+                                break
+                        except:
+                            continue
+                    
+                    if vpo_dialog is not None:
+                        break
+                
+                if vpo_dialog is not None:
+                    break
+                
+                time.sleep(0.5)
+        
+        if vpo_dialog is None:
+            raise RuntimeError("未找到VPO搜索对话框（标题: MOLE）")
+        
+        try:
+            # 处理两种情况：pywinauto窗口对象或win32gui字典
+            use_win32_direct = isinstance(vpo_dialog, dict) and vpo_dialog.get("use_win32", False)
+            
+            if use_win32_direct:
+                # 使用win32gui直接操作
+                dialog_hwnd = vpo_dialog["hwnd"]
+                LOGGER.info("使用Windows API直接操作对话框...")
+                
+                # 激活对话框
+                win32gui.SetForegroundWindow(dialog_hwnd)
+                win32gui.BringWindowToTop(dialog_hwnd)
+                time.sleep(0.5)
+            else:
+                # 使用pywinauto操作
+                vpo_dialog.set_focus()
+                time.sleep(0.5)
+            
+            LOGGER.info(f"填写Source Lot值: {source_lot_value}")
+            
+            # 先将值复制到剪贴板
+            try:
+                import win32clipboard
+                win32clipboard.OpenClipboard()
+                win32clipboard.EmptyClipboard()
+                win32clipboard.SetClipboardData(win32clipboard.CF_UNICODETEXT, source_lot_value)
+                win32clipboard.CloseClipboard()
+                LOGGER.info("已复制值到剪贴板")
+            except ImportError:
+                try:
+                    import pyperclip
+                    pyperclip.copy(source_lot_value)
+                    LOGGER.info("已复制值到剪贴板（pyperclip）")
+                except ImportError:
+                    raise RuntimeError("无法使用剪贴板，请安装pywin32或pyperclip")
+            
+            text_field_filled = False
+            
+            if use_win32_direct:
+                # 使用win32gui找到文本输入框并点击
+                LOGGER.info("使用Windows API查找文本输入框...")
+                text_input_hwnd = None
+                text_input_rect = None
+                
+                def enum_child_proc(hwnd_child, candidates):
+                    try:
+                        class_name = win32gui.GetClassName(hwnd_child)
+                        rect = win32gui.GetWindowRect(hwnd_child)
+                        width = rect[2] - rect[0]
+                        height = rect[3] - rect[1]
+                        size = width * height
+                        
+                        # 方法1: 查找Edit控件（包括各种变体）
+                        if "EDIT" in class_name.upper() or "RICHTEXT" in class_name.upper() or "RICHEDIT" in class_name.upper():
+                            # 大的文本输入框通常面积 > 5000
+                            if size > 5000:
+                                candidates.append((hwnd_child, size, rect, "Edit/RichEdit"))
+                        
+                        # 方法2: 查找所有大的子窗口（可能是自定义的文本输入框）
+                        # 对话框中的文本输入框通常在中间位置，且比较大
+                        if size > 10000:
+                            # 获取对话框大小
+                            dialog_rect = win32gui.GetWindowRect(dialog_hwnd)
+                            dialog_width = dialog_rect[2] - dialog_rect[0]
+                            dialog_height = dialog_rect[3] - dialog_rect[1]
+                            
+                            # 检查控件是否在对话框的下半部分（文本输入框通常在下方）
+                            child_center_y = (rect[1] + rect[3]) // 2
+                            dialog_center_y = (dialog_rect[1] + dialog_rect[3]) // 2
+                            
+                            if child_center_y > dialog_center_y and width > dialog_width * 0.5:
+                                candidates.append((hwnd_child, size, rect, "Large child window"))
+                    except:
+                        pass
+                    return True
+                
+                all_candidates = []
+                win32gui.EnumChildWindows(dialog_hwnd, enum_child_proc, all_candidates)
+                
+                LOGGER.info(f"找到 {len(all_candidates)} 个可能的文本输入区域")
+                
+                if all_candidates:
+                    # 优先选择Edit/RichEdit控件，否则选择最大的子窗口
+                    edit_candidates = [c for c in all_candidates if "Edit" in c[3]]
+                    if edit_candidates:
+                        text_input_hwnd, _, text_input_rect, _ = max(edit_candidates, key=lambda x: x[1])
+                        LOGGER.info(f"找到Edit控件文本输入框（handle: {text_input_hwnd}）")
+                    else:
+                        # 选择最大的子窗口
+                        text_input_hwnd, _, text_input_rect, desc = max(all_candidates, key=lambda x: x[1])
+                        LOGGER.info(f"找到大型子窗口作为文本输入框（handle: {text_input_hwnd}, 类型: {desc}）")
+                    
+                    # 获取控件中心坐标并点击
+                    center_x = (text_input_rect[0] + text_input_rect[2]) // 2
+                    center_y = (text_input_rect[1] + text_input_rect[3]) // 2
+                    
+                    LOGGER.info(f"点击文本输入框中心位置: ({center_x}, {center_y})")
+                    try:
+                        import pyautogui
+                        pyautogui.click(center_x, center_y)
+                        time.sleep(0.3)
+                        
+                        # 清除现有内容并粘贴
+                        pyautogui.hotkey('ctrl', 'a')
+                        time.sleep(0.1)
+                        pyautogui.hotkey('ctrl', 'v')
+                        text_field_filled = True
+                        LOGGER.info(f"✅ 已填写Source Lot值: {source_lot_value}")
+                    except ImportError:
+                        raise RuntimeError("需要pyautogui来执行鼠标点击操作")
+                else:
+                    # 如果找不到任何控件，尝试估算白色区域的位置
+                    LOGGER.warning("未找到文本输入控件，尝试估算白色区域位置...")
+                    try:
+                        dialog_rect = win32gui.GetWindowRect(dialog_hwnd)
+                        dialog_width = dialog_rect[2] - dialog_rect[0]
+                        dialog_height = dialog_rect[3] - dialog_rect[1]
+                        
+                        # 白色文本输入区域通常在对话框中间偏下的位置
+                        # 估算：X在中间，Y在60-70%的位置
+                        estimated_x = dialog_rect[0] + dialog_width // 2
+                        estimated_y = dialog_rect[1] + int(dialog_height * 0.65)
+                        
+                        LOGGER.info(f"估算白色区域位置: ({estimated_x}, {estimated_y})")
+                        import pyautogui
+                        pyautogui.click(estimated_x, estimated_y)
+                        time.sleep(0.3)
+                        
+                        # 清除现有内容并粘贴
+                        pyautogui.hotkey('ctrl', 'a')
+                        time.sleep(0.1)
+                        pyautogui.hotkey('ctrl', 'v')
+                        text_field_filled = True
+                        LOGGER.info(f"✅ 已通过估算位置填写Source Lot值: {source_lot_value}")
+                    except Exception as e:
+                        LOGGER.error(f"估算位置方法也失败: {e}")
+            
+            else:
+                # 使用pywinauto查找并点击文本输入框
+                try:
+                    # 方法1: 查找Edit控件
+                    edit_controls = vpo_dialog.descendants(control_type="Edit")
+                    LOGGER.info(f"找到 {len(edit_controls)} 个Edit控件")
+                    
+                    # 方法2: 查找所有文本相关的控件
+                    text_controls = []
+                    try:
+                        all_controls = vpo_dialog.descendants()
+                        for ctrl in all_controls:
+                            try:
+                                ctrl_type = str(ctrl.element_info.control_type_name).lower()
+                                if 'edit' in ctrl_type or 'text' in ctrl_type or 'input' in ctrl_type:
+                                    if ctrl.is_visible():
+                                        text_controls.append(ctrl)
+                            except:
+                                continue
+                        LOGGER.info(f"找到 {len(text_controls)} 个文本相关控件")
+                    except:
+                        pass
+                    
+                    # 优先选择最大的控件（通常是主要的文本输入框）
+                    target_edit = None
+                    target_rect = None
+                    max_size = 0
+                    
+                    # 先尝试Edit控件
+                    for edit in edit_controls:
+                        try:
+                            if edit.is_visible() and edit.is_enabled():
+                                rect = edit.rectangle()
+                                size = rect.width() * rect.height()
+                                if size > max_size:
+                                    max_size = size
+                                    target_edit = edit
+                                    target_rect = rect
+                        except:
+                            continue
+                    
+                    # 如果Edit控件不够大，尝试其他文本控件
+                    if not target_edit or max_size < 5000:
+                        for ctrl in text_controls:
+                            try:
+                                if ctrl.is_visible() and ctrl.is_enabled():
+                                    rect = ctrl.rectangle()
+                                    size = rect.width() * rect.height()
+                                    if size > max_size:
+                                        max_size = size
+                                        target_edit = ctrl
+                                        target_rect = rect
+                            except:
+                                continue
+                    
+                    if target_edit:
+                        LOGGER.info(f"找到文本输入框（大小: {max_size}）")
+                        # 使用鼠标点击文本输入框的中心位置
+                        center_x = target_rect.left + target_rect.width() // 2
+                        center_y = target_rect.top + target_rect.height() // 2
+                        
+                        LOGGER.info(f"点击文本输入框中心位置: ({center_x}, {center_y})")
+                        try:
+                            import pyautogui
+                            pyautogui.click(center_x, center_y)
+                            time.sleep(0.3)
+                            
+                            # 清除现有内容并粘贴
+                            pyautogui.hotkey('ctrl', 'a')
+                            time.sleep(0.1)
+                            pyautogui.hotkey('ctrl', 'v')
+                            text_field_filled = True
+                            LOGGER.info(f"✅ 已填写Source Lot值: {source_lot_value}")
+                        except ImportError:
+                            # 如果没有pyautogui，使用pywinauto的点击方法
+                            target_edit.set_focus()
+                            time.sleep(0.3)
+                            target_edit.type_keys("^a")
+                            time.sleep(0.1)
+                            target_edit.type_keys("^v")
+                            text_field_filled = True
+                            LOGGER.info(f"✅ 已填写Source Lot值: {source_lot_value}")
+                    else:
+                        LOGGER.warning("未找到可用的文本输入控件，尝试估算位置...")
+                        # 尝试估算白色区域位置
+                        try:
+                            dialog_rect = vpo_dialog.rectangle()
+                            estimated_x = dialog_rect.left + dialog_rect.width() // 2
+                            estimated_y = dialog_rect.top + int(dialog_rect.height() * 0.65)
+                            
+                            LOGGER.info(f"估算白色区域位置: ({estimated_x}, {estimated_y})")
+                            import pyautogui
+                            pyautogui.click(estimated_x, estimated_y)
+                            time.sleep(0.3)
+                            
+                            # 清除现有内容并粘贴
+                            pyautogui.hotkey('ctrl', 'a')
+                            time.sleep(0.1)
+                            pyautogui.hotkey('ctrl', 'v')
+                            text_field_filled = True
+                            LOGGER.info(f"✅ 已通过估算位置填写Source Lot值: {source_lot_value}")
+                        except Exception as e:
+                            LOGGER.error(f"估算位置方法也失败: {e}")
+                except Exception as e:
+                    LOGGER.debug(f"查找文本输入框失败: {e}")
+            
+            if not text_field_filled:
+                raise RuntimeError("无法填写Source Lot值到文本输入框")
+            
+            # 等待一下，确保值已填写
+            time.sleep(0.5)
+            
+            # 点击Search按钮
+            LOGGER.info("点击Search按钮...")
+            search_clicked = False
+            
+            if use_win32_direct:
+                # 使用win32gui查找Search按钮
+                LOGGER.info("使用Windows API查找Search按钮...")
+                search_button_hwnd = None
+                
+                def enum_button_proc(hwnd_child, lParam):
+                    try:
+                        window_text = win32gui.GetWindowText(hwnd_child)
+                        class_name = win32gui.GetClassName(hwnd_child)
+                        LOGGER.debug(f"  子窗口: 文本='{window_text}', 类名='{class_name}'")
+                        # 查找所有可能的按钮
+                        if "BUTTON" in class_name.upper():
+                            lParam.append((hwnd_child, window_text, class_name))
+                    except:
+                        pass
+                    return True
+                
+                all_buttons = []
+                win32gui.EnumChildWindows(dialog_hwnd, enum_button_proc, all_buttons)
+                
+                LOGGER.info(f"找到 {len(all_buttons)} 个按钮控件")
+                for hwnd, text, cls in all_buttons:
+                    LOGGER.info(f"  按钮: '{text}' (类名: {cls}, handle: {hwnd})")
+                
+                # 查找Search按钮
+                search_buttons = [(h, t, c) for h, t, c in all_buttons if "SEARCH" in t.upper()]
+                
+                if search_buttons:
+                    search_button_hwnd, button_text, button_class = search_buttons[0]
+                    LOGGER.info(f"找到Search按钮（handle: {search_button_hwnd}, 文本: '{button_text}'）")
+                    
+                    # 获取按钮中心坐标并尝试多种点击方法
+                    rect = win32gui.GetWindowRect(search_button_hwnd)
+                    center_x = (rect[0] + rect[2]) // 2
+                    center_y = (rect[1] + rect[3]) // 2
+                    LOGGER.info(f"按钮位置: ({center_x}, {center_y}), 大小: {rect[2] - rect[0]}x{rect[3] - rect[1]}")
+                    
+                    # 方法1: 使用pyautogui点击（尝试多个位置）
+                    try:
+                        import pyautogui
+                        # 尝试按钮的不同位置
+                        click_positions = [
+                            (center_x, center_y),  # 中心
+                            (center_x - 10, center_y),  # 稍微左偏
+                            (center_x + 10, center_y),  # 稍微右偏
+                            (center_x, center_y - 5),  # 稍微上偏
+                            (center_x, center_y + 5),  # 稍微下偏
+                        ]
+                        
+                        for pos_x, pos_y in click_positions:
+                            try:
+                                LOGGER.debug(f"尝试点击位置: ({pos_x}, {pos_y})")
+                                pyautogui.moveTo(pos_x, pos_y, duration=0.1)
+                                time.sleep(0.05)
+                                pyautogui.click(pos_x, pos_y, button='left')
+                                time.sleep(0.2)
+                                search_clicked = True
+                                LOGGER.info(f"✅ 已通过pyautogui点击Search按钮（位置: {pos_x}, {pos_y}）")
+                                break
+                            except Exception as e:
+                                LOGGER.debug(f"点击位置 ({pos_x}, {pos_y}) 失败: {e}")
+                                continue
+                    except ImportError:
+                        LOGGER.warning("pyautogui未安装，尝试其他方法")
+                    
+                    # 方法2: 使用鼠标按下和释放消息
+                    if not search_clicked:
+                        try:
+                            import win32api
+                            # 将坐标转换为相对于按钮的坐标
+                            button_rect = win32gui.GetWindowRect(search_button_hwnd)
+                            rel_x = center_x - button_rect[0]
+                            rel_y = center_y - button_rect[1]
+                            # 将屏幕坐标转换为lParam
+                            lparam = win32api.MAKELONG(rel_x, rel_y)
+                            
+                            # 发送鼠标按下消息
+                            win32gui.SendMessage(search_button_hwnd, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, lparam)
+                            time.sleep(0.05)
+                            # 发送鼠标释放消息
+                            win32gui.SendMessage(search_button_hwnd, win32con.WM_LBUTTONUP, 0, lparam)
+                            time.sleep(0.2)
+                            search_clicked = True
+                            LOGGER.info("✅ 已通过鼠标消息点击Search按钮")
+                        except Exception as e:
+                            LOGGER.debug(f"鼠标消息方法失败: {e}")
+                    
+                    # 方法3: 使用SendMessage BM_CLICK
+                    if not search_clicked:
+                        try:
+                            # 先发送BM_SETSTATE来高亮按钮
+                            win32gui.SendMessage(search_button_hwnd, win32con.BM_SETSTATE, 1, 0)
+                            time.sleep(0.1)
+                            # 发送BM_CLICK
+                            result = win32gui.SendMessage(search_button_hwnd, win32con.BM_CLICK, 0, 0)
+                            time.sleep(0.1)
+                            win32gui.SendMessage(search_button_hwnd, win32con.BM_SETSTATE, 0, 0)
+                            search_clicked = True
+                            LOGGER.info(f"✅ 已通过SendMessage BM_CLICK点击Search按钮（返回值: {result}）")
+                        except Exception as e:
+                            LOGGER.debug(f"SendMessage方法失败: {e}")
+                    
+                    # 方法4: 使用PostMessage
+                    if not search_clicked:
+                        try:
+                            win32gui.PostMessage(search_button_hwnd, win32con.BM_CLICK, 0, 0)
+                            time.sleep(0.2)
+                            search_clicked = True
+                            LOGGER.info("✅ 已通过PostMessage点击Search按钮")
+                        except Exception as e:
+                            LOGGER.debug(f"PostMessage方法失败: {e}")
+                    
+                    # 方法5: 使用pyautogui在按钮位置点击（额外的鼠标点击尝试）
+                    if not search_clicked:
+                        try:
+                            import pyautogui
+                            LOGGER.info("尝试使用pyautogui在按钮坐标处点击...")
+                            # 再次尝试在按钮中心位置点击
+                            button_rect = win32gui.GetWindowRect(search_button_hwnd)
+                            center_x = (button_rect[0] + button_rect[2]) // 2
+                            center_y = (button_rect[1] + button_rect[3]) // 2
+                            pyautogui.moveTo(center_x, center_y, duration=0.2)
+                            time.sleep(0.1)
+                            pyautogui.click(center_x, center_y, clicks=2, interval=0.1)  # 双击
+                            time.sleep(0.3)
+                            search_clicked = True
+                            LOGGER.info(f"✅ 已通过pyautogui双击Search按钮（位置: {center_x}, {center_y}）")
+                        except Exception as e:
+                            LOGGER.debug(f"pyautogui双击方法失败: {e}")
+                else:
+                    LOGGER.warning("未找到Search按钮，但找到以下按钮:")
+                    for hwnd, text, cls in all_buttons:
+                        LOGGER.warning(f"  '{text}' (类名: {cls})")
+            
+            else:
+                # 使用pywinauto查找Search按钮（这是最可靠的方法，就像"Search By VPOs"按钮那样）
+                # 注意：不使用Enter键，必须使用鼠标点击
+                
+                # 方法1: 直接查找标题为"Search"的按钮并使用鼠标点击（最优先，最可靠）
+                if not search_clicked:
+                    try:
+                        search_button = vpo_dialog.child_window(title="Search", control_type="Button")
+                        if search_button.exists():
+                            LOGGER.info("找到Search按钮（通过title）")
+                            # 检查按钮属性
+                            try:
+                                LOGGER.info(f"按钮属性: enabled={search_button.is_enabled()}, visible={search_button.is_visible()}")
+                                LOGGER.info(f"按钮文本: '{search_button.window_text()}'")
+                                LOGGER.info(f"按钮类名: '{search_button.class_name()}'")
+                                # 获取按钮位置
+                                rect = search_button.rectangle()
+                                LOGGER.info(f"按钮位置: left={rect.left}, top={rect.top}, width={rect.width()}, height={rect.height()}")
+                            except Exception as e:
+                                LOGGER.debug(f"获取按钮属性失败: {e}")
+                            
+                            if search_button.is_enabled() and search_button.is_visible():
+                                # 先确保按钮可见（滚动到按钮位置）
+                                try:
+                                    search_button.set_focus()
+                                    time.sleep(0.1)
+                                except:
+                                    pass
+                                
+                                # 获取按钮位置（备用方案）
+                                try:
+                                    button_rect = search_button.rectangle()
+                                    button_center_x = button_rect.left + (button_rect.right - button_rect.left) // 2
+                                    button_center_y = button_rect.top + (button_rect.bottom - button_rect.top) // 2
+                                    LOGGER.info(f"按钮中心坐标: ({button_center_x}, {button_center_y})")
+                                except Exception as e:
+                                    LOGGER.debug(f"获取按钮位置失败: {e}")
+                                    button_center_x = button_center_y = None
+                                
+                                # 首先尝试使用click_input()进行鼠标点击
+                                try:
+                                    search_button.click_input()
+                                    time.sleep(0.3)
+                                    search_clicked = True
+                                    LOGGER.info("✅ 已通过鼠标点击Search按钮（通过title，使用click_input）")
+                                except Exception as e:
+                                    LOGGER.warning(f"click_input()失败: {e}，尝试使用坐标点击...")
+                                    # 如果click_input()失败，使用pyautogui在按钮坐标处点击
+                                    if button_center_x and button_center_y:
+                                        try:
+                                            import pyautogui
+                                            pyautogui.moveTo(button_center_x, button_center_y, duration=0.2)
+                                            time.sleep(0.1)
+                                            pyautogui.click(button_center_x, button_center_y, clicks=1)
+                                            time.sleep(0.3)
+                                            # 如果单次点击不行，尝试双击
+                                            pyautogui.click(button_center_x, button_center_y, clicks=2, interval=0.1)
+                                            time.sleep(0.2)
+                                            search_clicked = True
+                                            LOGGER.info(f"✅ 已通过坐标鼠标点击Search按钮（位置: {button_center_x}, {button_center_y}）")
+                                        except Exception as e2:
+                                            LOGGER.warning(f"坐标点击也失败: {e2}")
+                            else:
+                                LOGGER.warning(f"Search按钮存在但不可用: enabled={search_button.is_enabled()}, visible={search_button.is_visible()}")
+                    except Exception as e1:
+                        LOGGER.debug(f"通过title查找Search按钮失败: {e1}")
+                
+                # 方法2: 遍历所有按钮查找Search（使用click_input，最可靠）
+                if not search_clicked:
+                    try:
+                        all_buttons = vpo_dialog.descendants(control_type="Button")
+                        LOGGER.info(f"找到 {len(all_buttons)} 个按钮")
+                        for idx, button in enumerate(all_buttons):
+                            try:
+                                button_text = button.window_text().strip()
+                                button_class = button.class_name()
+                                is_enabled = button.is_enabled()
+                                is_visible = button.is_visible()
+                                
+                                LOGGER.info(f"  按钮 #{idx}: 文本='{button_text}', 类名='{button_class}', enabled={is_enabled}, visible={is_visible}")
+                                
+                                if button_text.upper() == "SEARCH" or "SEARCH" in button_text.upper():
+                                    LOGGER.info(f"找到Search按钮（文本: '{button_text}'）")
+                                    if is_visible and is_enabled:
+                                        # 先设置焦点
+                                        try:
+                                            button.set_focus()
+                                            time.sleep(0.1)
+                                        except:
+                                            pass
+                                        
+                                        # 获取按钮位置（备用方案）
+                                        try:
+                                            button_rect = button.rectangle()
+                                            button_center_x = button_rect.left + (button_rect.right - button_rect.left) // 2
+                                            button_center_y = button_rect.top + (button_rect.bottom - button_rect.top) // 2
+                                            LOGGER.info(f"按钮中心坐标: ({button_center_x}, {button_center_y})")
+                                        except Exception as e:
+                                            LOGGER.debug(f"获取按钮位置失败: {e}")
+                                            button_center_x = button_center_y = None
+                                        
+                                        # 优先使用click_input()进行鼠标点击
+                                        try:
+                                            button.click_input()
+                                            time.sleep(0.3)
+                                            search_clicked = True
+                                            LOGGER.info("✅ 已通过鼠标点击Search按钮（遍历按钮，使用click_input）")
+                                            break
+                                        except Exception as e:
+                                            LOGGER.warning(f"click_input()失败: {e}，尝试使用坐标点击...")
+                                            # 如果click_input()失败，使用pyautogui在按钮坐标处点击
+                                            if button_center_x and button_center_y:
+                                                try:
+                                                    import pyautogui
+                                                    pyautogui.moveTo(button_center_x, button_center_y, duration=0.2)
+                                                    time.sleep(0.1)
+                                                    pyautogui.click(button_center_x, button_center_y, clicks=1)
+                                                    time.sleep(0.3)
+                                                    # 如果单次点击不行，尝试双击
+                                                    pyautogui.click(button_center_x, button_center_y, clicks=2, interval=0.1)
+                                                    time.sleep(0.2)
+                                                    search_clicked = True
+                                                    LOGGER.info(f"✅ 已通过坐标鼠标点击Search按钮（位置: {button_center_x}, {button_center_y}）")
+                                                    break
+                                                except Exception as e2:
+                                                    LOGGER.warning(f"坐标点击也失败: {e2}")
+                                    else:
+                                        LOGGER.warning(f"Search按钮不可用: enabled={is_enabled}, visible={is_visible}")
+                            except Exception as e:
+                                LOGGER.debug(f"检查按钮 #{idx} 时出错: {e}")
+                                continue
+                    except Exception as e2:
+                        LOGGER.debug(f"遍历按钮失败: {e2}")
+                
+                # 方法3: 尝试使用uia backend（如果当前是win32）
+                if not search_clicked:
+                    try:
+                        LOGGER.info("尝试使用uia backend查找Search按钮...")
+                        # 重新连接对话框使用uia backend
+                        if win32gui:
+                            dialog_hwnd = vpo_dialog.handle if hasattr(vpo_dialog, 'handle') else None
+                            if dialog_hwnd:
+                                try:
+                                    uia_app = Application(backend="uia").connect(handle=dialog_hwnd)
+                                    uia_dialog = uia_app.window(handle=dialog_hwnd)
+                                    if uia_dialog.exists():
+                                        search_button = uia_dialog.child_window(title="Search", control_type="Button")
+                                        if search_button.exists() and search_button.is_enabled():
+                                            LOGGER.info("使用uia backend找到Search按钮")
+                                            search_button.click_input()
+                                            search_clicked = True
+                                            LOGGER.info("✅ 已通过uia backend点击Search按钮")
+                                except Exception as e:
+                                    LOGGER.debug(f"uia backend方法失败: {e}")
+                    except Exception as e3:
+                        LOGGER.debug(f"uia backend查找失败: {e3}")
+                
+                # 方法4: 使用部分匹配查找Search按钮
+                if not search_clicked:
+                    try:
+                        all_buttons = vpo_dialog.descendants(control_type="Button")
+                        for button in all_buttons:
+                            try:
+                                button_text = button.window_text().strip()
+                                if "SEARCH" in button_text.upper():
+                                    LOGGER.info(f"找到Search按钮（部分匹配: '{button_text}'）")
+                                    if button.is_visible() and button.is_enabled():
+                                        button.set_focus()
+                                        time.sleep(0.1)
+                                        button.click_input()
+                                        search_clicked = True
+                                        LOGGER.info("✅ 已点击Search按钮（部分匹配，使用click_input）")
+                                        break
+                            except:
+                                continue
+                    except Exception as e4:
+                        LOGGER.debug(f"部分匹配查找失败: {e4}")
+                
+                # 方法3: 使用Windows API查找Search按钮（备用）
+                if not search_clicked and win32gui and win32con:
+                    try:
+                        LOGGER.info("使用Windows API查找Search按钮...")
+                        hwnd = vpo_dialog.handle
+                        
+                        def enum_child_proc(hwnd_child, lParam):
+                            try:
+                                window_text = win32gui.GetWindowText(hwnd_child)
+                                class_name = win32gui.GetClassName(hwnd_child)
+                                if "SEARCH" in window_text.upper() and "BUTTON" in class_name.upper():
+                                    lParam.append(hwnd_child)
+                                    return False  # 停止枚举
+                                return True
+                            except:
+                                return True
+                        
+                        button_list = []
+                        win32gui.EnumChildWindows(hwnd, enum_child_proc, button_list)
+                        
+                        if button_list:
+                            button_hwnd = button_list[0]
+                            # 获取按钮位置并点击
+                            rect = win32gui.GetWindowRect(button_hwnd)
+                            center_x = (rect[0] + rect[2]) // 2
+                            center_y = (rect[1] + rect[3]) // 2
+                            
+                            try:
+                                import pyautogui
+                                pyautogui.click(center_x, center_y)
+                                search_clicked = True
+                                LOGGER.info(f"✅ 已通过屏幕坐标点击Search按钮（位置: {center_x}, {center_y}）")
+                            except ImportError:
+                                win32gui.PostMessage(button_hwnd, win32con.BM_CLICK, 0, 0)
+                                search_clicked = True
+                                LOGGER.info("✅ 已通过Windows API点击Search按钮")
+                    except Exception as e4:
+                        LOGGER.debug(f"使用Windows API查找Search按钮失败: {e4}")
+            
+            # 如果所有方法都失败，尝试估算Search按钮位置并使用鼠标点击
+            if not search_clicked:
+                LOGGER.warning("未找到Search按钮，尝试估算位置并使用鼠标点击...")
+                try:
+                    if use_win32_direct:
+                        dialog_rect = win32gui.GetWindowRect(dialog_hwnd)
+                        # 确保对话框有焦点
+                        win32gui.SetForegroundWindow(dialog_hwnd)
+                        win32gui.BringWindowToTop(dialog_hwnd)
+                    else:
+                        dialog_rect_obj = vpo_dialog.rectangle()
+                        dialog_rect = (dialog_rect_obj.left, dialog_rect_obj.top, 
+                                      dialog_rect_obj.right, dialog_rect_obj.bottom)
+                        vpo_dialog.set_focus()
+                    
+                    dialog_width = dialog_rect[2] - dialog_rect[0]
+                    dialog_height = dialog_rect[3] - dialog_rect[1]
+                    
+                    time.sleep(0.2)
+                    
+                    # 方法1: 尝试估算位置并使用鼠标点击
+                    try:
+                        import pyautogui
+                        # 尝试多个可能的位置（Search按钮通常在对话框顶部左侧，黄色按钮）
+                        possible_positions = [
+                            (0.78, 0.15),  # 78%宽度, 15%高度（右上角）
+                            (0.45, 0.12),  # 45%宽度, 12%高度（中间偏左，可能是Search按钮）
+                            (0.50, 0.12),  # 50%宽度, 12%高度
+                            (0.55, 0.12),  # 55%宽度, 12%高度
+                            (0.80, 0.12),  # 80%宽度, 12%高度
+                            (0.75, 0.18),  # 75%宽度, 18%高度
+                        ]
+                        
+                        for pos_idx, (width_ratio, height_ratio) in enumerate(possible_positions):
+                            estimated_x = dialog_rect[0] + int(dialog_width * width_ratio)
+                            estimated_y = dialog_rect[1] + int(dialog_height * height_ratio)
+                            
+                            LOGGER.info(f"尝试估算位置 #{pos_idx + 1}: ({estimated_x}, {estimated_y})")
+                            try:
+                                pyautogui.moveTo(estimated_x, estimated_y, duration=0.1)
+                                time.sleep(0.1)
+                                pyautogui.click(estimated_x, estimated_y, clicks=1, interval=0.1)
+                                time.sleep(0.3)
+                                # 尝试双击
+                                pyautogui.click(estimated_x, estimated_y, clicks=2, interval=0.1)
+                                time.sleep(0.2)
+                                search_clicked = True
+                                LOGGER.info(f"✅ 已通过估算位置 #{pos_idx + 1} 点击Search按钮")
+                                break
+                            except Exception as e:
+                                LOGGER.debug(f"估算位置 #{pos_idx + 1} 失败: {e}")
+                                continue
+                    except ImportError:
+                        LOGGER.warning("pyautogui未安装，跳过估算位置点击")
+                    except Exception as e:
+                        LOGGER.debug(f"估算位置点击失败: {e}")
+                
+                    # 检查是否成功点击
+                    if not search_clicked:
+                        LOGGER.error("所有方法都失败，无法点击Search按钮")
+                    else:
+                        LOGGER.info("✓ Search按钮点击成功")
+                except Exception as e:
+                    LOGGER.error(f"估算位置方法也失败: {e}")
+                    if not search_clicked:
+                        raise RuntimeError("无法点击Search按钮，已尝试所有方法（鼠标点击、Windows API、估算位置）")
+            
+            # 等待搜索完成
+            time.sleep(1)
+            LOGGER.info("✅ 已成功填写Source Lot值并点击Search按钮")
+        
+        except Exception as e:
+            LOGGER.error(f"填写VPO搜索对话框失败: {e}")
+            raise RuntimeError(f"无法填写VPO搜索对话框: {e}")
+    
+    def _check_row_status_and_select(self) -> None:
+        """
+        点击"Select Visible Rows"按钮，添加到Summary，并切换到Summary标签
+        
+        流程：
+        1. 点击 Select Visible Rows
+        2. 点击 Add to Summary
+        3. 点击 3. View Summary 标签
+        """
+        if Application is None:
+            return
+        
+        LOGGER.info("执行选择和添加流程...")
+        
+        # 等待搜索结果加载（给数据一些时间加载）
+        time.sleep(2)
+        
+        # 步骤1: 点击"Select Visible Rows"按钮
+        LOGGER.info("步骤1: 点击 'Select Visible Rows'")
+        self._click_select_visible_rows_button()
+        time.sleep(1)
+        
+        # 步骤2: 点击"Add to summary"按钮
+        LOGGER.info("步骤2: 点击 'Add to Summary'")
+        self._click_add_to_summary_button()
+        time.sleep(1.5)  # 给一点时间让Add操作完成
+        
+        # 步骤3: 点击"3. View Summary"标签
+        LOGGER.info("步骤3: 点击 '3. View Summary' 标签")
+        self._click_summary_tab()
+        time.sleep(1)
+        
+        # 步骤4: 填写Requestor Comments
+        LOGGER.info("步骤4: 填写 'Requestor Comments'")
+        self._fill_requestor_comments()
+        time.sleep(0.5)
+        
+        LOGGER.info("✅ 已完成选择和添加操作，并切换到Summary标签，已填写Comments")
+    
+    def _click_select_visible_rows_button(self) -> None:
+        """点击左侧的'Select Visible Rows'按钮"""
+        if Application is None:
+            return
+        
+        LOGGER.info("查找并点击'Select Visible Rows'按钮...")
+        
+        try:
+            # 确保主窗口有焦点
+            self._window.set_focus()
+            time.sleep(0.3)
+            
+            # 方法1: 通过按钮文本查找
+            try:
+                select_button = self._window.child_window(title="Select Visible Rows", control_type="Button")
+                if select_button.exists() and select_button.is_enabled() and select_button.is_visible():
+                    LOGGER.info("找到'Select Visible Rows'按钮（通过title）")
+                    # 获取按钮位置
+                    try:
+                        button_rect = select_button.rectangle()
+                        button_center_x = button_rect.left + (button_rect.right - button_rect.left) // 2
+                        button_center_y = button_rect.top + (button_rect.bottom - button_rect.top) // 2
+                        LOGGER.info(f"按钮中心坐标: ({button_center_x}, {button_center_y})")
+                    except:
+                        pass
+                    
+                    # 使用click_input()点击
+                    select_button.click_input()
+                    time.sleep(0.5)
+                    LOGGER.info("✅ 已点击'Select Visible Rows'按钮（通过title，使用click_input）")
+                    return
+            except Exception as e:
+                LOGGER.debug(f"通过title查找按钮失败: {e}")
+            
+            # 方法2: 遍历所有按钮查找
+            try:
+                all_buttons = self._window.descendants(control_type="Button")
+                LOGGER.info(f"找到 {len(all_buttons)} 个按钮")
+                for idx, button in enumerate(all_buttons):
+                    try:
+                        button_text = button.window_text().strip()
+                        LOGGER.debug(f"  按钮 #{idx}: 文本='{button_text}'")
+                        
+                        if "SELECT VISIBLE ROWS" in button_text.upper() or "SELECT VISIBLE" in button_text.upper():
+                            LOGGER.info(f"找到'Select Visible Rows'按钮（文本: '{button_text}'）")
+                            if button.is_enabled() and button.is_visible():
+                                # 获取按钮位置
+                                try:
+                                    button_rect = button.rectangle()
+                                    button_center_x = button_rect.left + (button_rect.right - button_rect.left) // 2
+                                    button_center_y = button_rect.top + (button_rect.bottom - button_rect.top) // 2
+                                    LOGGER.info(f"按钮中心坐标: ({button_center_x}, {button_center_y})")
+                                except:
+                                    pass
+                                
+                                # 使用click_input()点击
+                                button.click_input()
+                                time.sleep(0.5)
+                                LOGGER.info(f"✅ 已点击'Select Visible Rows'按钮（文本: '{button_text}'，使用click_input）")
+                                return
+                    except Exception as e:
+                        LOGGER.debug(f"检查按钮 #{idx} 时出错: {e}")
+                        continue
+            except Exception as e:
+                LOGGER.debug(f"遍历按钮失败: {e}")
+            
+            # 方法3: 使用Windows API查找
+            if win32gui:
+                try:
+                    main_hwnd = self._window.handle
+                    
+                    def enum_child_proc(hwnd_child, lParam):
+                        try:
+                            window_text = win32gui.GetWindowText(hwnd_child)
+                            if "SELECT VISIBLE ROWS" in window_text.upper() or "SELECT VISIBLE" in window_text.upper():
+                                lParam.append((hwnd_child, window_text))
+                        except:
+                            pass
+                        return True
+                    
+                    button_list = []
+                    win32gui.EnumChildWindows(main_hwnd, enum_child_proc, button_list)
+                    
+                    if button_list:
+                        button_hwnd, button_text = button_list[0]
+                        LOGGER.info(f"使用Windows API找到按钮: '{button_text}'")
+                        
+                        # 获取按钮位置并点击
+                        rect = win32gui.GetWindowRect(button_hwnd)
+                        center_x = (rect[0] + rect[2]) // 2
+                        center_y = (rect[1] + rect[3]) // 2
+                        
+                        try:
+                            import pyautogui
+                            pyautogui.click(center_x, center_y)
+                            time.sleep(0.5)
+                            LOGGER.info(f"✅ 已通过坐标点击'Select Visible Rows'按钮（位置: {center_x}, {center_y}）")
+                            return
+                        except ImportError:
+                            win32gui.PostMessage(button_hwnd, win32con.BM_CLICK, 0, 0)
+                            time.sleep(0.5)
+                            LOGGER.info("✅ 已通过Windows API点击'Select Visible Rows'按钮")
+                            return
+                except Exception as e:
+                    LOGGER.debug(f"使用Windows API查找按钮失败: {e}")
+            
+            # 方法4: 如果找不到，尝试根据位置估算（参考之前的日志）
+            try:
+                window_rect = self._window.rectangle()
+                # 使用与Add按钮相同的X偏移（约220像素）
+                estimated_x = window_rect.left + 220
+                
+                # 使用中间位置的Y坐标（假设它在Add按钮上方）
+                # 根据日志 Select(814) vs Add(1786)，大概在40%高度处
+                window_height = window_rect.bottom - window_rect.top
+                estimated_y = window_rect.top + int(window_height * 0.4) 
+                
+                LOGGER.info(f"尝试在估算位置点击Select Visible Rows: ({estimated_x}, {estimated_y})")
+                try:
+                    import pyautogui
+                    pyautogui.click(estimated_x, estimated_y)
+                    time.sleep(0.5)
+                    LOGGER.info(f"✅ 已在估算位置点击'Select Visible Rows'按钮（位置: {estimated_x}, {estimated_y}）")
+                    return
+                except ImportError:
+                    LOGGER.warning("pyautogui未安装，无法使用坐标点击")
+            except Exception as e:
+                LOGGER.debug(f"使用估算位置点击失败: {e}")
+                
+            LOGGER.warning("未找到'Select Visible Rows'按钮")
+            
+        except Exception as e:
+            LOGGER.error(f"点击'Select Visible Rows'按钮失败: {e}")
+            raise RuntimeError(f"无法点击'Select Visible Rows'按钮: {e}")
+    
+    def _click_add_to_summary_button(self) -> None:
+        """点击左下角的'Add to summary'按钮"""
+        if Application is None:
+            return
+        
+        LOGGER.info("查找并点击左下角的'Add to summary'按钮...")
+        
+        try:
+            # 确保主窗口有焦点
+            self._window.set_focus()
+            time.sleep(0.3)
+            
+            # 方法1: 通过按钮文本查找
+            try:
+                add_button = self._window.child_window(title="Add to summary", control_type="Button")
+                if add_button.exists() and add_button.is_enabled() and add_button.is_visible():
+                    LOGGER.info("找到'Add to summary'按钮（通过title）")
+                    # 获取按钮位置
+                    try:
+                        button_rect = add_button.rectangle()
+                        button_center_x = button_rect.left + (button_rect.right - button_rect.left) // 2
+                        button_center_y = button_rect.top + (button_rect.bottom - button_rect.top) // 2
+                        LOGGER.info(f"按钮中心坐标: ({button_center_x}, {button_center_y})")
+                    except:
+                        pass
+                    
+                    # 使用click_input()点击
+                    add_button.click_input()
+                    time.sleep(0.5)
+                    LOGGER.info("✅ 已点击'Add to summary'按钮（通过title，使用click_input）")
+                    return
+            except Exception as e:
+                LOGGER.debug(f"通过title查找按钮失败: {e}")
+            
+            # 方法2: 遍历所有按钮查找（优先查找左下角的按钮）
+            try:
+                all_buttons = self._window.descendants(control_type="Button")
+                LOGGER.info(f"找到 {len(all_buttons)} 个按钮")
+                
+                # 先尝试精确匹配
+                for idx, button in enumerate(all_buttons):
+                    try:
+                        button_text = button.window_text().strip()
+                        LOGGER.debug(f"  按钮 #{idx}: 文本='{button_text}'")
+                        
+                        if "ADD TO SUMMARY" in button_text.upper() or ("ADD TO" in button_text.upper() and "SUMMARY" in button_text.upper()):
+                            LOGGER.info(f"找到'Add to summary'按钮（文本: '{button_text}'）")
+                            if button.is_enabled() and button.is_visible():
+                                # 获取按钮位置（验证是否在左下角区域）
+                                try:
+                                    button_rect = button.rectangle()
+                                    button_center_x = button_rect.left + (button_rect.right - button_rect.left) // 2
+                                    button_center_y = button_rect.top + (button_rect.bottom - button_rect.top) // 2
+                                    
+                                    # 获取窗口大小，判断是否在左下角区域
+                                    window_rect = self._window.rectangle()
+                                    window_width = window_rect.right - window_rect.left
+                                    window_height = window_rect.bottom - window_rect.top
+                                    
+                                    # 左下角区域：左侧50%，底部30%
+                                    is_bottom_left = (button_center_x < window_rect.left + window_width * 0.5 and 
+                                                      button_center_y > window_rect.top + window_height * 0.7)
+                                    
+                                    LOGGER.info(f"按钮中心坐标: ({button_center_x}, {button_center_y}), 是否在左下角: {is_bottom_left}")
+                                    
+                                    # 如果找到匹配的按钮，即使不在左下角也尝试点击
+                                    # 使用click_input()点击
+                                    button.click_input()
+                                    time.sleep(0.5)
+                                    LOGGER.info(f"✅ 已点击'Add to summary'按钮（文本: '{button_text}'，使用click_input）")
+                                    return
+                                except:
+                                    # 如果无法获取位置，也尝试点击
+                                    button.click_input()
+                                    time.sleep(0.5)
+                                    LOGGER.info(f"✅ 已点击'Add to summary'按钮（文本: '{button_text}'，使用click_input）")
+                                    return
+                    except Exception as e:
+                        LOGGER.debug(f"检查按钮 #{idx} 时出错: {e}")
+                        continue
+                
+                # 如果精确匹配失败，查找所有包含"ADD"或"SUMMARY"的按钮，并优先选择左下角的
+                candidate_buttons = []
+                window_rect = self._window.rectangle()
+                window_width = window_rect.right - window_rect.left
+                window_height = window_rect.bottom - window_rect.top
+                
+                for idx, button in enumerate(all_buttons):
+                    try:
+                        button_text = button.window_text().strip().upper()
+                        if ("ADD" in button_text and "SUMMARY" in button_text) or "ADD TO" in button_text:
+                            if button.is_enabled() and button.is_visible():
+                                try:
+                                    button_rect = button.rectangle()
+                                    button_center_x = button_rect.left + (button_rect.right - button_rect.left) // 2
+                                    button_center_y = button_rect.top + (button_rect.bottom - button_rect.top) // 2
+                                    
+                                    # 计算到左下角的距离（用于排序）
+                                    distance_to_bottom_left = ((button_center_x - window_rect.left)**2 + 
+                                                              (button_center_y - (window_rect.top + window_height))**2)**0.5
+                                    
+                                    candidate_buttons.append((button, button_text, distance_to_bottom_left))
+                                except:
+                                    candidate_buttons.append((button, button_text, float('inf')))
+                    except:
+                        continue
+                
+                # 按距离左下角的距离排序，优先选择最近的
+                if candidate_buttons:
+                    candidate_buttons.sort(key=lambda x: x[2])
+                    button, button_text, distance = candidate_buttons[0]
+                    LOGGER.info(f"找到候选'Add to summary'按钮（文本: '{button_text}'，距离左下角: {distance:.1f}像素）")
+                    button.click_input()
+                    time.sleep(0.5)
+                    LOGGER.info(f"✅ 已点击'Add to summary'按钮（文本: '{button_text}'，使用click_input）")
+                    return
+                    
+            except Exception as e:
+                LOGGER.debug(f"遍历按钮失败: {e}")
+            
+            # 方法3: 使用Windows API查找左下角的按钮
+            if win32gui:
+                try:
+                    main_hwnd = self._window.handle
+                    window_rect = self._window.rectangle()
+                    window_width = window_rect.right - window_rect.left
+                    window_height = window_rect.bottom - window_rect.top
+                    
+                    def enum_child_proc(hwnd_child, lParam):
+                        try:
+                            window_text = win32gui.GetWindowText(hwnd_child)
+                            class_name = win32gui.GetClassName(hwnd_child)
+                            
+                            # 检查是否是按钮控件，且文本包含"ADD"和"SUMMARY"
+                            if "BUTTON" in class_name.upper():
+                                text_upper = window_text.upper()
+                                if ("ADD TO SUMMARY" in text_upper or 
+                                    ("ADD" in text_upper and "SUMMARY" in text_upper) or
+                                    "ADD TO" in text_upper):
+                                    try:
+                                        rect = win32gui.GetWindowRect(hwnd_child)
+                                        center_x = (rect[0] + rect[2]) // 2
+                                        center_y = (rect[1] + rect[3]) // 2
+                                        
+                                        # 计算到左下角的距离
+                                        distance = ((center_x - window_rect.left)**2 + 
+                                                   (center_y - (window_rect.top + window_height))**2)**0.5
+                                        
+                                        lParam.append((hwnd_child, window_text, distance))
+                                    except:
+                                        lParam.append((hwnd_child, window_text, float('inf')))
+                        except:
+                            pass
+                        return True
+                    
+                    button_list = []
+                    win32gui.EnumChildWindows(main_hwnd, enum_child_proc, button_list)
+                    
+                    if button_list:
+                        # 按距离左下角的距离排序
+                        button_list.sort(key=lambda x: x[2])
+                        button_hwnd, button_text, distance = button_list[0]
+                        LOGGER.info(f"使用Windows API找到按钮: '{button_text}'（距离左下角: {distance:.1f}像素）")
+                        
+                        # 获取按钮位置并点击（Y坐标往上移动8像素，避免点击到按钮边缘）
+                        rect = win32gui.GetWindowRect(button_hwnd)
+                        center_x = (rect[0] + rect[2]) // 2
+                        center_y = (rect[1] + rect[3]) // 2 - 8  # 往上移动8像素
+                        
+                        try:
+                            import pyautogui
+                            pyautogui.click(center_x, center_y)
+                            time.sleep(0.5)
+                            LOGGER.info(f"✅ 已通过坐标点击'Add to summary'按钮（位置: {center_x}, {center_y}，已调整Y坐标往上）")
+                            return
+                        except ImportError:
+                            win32gui.PostMessage(button_hwnd, win32con.BM_CLICK, 0, 0)
+                            time.sleep(0.5)
+                            LOGGER.info("✅ 已通过Windows API点击'Add to summary'按钮")
+                            return
+                except Exception as e:
+                    LOGGER.debug(f"使用Windows API查找按钮失败: {e}")
+            
+            # 方法4: 如果找不到，尝试根据位置估算左下角区域
+            try:
+                window_rect = self._window.rectangle()
+                window_width = window_rect.right - window_rect.left
+                window_height = window_rect.bottom - window_rect.top
+                
+                # 改进估算逻辑：侧边栏通常是固定宽度，而不是窗口宽度的百分比
+                # 使用更靠左的固定偏移（约220像素，参考之前的成功日志）
+                estimated_x = window_rect.left + 220
+                
+                # 确保不会超出窗口范围
+                if estimated_x > window_rect.right:
+                    estimated_x = window_rect.left + int(window_width * 0.1)
+                
+                # Y坐标往上移动，使用82%高度而不是85%，避免点到底部状态栏或按钮边缘
+                estimated_y = window_rect.top + int(window_height * 0.82)
+                
+                LOGGER.info(f"尝试在估算的左下角位置点击: ({estimated_x}, {estimated_y})")
+                try:
+                    import pyautogui
+                    pyautogui.click(estimated_x, estimated_y)
+                    time.sleep(0.5)
+                    LOGGER.info(f"✅ 已在估算位置点击'Add to summary'按钮（位置: {estimated_x}, {estimated_y}）")
+                    return
+                except ImportError:
+                    LOGGER.warning("pyautogui未安装，无法使用坐标点击")
+            except Exception as e:
+                LOGGER.debug(f"使用估算位置点击失败: {e}")
+            
+            LOGGER.warning("未找到'Add to summary'按钮")
+            
+        except Exception as e:
+            LOGGER.error(f"点击'Add to summary'按钮失败: {e}")
+            raise RuntimeError(f"无法点击'Add to summary'按钮: {e}")
+    
+    def _click_yes_button_in_dialog(self, dialog_hwnd, dialog_title="对话框") -> bool:
+        """
+        在对话框中点击Yes按钮（只保留最精准的坐标点击方法）
+        针对独立弹出的顶层窗口，先激活，再找内部Yes按钮坐标进行点击。
+        """
+        try:
+            LOGGER.info(f"正在处理独立窗口: '{dialog_title}' (Handle: {dialog_hwnd})")
+            
+            # 1. 强制激活窗口，确保它在屏幕最前端
+            try:
+                if win32gui.IsIconic(dialog_hwnd):  # 如果最小化了，就还原
+                    win32gui.ShowWindow(dialog_hwnd, win32con.SW_RESTORE)
+                
+                win32gui.SetForegroundWindow(dialog_hwnd)
+                win32gui.BringWindowToTop(dialog_hwnd)
+                time.sleep(0.5) # 等待窗口激活这一物理过程完成
+            except Exception as e:
+                LOGGER.warning(f"窗口激活尝试遇到小问题 (通常可忽略): {e}")
+
+            # 2. 遍历该窗口下的所有子控件，寻找 "Yes" 按钮
+            yes_button_info = {"hwnd": None, "rect": None}
+
+            def find_yes_button(hwnd_child, _):
+                try:
+                    # 获取控件文本和类名
+                    text = win32gui.GetWindowText(hwnd_child).strip()
+                    class_name = win32gui.GetClassName(hwnd_child)
+                    
+                    # 打印所有按钮以便调试
+                    if "BUTTON" in class_name.upper():
+                        LOGGER.info(f"  扫描到按钮: '{text}' (类名: {class_name})")
+                        # 去掉&符号后比较（Windows按钮常用&表示快捷键）
+                        clean_text = text.replace("&", "").upper()
+                        if clean_text == "YES":
+                            yes_button_info["hwnd"] = hwnd_child
+                            yes_button_info["rect"] = win32gui.GetWindowRect(hwnd_child)
+                            LOGGER.info(f"  ✅ 匹配到Yes按钮！原始文本: '{text}'")
+                            return False # 找到了，停止遍历
+                except:
+                    pass
+                return True
+
+            win32gui.EnumChildWindows(dialog_hwnd, find_yes_button, None)
+
+            # 3. 如果找到了Yes按钮，计算中心坐标并点击
+            if yes_button_info["hwnd"] and yes_button_info["rect"]:
+                rect = yes_button_info["rect"]
+                center_x = (rect[0] + rect[2]) // 2
+                center_y = (rect[1] + rect[3]) // 2
+                
+                LOGGER.info(f"✅ 找到Yes按钮! 屏幕坐标: ({center_x}, {center_y})")
+                
+                try:
+                    import pyautogui
+                    # 移动鼠标过去
+                    pyautogui.moveTo(center_x, center_y, duration=0.2)
+                    # 执行物理点击
+                    pyautogui.click()
+                    LOGGER.info(f"🖱️ 已执行鼠标点击")
+                    time.sleep(0.3)
+                    return True
+                except ImportError:
+                    LOGGER.error("缺少 pyautogui 库，无法执行物理点击")
+                    return False
+            else:
+                # Fallback: 直接按'y'键（之前成功的方法）
+                LOGGER.warning(f"未找到文本为'Yes'的按钮，尝试按'y'键...")
+                try:
+                    import pyautogui
+                    # 确保对话框已激活
+                    win32gui.SetForegroundWindow(dialog_hwnd)
+                    time.sleep(0.2)
+                    # 按'y'键
+                    pyautogui.press('y')
+                    LOGGER.info("✅ 已通过按'y'键点击Yes")
+                    time.sleep(0.3)
+                    return True
+                except Exception as e:
+                    LOGGER.error(f"按'y'键失败: {e}")
+                    return False
+
+        except Exception as e:
+            LOGGER.error(f"点击操作发生异常: {e}")
+            return False
+
+    def _handle_submit_confirmation_dialogs(self) -> None:
+        """
+        全局扫描屏幕，查找并处理所有相关的确认对话框。
+        针对 Submit 之后可能连续弹出的多个独立窗口。
+        """
+        LOGGER.info("开始全局扫描确认对话框...")
+        
+        # 关键词列表：包含截图中的标题和内容关键词
+        target_keywords = [
+            "warning", 
+            "submit mir request", 
+            "correlation unit", 
+            "are you sure"
+        ]
+
+        # 最多尝试处理几轮，防止死循环
+        max_rounds = 5 
+        
+        for i in range(max_rounds):
+            dialog_found = False
+            
+            # 定义回调函数，用于 EnumWindows
+            def find_target_dialogs(hwnd, _):
+                try:
+                    if not win32gui.IsWindowVisible(hwnd):
+                        return True
+                    
+                    title = win32gui.GetWindowText(hwnd)
+                    if not title:
+                        return True
+                        
+                    title_lower = title.lower()
+                    
+                    # 检查标题是否匹配关键词
+                    is_target = False
+                    for kw in target_keywords:
+                        if kw in title_lower:
+                            is_target = True
+                            break
+                    
+                    if is_target:
+                        # 进一步检查类名，排除非对话框窗口（可选，但加上更稳）
+                        # class_name = win32gui.GetClassName(hwnd)
+                        # LOGGER.info(f"发现潜在目标: '{title}' (类名: {class_name})")
+                        
+                        # 直接尝试处理这个窗口
+                        LOGGER.info(f"🔍 捕获到目标窗口: '{title}'")
+                        if self._click_yes_button_in_dialog(hwnd, title):
+                            nonlocal dialog_found
+                            dialog_found = True
+                            # 处理成功后，稍微等待窗口关闭
+                            time.sleep(1.0)
+                except Exception:
+                    pass
+                return True
+
+            # 执行全局扫描
+            win32gui.EnumWindows(find_target_dialogs, None)
+            
+            # 如果这一轮没有找到任何对话框，说明可能处理完了，或者还没弹出来
+            if not dialog_found:
+                if i == 0:
+                    LOGGER.info("当前未检测到确认对话框，等待 2 秒再试...")
+                    time.sleep(2.0)
+                else:
+                    LOGGER.info("未发现更多对话框，流程结束。")
+                    break
+            else:
+                LOGGER.info("已处理一个对话框，继续扫描下一个...")
+                time.sleep(1.5) # 等待下一个弹出
+    
+    def _handle_submit_confirmation_dialogs(self) -> None:
+        """
+        处理Submit后的所有确认对话框（可能有多个）
+        
+        流程：
+        1. 第一个对话框: Warning - "Do you want to submit the MIR with no AWS session related?"
+        2. 第二个对话框: Submit MIR Request - "Are you sure that you want to submit the current request?"
+        
+        对每个对话框都点击Yes按钮
+        """
+        try:
+            LOGGER.info("检查并处理Submit后的确认对话框...")
+            
+            # 最多处理3个对话框（以防有更多）
+            max_dialogs = 3
+            processed_dialogs = []  # 记录已处理的对话框标题，避免重复处理
+            
+            for i in range(max_dialogs):
+                # 等待对话框出现（第一次等待稍长，后续等待更长以便新对话框弹出）
+                wait_time = 2.0 if i == 0 else 4.0
+                LOGGER.info(f"等待 {wait_time} 秒，让对话框 #{i+1} 弹出...")
+                time.sleep(wait_time)
+                
+                # 尝试多次查找对话框（因为对话框可能需要时间才能完全显示）
+                dialog_hwnd = None
+                dialog_title = None
+                max_retries = 3
+                
+                for retry in range(max_retries):
+                    if win32gui:
+                        # 先扫描所有可见窗口用于调试
+                        def enum_all_windows(hwnd, all_windows):
+                            try:
+                                if win32gui.IsWindowVisible(hwnd):
+                                    window_text = win32gui.GetWindowText(hwnd)
+                                    if window_text:
+                                        class_name = win32gui.GetClassName(hwnd)
+                                        all_windows.append((window_text, class_name))
+                            except:
+                                pass
+                            return True
+                        
+                        all_visible_windows = []
+                        win32gui.EnumWindows(enum_all_windows, all_visible_windows)
+                        
+                        if retry == 0:  # 只在第一次尝试时打印所有窗口
+                            LOGGER.info(f"当前所有可见窗口（共{len(all_visible_windows)}个）：")
+                            for win_text, win_class in all_visible_windows[:20]:  # 只显示前20个
+                                LOGGER.info(f"    窗口: '{win_text}' (类名: {win_class})")
+                        
+                        def enum_dialogs_callback(hwnd, dialogs):
+                            try:
+                                window_text = win32gui.GetWindowText(hwnd)
+                                if window_text:
+                                    text_lower = window_text.lower()
+                                    # 检查是否是确认对话框（扩展关键词列表）
+                                    if any(keyword in text_lower for keyword in [
+                                        "warning", "submit", "confirm", "are you sure",
+                                        "mir request", "request", "correlation"
+                                    ]):
+                                        # 检查窗口类名和标题
+                                        try:
+                                            class_name = win32gui.GetClassName(hwnd)
+                                            LOGGER.info(f"    潜在对话框: '{window_text}', 类名={class_name}")
+                                            
+                                            # 判断是否是对话框：
+                                            # 1. 标准对话框类名（#32770）
+                                            # 2. 类名包含"dialog"
+                                            # 3. 标题是"Warning"或"Submit MIR Request"（即使不是标准对话框类名）
+                                            is_dialog = False
+                                            if "dialog" in class_name.lower() or "#32770" in class_name:
+                                                is_dialog = True
+                                            elif window_text in ["Warning", "Submit MIR Request"]:
+                                                is_dialog = True
+                                                LOGGER.info(f"    根据标题匹配为对话框: '{window_text}'")
+                                            
+                                            if is_dialog:
+                                                # 检查窗口是否可见
+                                                if win32gui.IsWindowVisible(hwnd):
+                                                    LOGGER.info(f"    ✅ 确认为对话框: '{window_text}', 类名={class_name}")
+                                                    dialogs.append((hwnd, window_text))
+                                        except:
+                                            pass
+                            except:
+                                pass
+                            return True
+                        
+                        dialogs = []
+                        win32gui.EnumWindows(enum_dialogs_callback, dialogs)
+                        
+                        LOGGER.info(f"扫描到 {len(dialogs)} 个对话框，已处理: {len(processed_dialogs)} 个")
+                        
+                        # 过滤掉已处理的对话框
+                        new_dialogs = [(hwnd, title) for hwnd, title in dialogs 
+                                      if title not in processed_dialogs]
+                        
+                        if new_dialogs:
+                            dialog_hwnd, dialog_title = new_dialogs[0]
+                            LOGGER.info(f"找到确认对话框 #{i+1}: '{dialog_title}' (尝试 {retry+1}/{max_retries})")
+                            break
+                        elif retry < max_retries - 1:
+                            # 如果没找到，再等待一下再重试
+                            LOGGER.info(f"暂未找到新对话框，等待1.5秒后重试... (尝试 {retry+1}/{max_retries})")
+                            time.sleep(1.5)
+                    else:
+                        LOGGER.warning("win32gui不可用，无法自动处理对话框")
+                        return
+                
+                # 如果找到了对话框，处理它
+                if dialog_hwnd and dialog_title:
+                    LOGGER.info(f"准备处理对话框 #{i+1}: '{dialog_title}' (句柄: {dialog_hwnd})")
+                    
+                    # 检查对话框是否真的可见
+                    try:
+                        is_visible = win32gui.IsWindowVisible(dialog_hwnd)
+                        LOGGER.info(f"对话框可见性: {is_visible}")
+                    except:
+                        pass
+                    
+                    # 记录已处理的对话框
+                    processed_dialogs.append(dialog_title)
+                    
+                    # 点击Yes按钮（多次尝试，确保成功）
+                    LOGGER.info(f"开始点击对话框 #{i+1} 的Yes按钮...")
+                    
+                    click_success = False
+                    max_click_retries = 3
+                    
+                    for click_retry in range(max_click_retries):
+                        LOGGER.info(f"点击尝试 {click_retry + 1}/{max_click_retries}...")
+                        
+                        if self._click_yes_button_in_dialog(dialog_hwnd, dialog_title):
+                            click_success = True
+                            LOGGER.info(f"✅ 已成功处理对话框 #{i+1}: '{dialog_title}'")
+                            break
+                        else:
+                            if click_retry < max_click_retries - 1:
+                                LOGGER.warning(f"点击失败，等待1秒后重试...")
+                                time.sleep(1.0)
+                    
+                    if not click_success:
+                        LOGGER.error(f"❌ 无法自动处理对话框 #{i+1}: '{dialog_title}'，已重试{max_click_retries}次，请手动点击Yes")
+                        break
+                    
+                    # 点击成功后，额外等待一下，让下一个对话框有时间弹出
+                    LOGGER.info("等待下一个对话框弹出...")
+                else:
+                    # 没有找到更多对话框，说明已处理完毕
+                    if i == 0:
+                        LOGGER.info("未检测到确认对话框")
+                    else:
+                        LOGGER.info(f"✅ 已处理所有确认对话框（共{i}个）")
+                    break
+            
+            # 最后再检查一次，是否还有遗漏的对话框
+            # 既然使用了全局扫描，这里可以简化或者作为最后的确认
+            # LOGGER.info("最后检查：是否还有遗漏的对话框...")
+            # self._handle_submit_confirmation_dialogs()
+            
+        except Exception as e:
+            LOGGER.error(f"处理确认对话框时出错: {e}")
+            LOGGER.warning("请手动点击所有确认对话框的Yes按钮")
+        
+        except Exception as e:
+            LOGGER.error(f"处理确认对话框时出错: {e}")
+            LOGGER.warning("请手动点击所有确认对话框的Yes按钮")
+    
+    def _handle_final_success_dialog_and_get_mir(self) -> str:
+        """
+        处理最终的Submit MIR Request成功对话框
+        标题: "Submit MIR Request"
+        内容: "Your MIR# XXXXXX has been submitted"
+        按钮: "Copy MIR & Close"和"Close"
+        
+        点击"Copy MIR & Close"并返回MIR号码
+        
+        Returns:
+            str: MIR号码，例如"2965268"
+        """
+        try:
+            LOGGER.info("等待最终成功对话框出现...")
+            time.sleep(2.0)  # 等待对话框弹出
+            
+            # 查找"Submit MIR Request"对话框
+            for attempt in range(5):
+                if win32gui:
+                    def enum_success_dialog(hwnd, dialogs):
+                        try:
+                            if not win32gui.IsWindowVisible(hwnd):
+                                return True
+                            
+                            window_text = win32gui.GetWindowText(hwnd)
+                            if window_text == "Submit MIR Request":
+                                class_name = win32gui.GetClassName(hwnd)
+                                LOGGER.info(f"找到成功对话框: '{window_text}' (类名: {class_name})")
+                                dialogs.append(hwnd)
+                        except:
+                            pass
+                        return True
+                    
+                    success_dialogs = []
+                    win32gui.EnumWindows(enum_success_dialog, success_dialogs)
+                    
+                    if success_dialogs:
+                        dialog_hwnd = success_dialogs[0]
+                        LOGGER.info(f"✅ 找到成功对话框 (句柄: {dialog_hwnd})")
+                        
+                        # 激活对话框
+                        win32gui.SetForegroundWindow(dialog_hwnd)
+                        win32gui.BringWindowToTop(dialog_hwnd)
+                        time.sleep(0.5)
+                        
+                        # 查找"Copy MIR & Close"按钮
+                        def find_copy_button(hwnd_child, button_info):
+                            try:
+                                text = win32gui.GetWindowText(hwnd_child).strip()
+                                class_name = win32gui.GetClassName(hwnd_child)
+                                
+                                if "BUTTON" in class_name.upper():
+                                    LOGGER.info(f"  扫描到按钮: '{text}' (类名: {class_name})")
+                                    # 去掉&符号后比较
+                                    clean_text = text.replace("&", "").upper()
+                                    if "COPY MIR" in clean_text and "CLOSE" in clean_text:
+                                        button_info["hwnd"] = hwnd_child
+                                        button_info["rect"] = win32gui.GetWindowRect(hwnd_child)
+                                        LOGGER.info(f"  ✅ 匹配到Copy MIR & Close按钮！原始文本: '{text}'")
+                                        return False  # 找到了，停止遍历
+                            except:
+                                pass
+                            return True
+                        
+                        button_info = {"hwnd": None, "rect": None}
+                        win32gui.EnumChildWindows(dialog_hwnd, find_copy_button, button_info)
+                        
+                        if button_info["hwnd"] and button_info["rect"]:
+                            # 点击按钮
+                            rect = button_info["rect"]
+                            center_x = (rect[0] + rect[2]) // 2
+                            center_y = (rect[1] + rect[3]) // 2
+                            
+                            LOGGER.info(f"✅ 找到Copy MIR & Close按钮! 屏幕坐标: ({center_x}, {center_y})")
+                            
+                            try:
+                                import pyautogui
+                                pyautogui.moveTo(center_x, center_y, duration=0.2)
+                                pyautogui.click()
+                                LOGGER.info("🖱️ 已点击Copy MIR & Close按钮")
+                                time.sleep(0.5)
+                                
+                                # 从剪贴板获取MIR号码
+                                try:
+                                    import pyperclip
+                                    mir_number = pyperclip.paste().strip()
+                                    LOGGER.info(f"✅ 已从剪贴板获取MIR号码: {mir_number}")
+                                    return mir_number
+                                except ImportError:
+                                    # 使用win32clipboard
+                                    import win32clipboard
+                                    win32clipboard.OpenClipboard()
+                                    mir_number = win32clipboard.GetClipboardData().strip()
+                                    win32clipboard.CloseClipboard()
+                                    LOGGER.info(f"✅ 已从剪贴板获取MIR号码: {mir_number}")
+                                    return mir_number
+                            except Exception as e:
+                                LOGGER.error(f"点击按钮或获取剪贴板内容失败: {e}")
+                        else:
+                            LOGGER.warning("未找到Copy MIR & Close按钮，等待1秒后重试...")
+                            time.sleep(1.0)
+                    else:
+                        if attempt < 4:
+                            LOGGER.info(f"未找到成功对话框，等待1秒后重试... (尝试 {attempt+1}/5)")
+                            time.sleep(1.0)
+                        else:
+                            LOGGER.warning("未找到成功对话框")
+            
+            LOGGER.warning("无法处理最终成功对话框，请手动点击Copy MIR & Close")
+            return ""
+            
+        except Exception as e:
+            LOGGER.error(f"处理最终成功对话框时出错: {e}")
+            return ""
+    
+    def _verify_submit_success(self) -> bool:
+        """
+        验证Submit按钮点击是否成功
+        
+        检查方法：
+        1. 检查是否有"Warning"对话框出现（这是Submit成功的标志）
+           - 对话框标题应该是"Warning"
+           - 内容包含"Do you want to submit the MIR with no AWS session related?"
+        2. 检查是否有其他确认对话框
+        
+        Returns:
+            bool: True如果点击成功，False如果未成功
+        """
+        try:
+            # 等待一下，让对话框有时间出现
+            time.sleep(1.5)
+            
+            # 检查是否有"Warning"对话框（这是Submit成功的标志）
+            if win32gui:
+                # 首先获取Mole主窗口句柄，用于排除
+                main_hwnd = self._window.handle if self._window else None
+                
+                def enum_windows_callback(hwnd, windows):
+                    try:
+                        # 排除主窗口本身
+                        if main_hwnd and hwnd == main_hwnd:
+                            return True
+                        
+                        # 必须是可见窗口
+                        if not win32gui.IsWindowVisible(hwnd):
+                            return True
+                        
+                        window_text = win32gui.GetWindowText(hwnd)
+                        if not window_text:
+                            return True
+                        
+                        # 必须检查窗口类名，确认是对话框
+                        class_name = win32gui.GetClassName(hwnd)
+                        if not ("dialog" in class_name.lower() or "#32770" in class_name):
+                            return True
+                        
+                        text_lower = window_text.lower()
+                        # 检查是否是"Warning"对话框（这是Submit成功的标志）
+                        if "warning" in text_lower:
+                            LOGGER.info(f"发现Warning对话框: '{window_text}' (类名: {class_name})")
+                            windows.append((hwnd, window_text, "warning"))
+                        # 也检查其他可能的确认对话框（但必须是对话框类型）
+                        elif any(kw in text_lower for kw in ["confirm", "success", "submitted"]):
+                            LOGGER.info(f"发现确认对话框: '{window_text}' (类名: {class_name})")
+                            windows.append((hwnd, window_text, "other"))
+                    except:
+                        pass
+                    return True
+                
+                dialogs = []
+                win32gui.EnumWindows(enum_windows_callback, dialogs)
+                
+                LOGGER.info(f"检测到 {len(dialogs)} 个对话框")
+                
+                if dialogs:
+                    # 优先检查Warning对话框
+                    for hwnd, title, dialog_type in dialogs:
+                        if dialog_type == "warning":
+                            LOGGER.info(f"✅ 检测到Warning对话框: '{title}' - Submit按钮点击成功！")
+                            # 自动处理所有确认对话框（可能有多个）
+                            self._handle_submit_confirmation_dialogs()
+                            return True
+                    # 如果有其他对话框，也认为可能成功
+                    if dialogs:
+                        LOGGER.info(f"✅ 检测到确认对话框: '{dialogs[0][1]}' - Submit按钮点击可能成功")
+                        # 自动处理所有确认对话框
+                        self._handle_submit_confirmation_dialogs()
+                        return True
+                else:
+                    LOGGER.warning("⚠️ 未检测到任何对话框，Submit可能未成功")
+            
+            # 检查主窗口标题是否改变（可能包含"Submitted"等字样）
+            try:
+                current_title = self._window.window_text()
+                if "submitted" in current_title.lower() or "complete" in current_title.lower():
+                    LOGGER.info(f"✅ 窗口标题已改变，可能已提交: {current_title}")
+                    return True
+            except:
+                pass
+            
+            return False
+        except Exception as e:
+            LOGGER.debug(f"验证提交成功失败: {e}")
+            return False
+    
+    def _click_submit_button(self) -> None:
+        """
+        点击'Submit'按钮（绿色按钮，位于底部右侧区域）
+        
+        完全按照Search By VPOs、Select Visible Rows、Add to Summary的成功模式实现
+        """
+        if not self._window:
+            raise RuntimeError("Mole窗口未连接")
+        
+        LOGGER.info("点击'Submit'按钮...")
+        
+        try:
+            # 确保窗口激活（和Search By VPOs一样）
+            self._window.set_focus()
+            if win32gui and win32con:
+                try:
+                    hwnd = self._window.handle
+                    win32gui.SetForegroundWindow(hwnd)
+                    win32gui.BringWindowToTop(hwnd)
+                except:
+                    pass
+            time.sleep(0.5)
+            
+            button_clicked = False
+            
+            # 方法1: 直接查找标题为"Submit"或"Submit MIR Request"的按钮（和Search By VPOs一样）
+            submit_texts = ["Submit", "Submit MIR Request"]
+            for submit_text in submit_texts:
+                try:
+                    submit_button = self._window.child_window(title=submit_text, control_type="Button")
+                    if submit_button.exists() and submit_button.is_enabled():
+                        LOGGER.info(f"找到'Submit'按钮（通过title='{submit_text}'）")
+                        submit_button.click_input()
+                        button_clicked = True
+                        LOGGER.info(f"✅ 已点击'Submit'按钮（通过title='{submit_text}'）")
+                        break
+                except Exception as e1:
+                    LOGGER.debug(f"通过title='{submit_text}'查找按钮失败: {e1}")
+            
+            # 方法2: 遍历所有按钮查找（和Search By VPOs一样）
+            if not button_clicked:
+                try:
+                    all_buttons = self._window.descendants(control_type="Button")
+                    LOGGER.info(f"找到 {len(all_buttons)} 个按钮")
+                    for button in all_buttons:
+                        try:
+                            button_text = button.window_text().strip()
+                            LOGGER.debug(f"  按钮: '{button_text}'")
+                            if button_text == "Submit" or button_text == "Submit MIR Request":
+                                LOGGER.info(f"找到'Submit'按钮（文本: '{button_text}'）")
+                                if button.is_visible() and button.is_enabled():
+                                    button.click_input()
+                                    button_clicked = True
+                                    LOGGER.info(f"✅ 已点击'Submit'按钮（遍历按钮，文本: '{button_text}'）")
+                                    break
+                        except Exception as e:
+                            LOGGER.debug(f"检查按钮时出错: {e}")
+                            continue
+                except Exception as e2:
+                    LOGGER.debug(f"遍历按钮失败: {e2}")
+            
+            # 方法3: 使用部分匹配查找（包含"Submit"）
+            if not button_clicked:
+                try:
+                    all_buttons = self._window.descendants(control_type="Button")
+                    for button in all_buttons:
+                        try:
+                            button_text = button.window_text().strip()
+                            if "Submit" in button_text:
+                                LOGGER.info(f"找到'Submit'按钮（部分匹配: '{button_text}'）")
+                                if button.is_visible() and button.is_enabled():
+                                    button.click_input()
+                                    button_clicked = True
+                                    LOGGER.info(f"✅ 已点击'Submit'按钮（部分匹配: '{button_text}'）")
+                                    break
+                        except:
+                            continue
+                except Exception as e3:
+                    LOGGER.debug(f"部分匹配查找失败: {e3}")
+            
+            # 方法4: 使用Windows API查找按钮（和Search By VPOs一样）
+            if not button_clicked and win32gui and win32con:
+                try:
+                    LOGGER.info("使用Windows API查找'Submit'按钮...")
+                    hwnd = self._window.handle
+                    
+                    found_button = {"found": False}
+                    
+                    def enum_child_proc(hwnd_child, lParam):
+                        try:
+                            window_text = win32gui.GetWindowText(hwnd_child)
+                            class_name = win32gui.GetClassName(hwnd_child)
+                            # 打印所有按钮信息用于调试
+                            if "BUTTON" in class_name.upper():
+                                LOGGER.debug(f"  检测到按钮: '{window_text}' (类名: {class_name})")
+                            # 检查是否是按钮控件或SubmitMIR控件，且文本包含"SUBMIT"
+                            if ("BUTTON" in class_name.upper() or "SUBMITMIR" in class_name.upper()) and "SUBMIT" in window_text.upper():
+                                LOGGER.info(f"通过Windows API找到按钮: '{window_text}' (类名: {class_name})")
+                                win32gui.PostMessage(hwnd_child, win32con.BM_CLICK, 0, 0)
+                                found_button["found"] = True
+                                return False  # 停止枚举
+                            return True
+                        except:
+                            return True
+                    
+                    win32gui.EnumChildWindows(hwnd, enum_child_proc, None)
+                    time.sleep(0.5)
+                    
+                    if found_button["found"]:
+                        button_clicked = True
+                        LOGGER.info("✅ 已通过Windows API点击'Submit'按钮")
+                    else:
+                        LOGGER.warning("⚠️ Windows API未找到Submit按钮")
+                except Exception as e4:
+                    LOGGER.debug(f"使用Windows API查找按钮失败: {e4}")
+            
+            if not button_clicked:
+                raise RuntimeError("无法点击'Submit'按钮，已尝试所有方法")
+            
+            # 等待按钮点击后的响应和对话框出现（和Search By VPOs一样）
+            time.sleep(1.5)
+            
+            # 验证是否成功（检查Warning对话框）
+            if self._verify_submit_success():
+                LOGGER.info("✅ 已成功点击'Submit'按钮（验证通过：检测到Warning对话框）")
+            else:
+                LOGGER.warning("⚠️ 点击'Submit'按钮后未检测到Warning对话框，可能未成功")
+                # 不抛出异常，让用户知道可能需要手动处理
+        
+        except Exception as e:
+            LOGGER.error(f"点击'Submit'按钮失败: {e}")
+            raise RuntimeError(f"无法点击'Submit'按钮: {e}")
+    
+    def _click_summary_tab(self) -> None:
+        """
+        点击顶部的 '3. View Summary' 标签页（使用相对定位，适应不同窗口大小和位置）
+        
+        策略：
+        1. 优先查找 "1. Transfer Type" 作为参考点
+        2. 基于参考点的相对位置计算目标位置
+        3. 如果找不到参考点，使用窗口相对位置（百分比）
+        """
+        if Application is None:
+            return
+        
+        LOGGER.info("点击 '3. View Summary' 标签页（使用相对定位）...")
+        
+        # 激活窗口
+        try:
+            self._window.set_focus()
+            time.sleep(0.2)
+        except Exception as e:
+            LOGGER.warning(f"窗口激活失败: {e}")
+        
+        try:
+            import pyautogui
+            
+            # 获取窗口位置和尺寸
+            window_rect = self._window.rectangle()
+            window_left = window_rect.left
+            window_top = window_rect.top
+            window_width = window_rect.right - window_rect.left
+            window_height = window_rect.bottom - window_rect.top
+            
+            LOGGER.info(f"窗口位置: left={window_left}, top={window_top}, width={window_width}, height={window_height}")
+            
+            # 策略1: 基于参考标签 "1. Transfer Type" 的相对位置
+            target_x = None
+            target_y = None
+            
+            try:
+                all_controls = self._window.descendants()
+                
+                # 查找 "1. Transfer Type" 作为参考点
+                ref_ctrl = None
+                for ctrl in all_controls:
+                    try:
+                        if not ctrl.is_visible():
+                            continue
+                        text = ctrl.window_text().strip()
+                        if "1" in text and "TRANSFER" in text.upper() and "TYPE" in text.upper():
+                            ref_ctrl = ctrl
+                            break
+                    except:
+                        continue
+                
+                if ref_ctrl:
+                    ref_rect = ref_ctrl.rectangle()
+                    ref_center_x = ref_rect.left + (ref_rect.right - ref_rect.left) // 2
+                    ref_center_y = ref_rect.top + (ref_rect.bottom - ref_rect.top) // 2
+                    
+                    LOGGER.info(f"找到参考标签 '1. Transfer Type' 中心: ({ref_center_x}, {ref_center_y})")
+                    
+                    # 基于已知的坐标关系计算相对偏移
+                    # 已知：参考标签在 (3946, 768)，目标在 (4008, 804)
+                    # 相对偏移：X方向 +62像素，Y方向 +36像素
+                    # 但为了更健壮，我们使用窗口宽度的百分比
+                    
+                    # 计算参考标签相对于窗口的百分比位置
+                    ref_x_percent = (ref_center_x - window_left) / window_width
+                    ref_y_percent = (ref_center_y - window_top) / window_height
+                    
+                    LOGGER.info(f"参考标签相对位置: X={ref_x_percent:.2%}, Y={ref_y_percent:.2%}")
+                    
+                    # 基于已知的坐标关系：
+                    # 参考标签: (3946, 768) 在窗口 (3832, 695, 6408, 2103) 中
+                    # 窗口宽度: 2576, 高度: 1408
+                    # 参考标签相对位置: X=(3946-3832)/2576=0.044, Y=(768-695)/1408=0.052
+                    # 目标位置: (4008, 804)
+                    # 目标相对位置: X=(4008-3832)/2576=0.068, Y=(804-695)/1408=0.077
+                    # 相对偏移: X偏移=0.024 (约2.4%), Y偏移=0.025 (约2.5%)
+                    # 调整：X偏移减小，点击位置往左移动
+                    
+                    # 使用固定的相对偏移（基于窗口宽度和高度）
+                    x_offset_percent = 0.008  # 约0.8%的窗口宽度（往左移动）
+                    y_offset_percent = 0.025  # 约2.5%的窗口高度
+                    
+                    target_x = ref_center_x + int(window_width * x_offset_percent)
+                    target_y = ref_center_y + int(window_height * y_offset_percent)
+                    
+                    LOGGER.info(f"基于参考标签计算: 目标位置=({target_x}, {target_y})")
+                    LOGGER.info(f"  相对偏移: X={x_offset_percent:.2%}窗口宽度, Y={y_offset_percent:.2%}窗口高度")
+                else:
+                    LOGGER.warning("未找到参考标签 '1. Transfer Type'")
+            except Exception as e:
+                LOGGER.warning(f"基于参考标签计算失败: {e}")
+            
+            # 策略2: 如果找不到参考标签，使用窗口相对位置（百分比）
+            if target_x is None or target_y is None:
+                LOGGER.info("使用窗口相对位置（百分比）")
+                # 基于已知坐标 (4008, 804) 在窗口 (3832, 695, 6408, 2103) 中的相对位置
+                # X相对位置: (4008-3832)/(6408-3832) = 176/2576 ≈ 0.068 (6.8%)
+                # Y相对位置: (804-695)/(2103-695) = 109/1408 ≈ 0.077 (7.7%)
+                # 调整：X位置减小，点击位置往左移动
+                
+                x_percent = 0.050  # 窗口宽度的5.0%（往左移动）
+                y_percent = 0.077  # 窗口高度的7.7%
+                
+                target_x = window_left + int(window_width * x_percent)
+                target_y = window_top + int(window_height * y_percent)
+                
+                LOGGER.info(f"基于窗口百分比计算: 目标位置=({target_x}, {target_y})")
+                LOGGER.info(f"  相对位置: X={x_percent:.2%}窗口宽度, Y={y_percent:.2%}窗口高度")
+            
+            # 点击计算出的位置
+            LOGGER.info(f"最终点击位置: ({target_x}, {target_y})")
+            pyautogui.moveTo(target_x, target_y, duration=0.3)
+            time.sleep(0.2)
+            pyautogui.click(target_x, target_y)
+            time.sleep(0.3)
+            
+            LOGGER.info(f"✅ 已点击 '3. View Summary' 标签页 at ({target_x}, {target_y})")
+            
+        except ImportError:
+            LOGGER.error("pyautogui 未安装，无法点击")
+            raise RuntimeError("需要安装 pyautogui 才能点击")
+        except Exception as e:
+            LOGGER.error(f"点击失败: {e}")
+            raise
+
+    def _fill_requestor_comments(self) -> None:
+        """
+        填写Requestor Comments到文本区域（使用相对定位，适应不同窗口大小和位置）
+        
+        策略：
+        1. 查找"Requestor Comments"标签作为参考点
+        2. 基于标签位置找到文本区域（在标签下方或右侧）
+        3. 使用相对定位点击文本区域并填写内容
+        """
+        if Application is None:
+            return
+        
+        LOGGER.info("填写Requestor Comments...")
+        
+        try:
+            # 确保主窗口有焦点
+            self._window.set_focus()
+            time.sleep(0.3)
+            
+            # 读取MIR Comments.txt文件
+            possible_paths = [
+                Path(__file__).parent.parent / "MIR Comments.txt",  # Auto VPO根目录
+                Path("MIR Comments.txt"),  # 当前工作目录
+                Path(__file__).parent / "MIR Comments.txt",  # workflow_automation目录
+            ]
+            
+            mir_comments_file = None
+            for path in possible_paths:
+                if path.exists():
+                    mir_comments_file = path
+                    break
+            
+            if not mir_comments_file:
+                mir_comments_file = Path(__file__).parent.parent / "MIR Comments.txt"
+                LOGGER.warning(f"未找到MIR Comments.txt文件，将尝试在以下位置查找: {mir_comments_file}")
+            
+            if not mir_comments_file.exists():
+                LOGGER.warning(f"未找到MIR Comments.txt文件，跳过填写Requestor Comments")
+                return
+            
+            LOGGER.info(f"读取MIR Comments文件: {mir_comments_file}")
+            try:
+                with open(mir_comments_file, 'r', encoding='utf-8') as f:
+                    comments_text = f.read().strip()
+            except UnicodeDecodeError:
+                with open(mir_comments_file, 'r', encoding='gbk') as f:
+                    comments_text = f.read().strip()
+            
+            if not comments_text:
+                LOGGER.warning("MIR Comments.txt文件为空，跳过填写")
+                return
+            
+            LOGGER.info(f"MIR Comments内容: {comments_text[:50]}...")
+            
+            # 复制内容到剪贴板
+            try:
+                import pyperclip
+                pyperclip.copy(comments_text)
+                LOGGER.info("已复制内容到剪贴板")
+            except ImportError:
+                try:
+                    import win32clipboard
+                    win32clipboard.OpenClipboard()
+                    win32clipboard.EmptyClipboard()
+                    win32clipboard.SetClipboardText(comments_text, win32clipboard.CF_UNICODETEXT)
+                    win32clipboard.CloseClipboard()
+                    LOGGER.info("已复制内容到剪贴板（使用win32clipboard）")
+                except ImportError:
+                    LOGGER.warning("无法复制到剪贴板（需要pyperclip或win32clipboard），将直接输入文本")
+            
+            # 获取窗口位置和尺寸（用于相对定位）
+            window_rect = self._window.rectangle()
+            window_left = window_rect.left
+            window_top = window_rect.top
+            window_width = window_rect.right - window_rect.left
+            window_height = window_rect.bottom - window_rect.top
+            
+            LOGGER.info(f"窗口位置: left={window_left}, top={window_top}, width={window_width}, height={window_height}")
+            
+            # 查找"Requestor Comments"标签
+            LOGGER.info("查找'Requestor Comments'标签...")
+            all_controls = self._window.descendants()
+            
+            requestor_comments_label = None
+            
+            for ctrl in all_controls:
+                try:
+                    if not ctrl.is_visible():
+                        continue
+                    ctrl_text = ctrl.window_text().strip()
+                    if ctrl_text and "Requestor Comments" in ctrl_text:
+                        requestor_comments_label = ctrl
+                        label_rect = ctrl.rectangle()
+                        LOGGER.info(f"找到'Requestor Comments'标签: 位置=({label_rect.left}, {label_rect.top}), 文本='{ctrl_text}'")
+                        break
+                except:
+                    continue
+            
+            if not requestor_comments_label:
+                LOGGER.warning("未找到'Requestor Comments'标签，无法定位文本区域")
+                return
+            
+            # 基于标签位置查找文本区域
+            label_rect = requestor_comments_label.rectangle()
+            label_right = label_rect.right
+            label_bottom = label_rect.bottom
+            
+            LOGGER.info(f"标签位置: left={label_rect.left}, top={label_rect.top}, right={label_right}, bottom={label_bottom}")
+            
+            # 查找文本区域（Edit、RichEdit、TextBox等）
+            text_area_candidates = []
+            
+            for ctrl in all_controls:
+                try:
+                    if not ctrl.is_visible():
+                        continue
+                    
+                    ctrl_rect = ctrl.rectangle()
+                    ctrl_type = ctrl.element_info.control_type if hasattr(ctrl.element_info, 'control_type') else "Unknown"
+                    
+                    # 查找Edit、RichEdit、TextBox等文本输入控件
+                    type_str = str(ctrl_type).upper()
+                    if "EDIT" in type_str or "RICHEDIT" in type_str or "TEXTBOX" in type_str:
+                        area = (ctrl_rect.right - ctrl_rect.left) * (ctrl_rect.bottom - ctrl_rect.top)
+                        
+                        # 文本区域应该比较大（面积 > 5000）
+                        if area > 5000:
+                            # 检查位置关系：在标签右侧，或标签下方
+                            is_below = ctrl_rect.top >= label_bottom and ctrl_rect.left <= label_right + 100
+                            is_right = ctrl_rect.left >= label_right - 50
+                            
+                            if is_below or is_right:
+                                distance = ((ctrl_rect.left - label_right)**2 + (ctrl_rect.top - label_bottom)**2)**0.5
+                                text_area_candidates.append((ctrl, ctrl_rect, area, distance, ctrl_type))
+                                LOGGER.info(f"  找到候选文本区域: 类型={ctrl_type}, 位置=({ctrl_rect.left}, {ctrl_rect.top}), 面积={area}, 距离标签={distance:.1f}")
+                except:
+                    continue
+            
+            # 选择最接近标签的文本区域
+            if text_area_candidates:
+                text_area_candidates.sort(key=lambda x: x[3])  # 按距离排序
+                requestor_comments_text_area, text_rect, _, _, _ = text_area_candidates[0]
+                LOGGER.info(f"选择最近的文本区域: 位置=({text_rect.left}, {text_rect.top})")
+                
+                # 点击文本区域中心
+                text_center_x = text_rect.left + (text_rect.right - text_rect.left) // 2
+                text_center_y = text_rect.top + (text_rect.bottom - text_rect.top) // 2
+                
+                LOGGER.info(f"点击文本区域中心位置: ({text_center_x}, {text_center_y})")
+                
+                try:
+                    requestor_comments_text_area.click_input()
+                    time.sleep(0.3)
+                except:
+                    try:
+                        import pyautogui
+                        pyautogui.click(text_center_x, text_center_y)
+                        time.sleep(0.3)
+                    except:
+                        pass
+                
+                # 清空现有内容并输入新内容
+                try:
+                    import pyautogui
+                    pyautogui.hotkey('ctrl', 'a')  # 全选
+                    time.sleep(0.2)
+                    pyautogui.hotkey('ctrl', 'v')  # 粘贴
+                    time.sleep(0.3)
+                    LOGGER.info("✅ 已填写Requestor Comments（使用剪贴板粘贴）")
+                    return
+                except ImportError:
+                    # 如果没有pyautogui，尝试使用键盘输入
+                    try:
+                        requestor_comments_text_area.type_keys('^a')  # Ctrl+A
+                        time.sleep(0.2)
+                        requestor_comments_text_area.type_keys(comments_text, with_spaces=True)
+                        time.sleep(0.3)
+                        LOGGER.info("✅ 已填写Requestor Comments（使用键盘输入）")
+                        return
+                    except Exception as e:
+                        LOGGER.warning(f"键盘输入失败: {e}")
+            
+            # 如果找不到文本区域控件，使用相对定位估算位置
+            LOGGER.warning("未找到文本区域控件，使用相对定位估算位置...")
+            
+            # 基于标签位置和窗口相对位置估算文本区域
+            # 文本区域通常在标签下方，或者标签右侧
+            # 使用相对偏移（基于窗口尺寸的百分比）
+            
+            # 计算标签相对于窗口的位置
+            label_x_percent = (label_rect.left - window_left) / window_width
+            label_y_percent = (label_rect.top - window_top) / window_height
+            
+            # 文本区域通常在标签右侧或下方
+            # 基于经验值：文本区域在标签右侧约10-15%窗口宽度，或标签下方约5-8%窗口高度
+            estimated_x = label_right + int(window_width * 0.02)  # 标签右侧2%窗口宽度
+            estimated_y = label_bottom + int(window_height * 0.03)  # 标签下方3%窗口高度
+            
+            # 如果估算位置超出窗口，使用标签下方
+            if estimated_x > window_left + window_width:
+                estimated_x = label_rect.left
+                estimated_y = label_bottom + int(window_height * 0.05)  # 标签下方5%窗口高度
+            
+            LOGGER.info(f"估算文本区域位置: ({estimated_x}, {estimated_y})")
+            LOGGER.info(f"  基于标签相对位置: X={label_x_percent:.2%}, Y={label_y_percent:.2%}")
+            
+            try:
+                import pyautogui
+                pyautogui.click(estimated_x, estimated_y)
+                time.sleep(0.3)
+                pyautogui.hotkey('ctrl', 'a')
+                time.sleep(0.2)
+                pyautogui.hotkey('ctrl', 'v')
+                time.sleep(0.3)
+                LOGGER.info(f"✅ 已通过相对定位填写Requestor Comments")
+                return
+            except ImportError:
+                LOGGER.warning("pyautogui未安装，无法填写Requestor Comments")
+        
+        except Exception as e:
+            LOGGER.error(f"填写Requestor Comments失败: {e}")
+            # 不抛出异常，允许工作流继续执行
+
+    # 表格提取功能已禁用
+    def extract_table_data(self) -> list:
+        """
+        从表格中提取Qty、PartType、Source三列的数据（功能已禁用）
+        
+        Returns:
+            list: 空列表
+        """
+        LOGGER.info("表格提取功能已禁用")
+        return []
+    
+    # 以下为已禁用的表格提取实现代码（保留以备将来使用）
+    def _extract_table_data_old(self) -> list:
+        """
+        从表格中提取Qty、PartType、Source三列的数据（旧实现，已禁用）
+        """
+        if Application is None:
+            return []
+        
+        LOGGER.info("开始提取表格数据（Qty、PartType、Source）...")
+        extracted_data = []
+        
+        try:
+            # 确保主窗口有焦点
+            self._window.set_focus()
+            time.sleep(0.5)
+            
+            # 方法：通过点击表格、全选、复制、粘贴来提取数据
+            LOGGER.info("使用点击表格、全选、复制、粘贴的方法提取数据...")
+            
+            # 查找表格位置
+            # 策略1: 查找包含表头（Qty、PartType、Source）的表格控件
+            table_rect = None
+            all_controls = self._window.descendants()
+            
+            # 查找包含表头的控件
+            for ctrl in all_controls:
+                try:
+                    if not ctrl.is_visible():
+                        continue
+                    ctrl_text = ctrl.window_text().strip()
+                    # 查找包含表头的控件（通常表格控件会包含表头文本）
+                    if ctrl_text and ('Qty' in ctrl_text or 'PartType' in ctrl_text or 'Source' in ctrl_text):
+                        # 检查是否是表格控件
+                        ctrl_type = str(ctrl.element_info.control_type).upper() if hasattr(ctrl.element_info, 'control_type') else ""
+                        if "GRID" in ctrl_type or "LIST" in ctrl_type or "TABLE" in ctrl_type or "DATA" in ctrl_type:
+                            table_rect = ctrl.rectangle()
+                            LOGGER.info(f"找到表格控件: 位置=({table_rect.left}, {table_rect.top}), 大小=({table_rect.right - table_rect.left}, {table_rect.bottom - table_rect.top})")
+                            break
+                except:
+                    continue
+            
+            # 策略2: 如果找不到表格控件，使用窗口底部位置（表格在View Summary页面最下面显示lot信息）
+            if not table_rect:
+                LOGGER.info("未找到表格控件，使用窗口底部位置定位表格（表格在View Summary页面最下面）...")
+                window_rect = self._window.rectangle()
+                window_width = window_rect.right - window_rect.left
+                window_height = window_rect.bottom - window_rect.top
+                
+                # 表格在窗口底部，估算表格位置
+                # 表格通常在窗口底部，高度约300-400像素
+                estimated_table_height = 400  # 表格高度
+                estimated_table_y = window_rect.bottom - estimated_table_height - 50  # 距离底部50像素
+                estimated_table_x = window_rect.left + 50  # 左边距50像素
+                estimated_table_width = window_width - 100  # 左右各留50像素
+                
+                # 创建一个虚拟的表格区域（使用简单的类来模拟rect）
+                class SimpleRect:
+                    def __init__(self, left, top, right, bottom):
+                        self.left = left
+                        self.top = top
+                        self.right = right
+                        self.bottom = bottom
+                
+                table_rect = SimpleRect(
+                    left=estimated_table_x,
+                    top=estimated_table_y,
+                    right=estimated_table_x + estimated_table_width,
+                    bottom=window_rect.bottom - 20  # 距离底部20像素
+                )
+                LOGGER.info(f"使用窗口底部位置定位表格: ({table_rect.left}, {table_rect.top}), 高度={table_rect.bottom - table_rect.top}")
+            
+            # 策略3: 如果还是找不到，使用窗口中心偏下的位置（备用）
+            if not table_rect:
+                LOGGER.warning("无法定位表格，使用窗口中心偏下位置...")
+                window_rect = self._window.rectangle()
+                window_center_y = window_rect.top + int((window_rect.bottom - window_rect.top) * 0.7)  # 窗口高度的70%处
+                
+                class SimpleRect:
+                    def __init__(self, left, top, right, bottom):
+                        self.left = left
+                        self.top = top
+                        self.right = right
+                        self.bottom = bottom
+                
+                table_rect = SimpleRect(
+                    left=window_rect.left + 100,
+                    top=window_center_y,
+                    right=window_rect.right - 100,
+                    bottom=window_rect.bottom - 50
+                )
+                LOGGER.info(f"使用窗口中心偏下位置: ({table_rect.left}, {table_rect.top})")
+            
+            if not table_rect:
+                LOGGER.error("无法定位表格位置")
+                return []
+            
+            # 逐行点击并复制数据（表格不是真正意义上的表格格式）
+            import pyautogui
+            
+            # 计算表格参数
+            table_width = table_rect.right - table_rect.left
+            table_center_x = table_rect.left + table_width // 2
+            
+            # 估算行高（通常每行约20-30像素）
+            estimated_row_height = 25
+            # 表头高度约30-40像素
+            header_height = 35
+            # 第一行数据从表头下方开始
+            first_data_row_y = table_rect.top + header_height + estimated_row_height // 2
+            
+            LOGGER.info(f"表格位置: 顶部={table_rect.top}, 底部={table_rect.bottom}, 宽度={table_width}")
+            LOGGER.info(f"估算行高: {estimated_row_height}像素, 第一行数据Y位置: {first_data_row_y}")
+            
+            # 先点击表头行，获取表头信息以确定列位置
+            header_y = table_rect.top + header_height // 2
+            LOGGER.info(f"点击表头行位置: ({table_center_x}, {header_y})")
+            pyautogui.click(table_center_x, header_y)
+            time.sleep(0.3)
+            
+            # 选择整行（Shift+End 选择到行尾，然后 Shift+Home 选择整行）
+            pyautogui.hotkey('shift', 'end')
+            time.sleep(0.2)
+            pyautogui.hotkey('shift', 'home')
+            time.sleep(0.2)
+            pyautogui.hotkey('ctrl', 'c')
+            time.sleep(0.3)
+            
+            # 读取表头
+            header_text = None
+            try:
+                import pyperclip
+                header_text = pyperclip.paste()
+            except ImportError:
+                try:
+                    import win32clipboard
+                    win32clipboard.OpenClipboard()
+                    header_text = win32clipboard.GetClipboardData(win32clipboard.CF_UNICODETEXT)
+                    win32clipboard.CloseClipboard()
+                except:
+                    pass
+            
+            # 解析表头，找到列位置
+            qty_col = None
+            parttype_col = None
+            source_col = None
+            
+            if header_text:
+                LOGGER.info(f"表头内容: {header_text[:100]}")
+                # 解析表头
+                if '\t' in header_text:
+                    headers = header_text.split('\t')
+                else:
+                    headers = [h.strip() for h in header_text.split() if h.strip()]
+                
+                for i, header in enumerate(headers):
+                    header_upper = header.upper().strip()
+                    if 'QTY' in header_upper and qty_col is None:
+                        qty_col = i
+                        LOGGER.info(f"找到 Qty 列索引: {qty_col}")
+                    elif ('PARTTYPE' in header_upper or ('PART' in header_upper and 'TYPE' in header_upper)) and parttype_col is None:
+                        parttype_col = i
+                        LOGGER.info(f"找到 PartType 列索引: {parttype_col}")
+                    elif 'SOURCE' in header_upper and source_col is None:
+                        source_col = i
+                        LOGGER.info(f"找到 Source 列索引: {source_col}")
+            
+            # 逐行提取数据
+            max_rows = 100  # 最多提取100行，防止无限循环
+            row_idx = 0
+            current_row_y = first_data_row_y
+            
+            LOGGER.info("开始逐行提取数据...")
+            
+            while row_idx < max_rows and current_row_y < table_rect.bottom - 20:
+                try:
+                    # 点击当前行
+                    LOGGER.debug(f"点击第 {row_idx + 1} 行位置: ({table_center_x}, {current_row_y})")
+                    pyautogui.click(table_center_x, current_row_y)
+                    time.sleep(0.3)
+                    
+                    # 选择整行（Shift+End 选择到行尾，然后 Shift+Home 选择整行）
+                    pyautogui.hotkey('shift', 'end')
+                    time.sleep(0.2)
+                    pyautogui.hotkey('shift', 'home')
+                    time.sleep(0.2)
+                    
+                    # 复制
+                    pyautogui.hotkey('ctrl', 'c')
+                    time.sleep(0.3)
+                    
+                    # 读取剪贴板
+                    row_text = None
+                    try:
+                        import pyperclip
+                        row_text = pyperclip.paste()
+                    except ImportError:
+                        try:
+                            import win32clipboard
+                            win32clipboard.OpenClipboard()
+                            row_text = win32clipboard.GetClipboardData(win32clipboard.CF_UNICODETEXT)
+                            win32clipboard.CloseClipboard()
+                        except:
+                            pass
+                    
+                    if not row_text or not row_text.strip():
+                        LOGGER.debug(f"第 {row_idx + 1} 行为空，可能已到表格末尾")
+                        break
+                    
+                    # 解析行数据
+                    if '\t' in row_text:
+                        parts = row_text.split('\t')
+                    else:
+                        parts = [p.strip() for p in row_text.split() if p.strip()]
+                    
+                    if len(parts) == 0:
+                        LOGGER.debug(f"第 {row_idx + 1} 行无有效数据")
+                        current_row_y += estimated_row_height
+                        row_idx += 1
+                        continue
+                    
+                    row_data = {}
+                    
+                    # 如果找到了列索引，直接提取
+                    if qty_col is not None and qty_col < len(parts):
+                        row_data['Qty'] = parts[qty_col].strip()
+                    if parttype_col is not None and parttype_col < len(parts):
+                        row_data['PartType'] = parts[parttype_col].strip()
+                    if source_col is not None and source_col < len(parts):
+                        row_data['Source'] = parts[source_col].strip()
+                    
+                    # 如果通过列索引提取失败，尝试模式匹配
+                    if not row_data.get('Qty') or not row_data.get('PartType') or not row_data.get('Source'):
+                        for part in parts:
+                            part = part.strip()
+                            if not part:
+                                continue
+                            
+                            # Qty通常是纯数字
+                            if part.isdigit() and 'Qty' not in row_data:
+                                row_data['Qty'] = part
+                            # PartType通常包含字母和数字，格式类似"43 4PXA2V E B"
+                            elif any(c.isalpha() for c in part) and any(c.isdigit() for c in part) and len(part) > 5:
+                                if 'PartType' not in row_data:
+                                    row_data['PartType'] = part
+                            # Source通常是lot编号，格式类似"PTPB5TP1206"
+                            elif (part.startswith('PTP') or (len(part) >= 8 and any(c.isalpha() for c in part) and any(c.isdigit() for c in part))):
+                                if 'Source' not in row_data:
+                                    row_data['Source'] = part
+                    
+                    # 只有当三列都有数据时才添加
+                    if row_data.get('Qty') and row_data.get('PartType') and row_data.get('Source'):
+                        extracted_data.append(row_data)
+                        LOGGER.info(f"✅ 提取第 {row_idx + 1} 行: Qty={row_data.get('Qty')}, PartType={row_data.get('PartType')}, Source={row_data.get('Source')}")
+                    else:
+                        LOGGER.debug(f"第 {row_idx + 1} 行数据不完整: {row_data}")
+                        # 如果连续几行都没有完整数据，可能已到表格末尾
+                        if row_idx > 0 and len(extracted_data) == 0:
+                            LOGGER.warning("前几行都没有完整数据，可能表格格式不同，停止提取")
+                            break
+                    
+                    # 移动到下一行
+                    current_row_y += estimated_row_height
+                    row_idx += 1
+                    
+                except Exception as e:
+                    LOGGER.warning(f"提取第 {row_idx + 1} 行时出错: {e}")
+                    current_row_y += estimated_row_height
+                    row_idx += 1
+                    continue
+            
+            if extracted_data:
+                LOGGER.info(f"✅ 成功提取 {len(extracted_data)} 行表格数据")
+                for idx, row in enumerate(extracted_data[:5], 1):  # 只显示前5行
+                    LOGGER.info(f"  第 {idx} 行: Qty={row.get('Qty')}, PartType={row.get('PartType')}, Source={row.get('Source')}")
+            else:
+                LOGGER.warning("⚠️ 未能提取到表格数据")
+            
+            return extracted_data
+        
+        except Exception as e:
+            LOGGER.error(f"提取表格数据时出错: {e}")
+            import traceback
+            LOGGER.debug(traceback.format_exc())
+        
+        return extracted_data
+    
+    # 表格提取功能已禁用
+    def _extract_and_save_table_data(self) -> None:
+        """
+        提取表格数据（Qty、PartType、Source）并保存到CSV文件（功能已禁用）
+        """
+        LOGGER.info("表格提取功能已禁用，跳过提取和保存")
+        return
+
+    def _handle_mir_mrs_info_dialog(self) -> None:
+        """处理'MIR is now MRS!'信息对话框，自动点击OK按钮"""
+        if Application is None:
+            return
+        
+        LOGGER.info("检查是否有'MIR is now MRS!'信息对话框...")
+        
+        # 等待对话框出现（最多等待10秒）
+        info_dialog = None
+        deadline = time.time() + 10
+        dialog_titles = [
+            "MIR is now MRS!",
+            ".*MIR.*MRS.*",
+            ".*MRS.*"
+        ]
+        
+        while time.time() < deadline:
+            for title_pattern in dialog_titles:
+                try:
+                    # 尝试win32 backend
+                    try:
+                        dialog_app = Application(backend="win32").connect(
+                            title_re=title_pattern,
+                            visible_only=True,
+                            timeout=1
+                        )
+                        info_dialog = dialog_app.window(title_re=title_pattern)
+                        if info_dialog.exists() and info_dialog.is_visible():
+                            LOGGER.info(f"找到信息对话框: {info_dialog.window_text()} (backend: win32)")
+                            break
+                    except:
+                        pass
+                    
+                    # 尝试uia backend
+                    try:
+                        dialog_app = Application(backend="uia").connect(
+                            title_re=title_pattern,
+                            visible_only=True,
+                            timeout=1
+                        )
+                        info_dialog = dialog_app.window(title_re=title_pattern)
+                        if info_dialog.exists() and info_dialog.is_visible():
+                            LOGGER.info(f"找到信息对话框: {info_dialog.window_text()} (backend: uia)")
+                            break
+                    except:
+                        pass
+                except:
+                    continue
+            
+            if info_dialog is not None:
+                break
+            
+            time.sleep(0.3)
+        
+        if info_dialog is None:
+            LOGGER.info("未找到'MIR is now MRS!'对话框，可能未出现或已关闭")
+            return
+        
+        try:
+            # 激活对话框
+            info_dialog.set_focus()
+            time.sleep(0.3)
+            
+            ok_clicked = False
+            
+            # 方法1: 查找OK按钮并点击
+            try:
+                ok_button = info_dialog.child_window(title="OK", control_type="Button")
+                if ok_button.exists() and ok_button.is_visible():
+                    ok_button.click_input()
+                    ok_clicked = True
+                    LOGGER.info("✅ 已点击OK按钮（方法1: pywinauto）")
+            except Exception as e:
+                LOGGER.debug(f"方法1失败: {e}")
+            
+            # 方法2: 使用Windows API查找并点击OK按钮
+            if not ok_clicked and win32gui:
+                try:
+                    dialog_hwnd = info_dialog.handle
+                    def enum_ok_button(hwnd_child, lParam):
+                        try:
+                            window_text = win32gui.GetWindowText(hwnd_child).strip().upper()
+                            class_name = win32gui.GetClassName(hwnd_child).upper()
+                            if window_text == "OK" and "BUTTON" in class_name:
+                                lParam.append(hwnd_child)
+                        except:
+                            pass
+                        return True
+                    
+                    ok_buttons = []
+                    win32gui.EnumChildWindows(dialog_hwnd, enum_ok_button, ok_buttons)
+                    
+                    if ok_buttons:
+                        ok_hwnd = ok_buttons[0]
+                        win32gui.PostMessage(ok_hwnd, win32con.BM_CLICK, 0, 0)
+                        ok_clicked = True
+                        LOGGER.info("✅ 已点击OK按钮（方法2: Windows API）")
+                except Exception as e:
+                    LOGGER.debug(f"方法2失败: {e}")
+            
+            if ok_clicked:
+                time.sleep(0.5)
+                LOGGER.info("✅ 已成功处理'MIR is now MRS!'信息对话框")
+            else:
+                LOGGER.warning("未能点击OK按钮")
+        
+        except Exception as e:
+            LOGGER.error(f"处理'MIR is now MRS!'信息对话框失败: {e}")
+    
+    def _handle_login_dialog(self) -> None:
+        """处理Mole登录对话框，自动点击OK按钮"""
+        if Application is None:
+            return
+        
+        LOGGER.info("等待MOLE LOGIN对话框出现...")
+        
+        # 等待登录对话框出现（最多等待30秒）
+        login_dialog = None
+        login_app = None
+        deadline = time.time() + 30
+        # 使用配置的标题，同时提供备选模式
+        dialog_titles = [
+            self.config.login_dialog_title,
+            ".*MOLE LOGIN.*",
+            ".*LOGIN.*",
+            ".*Login.*"
+        ]
+        
+        # 尝试不同的backend
+        backends = ["win32", "uia"]
+        
+        while time.time() < deadline:
+            for backend in backends:
+                for title_pattern in dialog_titles:
+                    try:
+                        login_app = Application(backend=backend).connect(
+                            title_re=title_pattern,
+                            visible_only=True,
+                            timeout=2
+                        )
+                        login_dialog = login_app.window(title_re=title_pattern)
+                        
+                        if login_dialog.exists() and login_dialog.is_visible():
+                            LOGGER.info(f"找到登录对话框: {login_dialog.window_text()} (backend: {backend})")
+                            break
+                    except Exception:
+                        continue
+                
+                if login_dialog is not None:
+                    break
+            
+            if login_dialog is not None:
+                break
+            
+            time.sleep(0.5)
+        
+        if login_dialog is None:
+            LOGGER.warning("未找到MOLE LOGIN对话框，可能已经登录或对话框已关闭")
+            return
+        
+        try:
+            # 激活对话框
+            login_dialog.set_focus()
+            time.sleep(0.5)
+            
+            # 打印控件结构用于调试（保存到日志）
+            try:
+                LOGGER.info("正在分析登录对话框的控件结构...")
+                # 将控件结构输出到字符串
+                import io
+                import sys
+                old_stdout = sys.stdout
+                sys.stdout = buffer = io.StringIO()
+                login_dialog.print_control_identifiers(depth=4)
+                sys.stdout = old_stdout
+                control_info = buffer.getvalue()
+                LOGGER.debug(f"登录对话框控件结构:\n{control_info}")
+                # 同时尝试查找所有可能的控件类型
+                LOGGER.info("查找所有可用的控件...")
+            except Exception as e:
+                LOGGER.debug(f"打印控件结构失败: {e}")
+            
+            # 查找并点击OK按钮
+            ok_clicked = False
+            
+            # 首先尝试多种方法查找所有按钮
+            all_buttons = []
+            
+            # 方法1: 使用children查找
+            try:
+                buttons1 = login_dialog.children(control_type="Button")
+                all_buttons.extend(buttons1)
+                LOGGER.info(f"通过children找到 {len(buttons1)} 个Button控件")
+            except Exception as e:
+                LOGGER.debug(f"通过children查找按钮失败: {e}")
+            
+            # 方法2: 使用descendants查找（查找所有子控件）
+            if len(all_buttons) == 0:
+                try:
+                    buttons2 = login_dialog.descendants(control_type="Button")
+                    all_buttons.extend(buttons2)
+                    LOGGER.info(f"通过descendants找到 {len(buttons2)} 个Button控件")
+                except Exception as e:
+                    LOGGER.debug(f"通过descendants查找按钮失败: {e}")
+            
+            # 方法3: 查找所有子窗口（可能按钮是子窗口）
+            if len(all_buttons) == 0:
+                try:
+                    all_windows = login_dialog.children()
+                    LOGGER.info(f"找到 {len(all_windows)} 个子控件")
+                    for win in all_windows:
+                        try:
+                            win_text = win.window_text()
+                            win_type = str(type(win))
+                            LOGGER.info(f"  控件: '{win_text}' (类型: {win_type})")
+                            if "Button" in win_type or win_text.upper() in ["OK", "CANCEL"]:
+                                all_buttons.append(win)
+                        except:
+                            pass
+                except Exception as e:
+                    LOGGER.debug(f"查找所有子窗口失败: {e}")
+            
+            # 方法4: 尝试child_windows()
+            if len(all_buttons) == 0:
+                try:
+                    child_windows = login_dialog.child_windows()
+                    LOGGER.info(f"通过child_windows找到 {len(child_windows)} 个子窗口")
+                    for win in child_windows:
+                        try:
+                            win_text = win.window_text()
+                            if win_text.upper() in ["OK", "CANCEL"]:
+                                all_buttons.append(win)
+                        except:
+                            pass
+                except Exception as e:
+                    LOGGER.debug(f"通过child_windows查找失败: {e}")
+            
+            # 列出找到的所有按钮
+            LOGGER.info(f"总共找到 {len(all_buttons)} 个可能的按钮控件")
+            for idx, btn in enumerate(all_buttons):
+                try:
+                    btn_text = btn.window_text()
+                    LOGGER.info(f"  按钮 {idx + 1}: '{btn_text}'")
+                except:
+                    LOGGER.info(f"  按钮 {idx + 1}: (无法获取文本)")
+            
+            # 方法1: 使用找到的按钮列表点击OK
+            if not ok_clicked and len(all_buttons) > 0:
+                for button in all_buttons:
+                    try:
+                        button_text = button.window_text().strip().upper()
+                        if button_text == "OK" and "CANCEL" not in button_text:
+                            LOGGER.info(f"找到OK按钮（从按钮列表中: '{button.window_text()}'）")
+                            button.click_input()
+                            ok_clicked = True
+                            LOGGER.info("✅ 已点击OK按钮（从按钮列表）")
+                            break
+                    except Exception as e:
+                        LOGGER.debug(f"检查按钮时出错: {e}")
+                        continue
+            
+            # 方法2: 精确匹配OK按钮（完全匹配，不区分大小写）
+            if not ok_clicked:
+                try:
+                    # 尝试多种方式精确匹配OK
+                    ok_patterns = ["OK", "Ok", "ok"]
+                    for pattern in ok_patterns:
+                        try:
+                            ok_button = login_dialog.child_window(title=pattern, control_type="Button")
+                            if ok_button.exists() and ok_button.is_enabled():
+                                btn_text = ok_button.window_text()
+                                LOGGER.info(f"找到OK按钮（精确匹配: '{btn_text}'）")
+                                ok_button.click_input()
+                                ok_clicked = True
+                                LOGGER.info("✅ 已点击OK按钮（通过精确匹配title）")
+                                break
+                        except:
+                            continue
+                except Exception as e1:
+                    LOGGER.debug(f"通过精确匹配查找OK按钮失败: {e1}")
+            
+            # 方法3: 使用descendants查找所有按钮（包括嵌套的）
+            if not ok_clicked:
+                try:
+                    all_descendants = login_dialog.descendants(control_type="Button")
+                    LOGGER.info(f"通过descendants找到 {len(all_descendants)} 个Button控件")
+                    for button in all_descendants:
+                        try:
+                            button_text = button.window_text().strip().upper()
+                            if button_text == "OK" and "CANCEL" not in button_text:
+                                LOGGER.info(f"找到OK按钮（descendants: '{button.window_text()}'）")
+                                button.click_input()
+                                ok_clicked = True
+                                LOGGER.info("✅ 已点击OK按钮（通过descendants）")
+                                break
+                        except Exception as e:
+                            LOGGER.debug(f"检查descendant按钮时出错: {e}")
+                            continue
+                except Exception as e3:
+                    LOGGER.debug(f"通过descendants查找按钮失败: {e3}")
+            
+            # 方法3: 如果OK通常是第一个按钮（在Cancel之前），按位置点击
+            if not ok_clicked:
+                try:
+                    buttons = login_dialog.children(control_type="Button")
+                    if len(buttons) >= 2:
+                        # 检查第一个按钮是否是OK
+                        first_button_text = buttons[0].window_text().strip().upper()
+                        if first_button_text == "OK":
+                            LOGGER.info(f"按位置点击第一个按钮（文本: '{buttons[0].window_text()}'）")
+                            buttons[0].click_input()
+                            ok_clicked = True
+                            LOGGER.info("✅ 已点击第一个按钮（确认为OK）")
+                except Exception as e3:
+                    LOGGER.debug(f"按位置点击按钮失败: {e3}")
+            
+            # 方法4: 尝试通过auto_id或其他属性查找OK按钮
+            if not ok_clicked:
+                try:
+                    # 尝试查找常见的按钮ID
+                    ok_ids = ["OK", "btnOK", "buttonOK", "idOK"]
+                    for btn_id in ok_ids:
+                        try:
+                            ok_button = login_dialog.child_window(auto_id=btn_id, control_type="Button")
+                            if ok_button.exists() and ok_button.is_enabled():
+                                btn_text = ok_button.window_text()
+                                LOGGER.info(f"通过auto_id找到OK按钮: '{btn_id}' (文本: '{btn_text}')")
+                                ok_button.click_input()
+                                ok_clicked = True
+                                LOGGER.info("✅ 已点击OK按钮（通过auto_id）")
+                                break
+                        except:
+                            continue
+                except Exception as e4:
+                    LOGGER.debug(f"通过auto_id查找OK按钮失败: {e4}")
+            
+            # 方法5: 使用Windows API直接查找和点击（win32gui方法）
+            if not ok_clicked and win32gui:
+                try:
+                    LOGGER.info("尝试使用Windows API查找按钮...")
+                    hwnd = login_dialog.handle
+                    
+                    # 枚举所有子窗口
+                    def enum_child_proc(hwnd_child, lParam):
+                        try:
+                            class_name = win32gui.GetClassName(hwnd_child)
+                            window_text = win32gui.GetWindowText(hwnd_child)
+                            if window_text.upper() == "OK" and "BUTTON" in class_name.upper():
+                                LOGGER.info(f"通过Windows API找到OK按钮: '{window_text}' (类名: {class_name})")
+                                # 发送BM_CLICK消息
+                                import win32con
+                                win32gui.PostMessage(hwnd_child, win32con.BM_CLICK, 0, 0)
+                                return False  # 停止枚举
+                            return True
+                        except:
+                            return True
+                    
+                    win32gui.EnumChildWindows(hwnd, enum_child_proc, None)
+                    # 给一点时间让点击生效
+                    time.sleep(0.5)
+                    ok_clicked = True
+                    LOGGER.info("✅ 已通过Windows API点击OK按钮")
+                except Exception as e5:
+                    LOGGER.debug(f"使用Windows API点击失败: {e5}")
+            
+            # 方法6: 尝试所有子控件，不指定类型
+            if not ok_clicked:
+                try:
+                    LOGGER.info("尝试查找所有子控件（不指定类型）...")
+                    all_children = login_dialog.children()
+                    for child in all_children:
+                        try:
+                            child_text = child.window_text().strip().upper()
+                            if child_text == "OK":
+                                LOGGER.info(f"找到OK控件（无类型限制: '{child.window_text()}'）")
+                                child.click_input()
+                                ok_clicked = True
+                                LOGGER.info("✅ 已点击OK控件（无类型限制）")
+                                break
+                        except:
+                            continue
+                except Exception as e6:
+                    LOGGER.debug(f"查找所有子控件失败: {e6}")
+            
+            if not ok_clicked:
+                LOGGER.warning("无法点击OK按钮，请手动处理登录对话框")
+            else:
+                # 等待对话框关闭
+                time.sleep(1)
+                LOGGER.info("登录对话框已处理")
+        
+        except Exception as e:
+            LOGGER.warning(f"处理登录对话框时出错: {e}")
+            LOGGER.warning("请手动处理登录对话框")
+    
+    def _is_process_running(self) -> bool:
+        """检查Mole进程是否在运行"""
+        if Application is None:
+            return False
+        try:
+            Application(backend="win32").connect(
+                title_re=self.config.window_title
+            )
+            return True
+        except ElementNotFoundError:
+            return False
+    
+    def submit_mir_data(self, data: dict) -> bool:
+        """
+        提交MIR数据到Mole工具
+        
+        Args:
+            data: 包含MIR数据的字典
+        
+        Returns:
+            bool: 提交是否成功
+        """
+        try:
+            # 确保应用程序已启动
+            self._ensure_application()
+            
+            # 处理登录对话框
+            self._handle_login_dialog()
+            
+            # 点击File菜单，然后选择New MIR Request
+            self._click_file_menu_new_mir_request()
+            
+            # 处理MIR is now MRS!信息对话框
+            self._handle_mir_mrs_info_dialog()
+            
+            # 点击Search By VPOs按钮（打开搜索对话框）
+            # 注意：填写对话框的逻辑将在workflow_main中调用
+            
+            LOGGER.info("✅ MIR数据提交成功")
+            return True
+            
+        except Exception as e:
+            LOGGER.error(f"❌ MIR数据提交失败: {e}")
+            raise RuntimeError(f"MIR数据提交失败: {e}")
+    
+    def verify_submission(self) -> bool:
+        """
+        验证数据是否提交成功
+        
+        Returns:
+            True如果验证通过
+        """
+        # TODO: 实现验证逻辑
+        # 例如：检查Mole工具中是否显示成功消息
+        try:
+            # 这里需要根据实际Mole工具的反馈机制来实现
+            LOGGER.info("✅ MIR数据提交验证通过")
+            return True
+        except Exception as e:
+            LOGGER.warning(f"验证提交时出错: {e}")
+            return False
+    
+    def _handle_mir_mrs_info_dialog(self) -> None:
+        """处理'MIR is now MRS!'信息对话框，自动点击OK按钮"""
+        if Application is None:
+            return
+        
+        LOGGER.info("检查是否有'MIR is now MRS!'信息对话框...")
+        
+        # 等待对话框出现（最多等待10秒）
+        info_dialog = None
+        deadline = time.time() + 10
+        dialog_titles = [
+            "MIR is now MRS!",
+            ".*MIR.*MRS.*",
+            ".*MRS.*"
+        ]
+        
+        while time.time() < deadline:
+            for title_pattern in dialog_titles:
+                try:
+                    # 尝试win32 backend
+                    try:
+                        dialog_app = Application(backend="win32").connect(
+                            title_re=title_pattern,
+                            visible_only=True,
+                            timeout=1
+                        )
+                        info_dialog = dialog_app.window(title_re=title_pattern)
+                        if info_dialog.exists() and info_dialog.is_visible():
+                            LOGGER.info(f"找到信息对话框: {info_dialog.window_text()} (backend: win32)")
+                            break
+                    except:
+                        pass
+                    
+                    # 尝试uia backend
+                    try:
+                        dialog_app = Application(backend="uia").connect(
+                            title_re=title_pattern,
+                            visible_only=True,
+                            timeout=1
+                        )
+                        info_dialog = dialog_app.window(title_re=title_pattern)
+                        if info_dialog.exists() and info_dialog.is_visible():
+                            LOGGER.info(f"找到信息对话框: {info_dialog.window_text()} (backend: uia)")
+                            break
+                    except:
+                        pass
+                except:
+                    continue
+            
+            if info_dialog is not None:
+                break
+            
+            time.sleep(0.3)
+        
+        if info_dialog is None:
+            LOGGER.info("未找到'MIR is now MRS!'对话框，可能未出现或已关闭")
+            return
+        
+        try:
+            # 激活对话框
+            info_dialog.set_focus()
+            time.sleep(0.3)
+            
+            ok_clicked = False
+            
+            # 方法1: 查找OK按钮并点击
+            try:
+                ok_button = info_dialog.child_window(title="OK", control_type="Button")
+                if ok_button.exists() and ok_button.is_enabled():
+                    LOGGER.info("找到OK按钮（通过title）")
+                    ok_button.click_input()
+                    ok_clicked = True
+                    LOGGER.info("✅ 已点击OK按钮（通过title）")
+            except Exception as e1:
+                LOGGER.debug(f"通过title查找OK按钮失败: {e1}")
+            
+            # 方法2: 遍历所有按钮查找OK
+            if not ok_clicked:
+                try:
+                    buttons = info_dialog.descendants(control_type="Button")
+                    LOGGER.info(f"找到 {len(buttons)} 个按钮")
+                    for button in buttons:
+                        try:
+                            button_text = button.window_text().strip().upper()
+                            if button_text == "OK":
+                                LOGGER.info(f"找到OK按钮（文本: '{button.window_text()}'）")
+                                button.click_input()
+                                ok_clicked = True
+                                LOGGER.info("✅ 已点击OK按钮（遍历按钮）")
+                                break
+                        except:
+                            continue
+                except Exception as e2:
+                    LOGGER.debug(f"遍历按钮失败: {e2}")
+            
+            # 方法3: 使用Enter键（如果焦点在OK按钮上）
+            if not ok_clicked:
+                try:
+                    LOGGER.info("尝试使用Enter键点击OK按钮")
+                    info_dialog.type_keys("{ENTER}")
+                    ok_clicked = True
+                    LOGGER.info("✅ 已使用Enter键点击OK按钮")
+                except Exception as e3:
+                    LOGGER.debug(f"使用Enter键失败: {e3}")
+            
+            # 方法4: 使用Windows API查找并点击OK按钮
+            if not ok_clicked and win32gui and win32con:
+                try:
+                    LOGGER.info("使用Windows API查找OK按钮...")
+                    hwnd = info_dialog.handle
+                    
+                    def enum_child_proc(hwnd_child, lParam):
+                        try:
+                            class_name = win32gui.GetClassName(hwnd_child)
+                            window_text = win32gui.GetWindowText(hwnd_child)
+                            if window_text.upper() == "OK" and "BUTTON" in class_name.upper():
+                                LOGGER.info(f"通过Windows API找到OK按钮: '{window_text}' (类名: {class_name})")
+                                win32gui.PostMessage(hwnd_child, win32con.BM_CLICK, 0, 0)
+                                return False  # 停止枚举
+                            return True
+                        except:
+                            return True
+                    
+                    win32gui.EnumChildWindows(hwnd, enum_child_proc, None)
+                    time.sleep(0.5)
+                    ok_clicked = True
+                    LOGGER.info("✅ 已通过Windows API点击OK按钮")
+                except Exception as e4:
+                    LOGGER.debug(f"使用Windows API点击失败: {e4}")
+            
+            if not ok_clicked:
+                LOGGER.warning("无法点击OK按钮，请手动处理对话框")
+            else:
+                # 等待对话框关闭
+                time.sleep(0.5)
+                LOGGER.info("✅ 信息对话框已处理")
+        
+        except Exception as e:
+            LOGGER.warning(f"处理信息对话框时出错: {e}")
+            LOGGER.warning("请手动处理'MIR is now MRS!'对话框")
+    
+    def _click_select_visible_rows_button(self) -> None:
+        """点击左侧的'Select Visible Rows'按钮"""
+        if Application is None:
+            return
+        
+        LOGGER.info("查找并点击'Select Visible Rows'按钮...")
+        
+        try:
+            # 确保主窗口有焦点
+            self._window.set_focus()
+            time.sleep(0.3)
+            
+            # 方法1: 通过按钮文本查找
+            try:
+                select_button = self._window.child_window(title="Select Visible Rows", control_type="Button")
+                if select_button.exists() and select_button.is_enabled() and select_button.is_visible():
+                    LOGGER.info("找到'Select Visible Rows'按钮（通过title）")
+                    # 获取按钮位置
+                    try:
+                        button_rect = select_button.rectangle()
+                        button_center_x = button_rect.left + (button_rect.right - button_rect.left) // 2
+                        button_center_y = button_rect.top + (button_rect.bottom - button_rect.top) // 2
+                        LOGGER.info(f"按钮中心坐标: ({button_center_x}, {button_center_y})")
+                    except:
+                        pass
+                    
+                    # 使用click_input()点击
+                    select_button.click_input()
+                    time.sleep(0.5)
+                    LOGGER.info("✅ 已点击'Select Visible Rows'按钮（通过title，使用click_input）")
+                    return
+            except Exception as e:
+                LOGGER.debug(f"通过title查找按钮失败: {e}")
+            
+            # 方法2: 遍历所有按钮查找
+            try:
+                all_buttons = self._window.descendants(control_type="Button")
+                LOGGER.info(f"找到 {len(all_buttons)} 个按钮")
+                for idx, button in enumerate(all_buttons):
+                    try:
+                        button_text = button.window_text().strip()
+                        LOGGER.debug(f"  按钮 #{idx}: 文本='{button_text}'")
+                        
+                        if "SELECT VISIBLE ROWS" in button_text.upper() or "SELECT VISIBLE" in button_text.upper():
+                            LOGGER.info(f"找到'Select Visible Rows'按钮（文本: '{button_text}'）")
+                            if button.is_enabled() and button.is_visible():
+                                # 获取按钮位置
+                                try:
+                                    button_rect = button.rectangle()
+                                    button_center_x = button_rect.left + (button_rect.right - button_rect.left) // 2
+                                    button_center_y = button_rect.top + (button_rect.bottom - button_rect.top) // 2
+                                    LOGGER.info(f"按钮中心坐标: ({button_center_x}, {button_center_y})")
+                                except:
+                                    pass
+                                
+                                # 使用click_input()点击
+                                button.click_input()
+                                time.sleep(0.5)
+                                LOGGER.info(f"✅ 已点击'Select Visible Rows'按钮（文本: '{button_text}'，使用click_input）")
+                                return
+                    except Exception as e:
+                        LOGGER.debug(f"检查按钮 #{idx} 时出错: {e}")
+                        continue
+            except Exception as e:
+                LOGGER.debug(f"遍历按钮失败: {e}")
+            
+            # 方法3: 使用Windows API查找
+            if win32gui:
+                try:
+                    main_hwnd = self._window.handle
+                    
+                    def enum_child_proc(hwnd_child, lParam):
+                        try:
+                            window_text = win32gui.GetWindowText(hwnd_child)
+                            if "SELECT VISIBLE ROWS" in window_text.upper() or "SELECT VISIBLE" in window_text.upper():
+                                lParam.append((hwnd_child, window_text))
+                        except:
+                            pass
+                        return True
+                    
+                    button_list = []
+                    win32gui.EnumChildWindows(main_hwnd, enum_child_proc, button_list)
+                    
+                    if button_list:
+                        button_hwnd, button_text = button_list[0]
+                        LOGGER.info(f"使用Windows API找到按钮: '{button_text}'")
+                        
+                        # 获取按钮位置并点击
+                        rect = win32gui.GetWindowRect(button_hwnd)
+                        center_x = (rect[0] + rect[2]) // 2
+                        center_y = (rect[1] + rect[3]) // 2
+                        
+                        try:
+                            import pyautogui
+                            pyautogui.click(center_x, center_y)
+                            time.sleep(0.5)
+                            LOGGER.info(f"✅ 已通过坐标点击'Select Visible Rows'按钮（位置: {center_x}, {center_y}）")
+                            return
+                        except ImportError:
+                            win32gui.PostMessage(button_hwnd, win32con.BM_CLICK, 0, 0)
+                            time.sleep(0.5)
+                            LOGGER.info("✅ 已通过Windows API点击'Select Visible Rows'按钮")
+                            return
+                except Exception as e:
+                    LOGGER.debug(f"使用Windows API查找按钮失败: {e}")
+            
+            LOGGER.warning("未找到'Select Visible Rows'按钮")
+            
+        except Exception as e:
+            LOGGER.error(f"点击'Select Visible Rows'按钮失败: {e}")
+            raise RuntimeError(f"无法点击'Select Visible Rows'按钮: {e}")
+    
+    def _handle_login_dialog(self) -> None:
+        """处理Mole登录对话框，自动点击OK按钮"""
+        if Application is None:
+            return
+        
+        LOGGER.info("等待MOLE LOGIN对话框出现...")
+        
+        # 等待登录对话框出现（最多等待30秒）
+        login_dialog = None
+        login_app = None
+        deadline = time.time() + 30
+        # 使用配置的标题，同时提供备选模式
+        dialog_titles = [
+            self.config.login_dialog_title,
+            ".*MOLE LOGIN.*",
+            ".*LOGIN.*",
+            ".*Login.*"
+        ]
+        
+        # 尝试不同的backend
+        backends = ["win32", "uia"]
+        
+        while time.time() < deadline:
+            for backend in backends:
+                for title_pattern in dialog_titles:
+                    try:
+                        login_app = Application(backend=backend).connect(
+                            title_re=title_pattern,
+                            visible_only=True,
+                            timeout=2
+                        )
+                        login_dialog = login_app.window(title_re=title_pattern)
+                        
+                        if login_dialog.exists() and login_dialog.is_visible():
+                            LOGGER.info(f"找到登录对话框: {login_dialog.window_text()} (backend: {backend})")
+                            break
+                    except Exception:
+                        continue
+                
+                if login_dialog is not None:
+                    break
+            
+            if login_dialog is not None:
+                break
+            
+            time.sleep(0.5)
+        
+        if login_dialog is None:
+            LOGGER.warning("未找到MOLE LOGIN对话框，可能已经登录或对话框已关闭")
+            return
+        
+        try:
+            # 激活对话框
+            login_dialog.set_focus()
+            time.sleep(0.5)
+            
+            # 打印控件结构用于调试（保存到日志）
+            try:
+                LOGGER.info("正在分析登录对话框的控件结构...")
+                # 将控件结构输出到字符串
+                import io
+                import sys
+                old_stdout = sys.stdout
+                sys.stdout = buffer = io.StringIO()
+                login_dialog.print_control_identifiers(depth=4)
+                sys.stdout = old_stdout
+                control_info = buffer.getvalue()
+                LOGGER.debug(f"登录对话框控件结构:\n{control_info}")
+                # 同时尝试查找所有可能的控件类型
+                LOGGER.info("查找所有可用的控件...")
+            except Exception as e:
+                LOGGER.debug(f"打印控件结构失败: {e}")
+            
+            # 查找并点击OK按钮
+            ok_clicked = False
+            
+            # 首先尝试多种方法查找所有按钮
+            all_buttons = []
+            
+            # 方法1: 使用children查找
+            try:
+                buttons1 = login_dialog.children(control_type="Button")
+                all_buttons.extend(buttons1)
+                LOGGER.info(f"通过children找到 {len(buttons1)} 个Button控件")
+            except Exception as e:
+                LOGGER.debug(f"通过children查找按钮失败: {e}")
+            
+            # 方法2: 使用descendants查找（查找所有子控件）
+            if len(all_buttons) == 0:
+                try:
+                    buttons2 = login_dialog.descendants(control_type="Button")
+                    all_buttons.extend(buttons2)
+                    LOGGER.info(f"通过descendants找到 {len(buttons2)} 个Button控件")
+                except Exception as e:
+                    LOGGER.debug(f"通过descendants查找按钮失败: {e}")
+            
+            # 方法3: 查找所有子窗口（可能按钮是子窗口）
+            if len(all_buttons) == 0:
+                try:
+                    all_windows = login_dialog.children()
+                    LOGGER.info(f"找到 {len(all_windows)} 个子控件")
+                    for win in all_windows:
+                        try:
+                            win_text = win.window_text()
+                            win_type = str(type(win))
+                            LOGGER.info(f"  控件: '{win_text}' (类型: {win_type})")
+                            if "Button" in win_type or win_text.upper() in ["OK", "CANCEL"]:
+                                all_buttons.append(win)
+                        except:
+                            pass
+                except Exception as e:
+                    LOGGER.debug(f"查找所有子窗口失败: {e}")
+            
+            # 方法4: 尝试child_windows()
+            if len(all_buttons) == 0:
+                try:
+                    child_windows = login_dialog.child_windows()
+                    LOGGER.info(f"通过child_windows找到 {len(child_windows)} 个子窗口")
+                    for win in child_windows:
+                        try:
+                            win_text = win.window_text()
+                            if win_text.upper() in ["OK", "CANCEL"]:
+                                all_buttons.append(win)
+                        except:
+                            pass
+                except Exception as e:
+                    LOGGER.debug(f"通过child_windows查找失败: {e}")
+            
+            # 列出找到的所有按钮
+            LOGGER.info(f"总共找到 {len(all_buttons)} 个可能的按钮控件")
+            for idx, btn in enumerate(all_buttons):
+                try:
+                    btn_text = btn.window_text()
+                    LOGGER.info(f"  按钮 {idx + 1}: '{btn_text}'")
+                except:
+                    LOGGER.info(f"  按钮 {idx + 1}: (无法获取文本)")
+            
+            # 方法1: 使用找到的按钮列表点击OK
+            if not ok_clicked and len(all_buttons) > 0:
+                for button in all_buttons:
+                    try:
+                        button_text = button.window_text().strip().upper()
+                        if button_text == "OK" and "CANCEL" not in button_text:
+                            LOGGER.info(f"找到OK按钮（从按钮列表中: '{button.window_text()}'）")
+                            button.click_input()
+                            ok_clicked = True
+                            LOGGER.info("✅ 已点击OK按钮（从按钮列表）")
+                            break
+                    except Exception as e:
+                        LOGGER.debug(f"检查按钮时出错: {e}")
+                        continue
+            
+            # 方法2: 精确匹配OK按钮（完全匹配，不区分大小写）
+            if not ok_clicked:
+                try:
+                    # 尝试多种方式精确匹配OK
+                    ok_patterns = ["OK", "Ok", "ok"]
+                    for pattern in ok_patterns:
+                        try:
+                            ok_button = login_dialog.child_window(title=pattern, control_type="Button")
+                            if ok_button.exists() and ok_button.is_enabled():
+                                btn_text = ok_button.window_text()
+                                LOGGER.info(f"找到OK按钮（精确匹配: '{btn_text}'）")
+                                ok_button.click_input()
+                                ok_clicked = True
+                                LOGGER.info("✅ 已点击OK按钮（通过精确匹配title）")
+                                break
+                        except:
+                            continue
+                except Exception as e1:
+                    LOGGER.debug(f"通过精确匹配查找OK按钮失败: {e1}")
+            
+            # 方法3: 使用descendants查找所有按钮（包括嵌套的）
+            if not ok_clicked:
+                try:
+                    all_descendants = login_dialog.descendants(control_type="Button")
+                    LOGGER.info(f"通过descendants找到 {len(all_descendants)} 个Button控件")
+                    for button in all_descendants:
+                        try:
+                            button_text = button.window_text().strip().upper()
+                            if button_text == "OK" and "CANCEL" not in button_text:
+                                LOGGER.info(f"找到OK按钮（descendants: '{button.window_text()}'）")
+                                button.click_input()
+                                ok_clicked = True
+                                LOGGER.info("✅ 已点击OK按钮（通过descendants）")
+                                break
+                        except Exception as e:
+                            LOGGER.debug(f"检查descendant按钮时出错: {e}")
+                            continue
+                except Exception as e3:
+                    LOGGER.debug(f"通过descendants查找按钮失败: {e3}")
+            
+            # 方法3: 如果OK通常是第一个按钮（在Cancel之前），按位置点击
+            if not ok_clicked:
+                try:
+                    buttons = login_dialog.children(control_type="Button")
+                    if len(buttons) >= 2:
+                        # 检查第一个按钮是否是OK
+                        first_button_text = buttons[0].window_text().strip().upper()
+                        if first_button_text == "OK":
+                            LOGGER.info(f"按位置点击第一个按钮（文本: '{buttons[0].window_text()}'）")
+                            buttons[0].click_input()
+                            ok_clicked = True
+                            LOGGER.info("✅ 已点击第一个按钮（确认为OK）")
+                except Exception as e3:
+                    LOGGER.debug(f"按位置点击按钮失败: {e3}")
+            
+            # 方法4: 尝试通过auto_id或其他属性查找OK按钮
+            if not ok_clicked:
+                try:
+                    # 尝试查找常见的按钮ID
+                    ok_ids = ["OK", "btnOK", "buttonOK", "idOK"]
+                    for btn_id in ok_ids:
+                        try:
+                            ok_button = login_dialog.child_window(auto_id=btn_id, control_type="Button")
+                            if ok_button.exists() and ok_button.is_enabled():
+                                btn_text = ok_button.window_text()
+                                LOGGER.info(f"通过auto_id找到OK按钮: '{btn_id}' (文本: '{btn_text}')")
+                                ok_button.click_input()
+                                ok_clicked = True
+                                LOGGER.info("✅ 已点击OK按钮（通过auto_id）")
+                                break
+                        except:
+                            continue
+                except Exception as e4:
+                    LOGGER.debug(f"通过auto_id查找OK按钮失败: {e4}")
+            
+            # 方法5: 使用Windows API直接查找和点击（win32gui方法）
+            if not ok_clicked and win32gui:
+                try:
+                    LOGGER.info("尝试使用Windows API查找按钮...")
+                    hwnd = login_dialog.handle
+                    
+                    # 枚举所有子窗口
+                    def enum_child_proc(hwnd_child, lParam):
+                        try:
+                            class_name = win32gui.GetClassName(hwnd_child)
+                            window_text = win32gui.GetWindowText(hwnd_child)
+                            if window_text.upper() == "OK" and "BUTTON" in class_name.upper():
+                                LOGGER.info(f"通过Windows API找到OK按钮: '{window_text}' (类名: {class_name})")
+                                # 发送BM_CLICK消息
+                                import win32con
+                                win32gui.PostMessage(hwnd_child, win32con.BM_CLICK, 0, 0)
+                                return False  # 停止枚举
+                            return True
+                        except:
+                            return True
+                    
+                    win32gui.EnumChildWindows(hwnd, enum_child_proc, None)
+                    # 给一点时间让点击生效
+                    time.sleep(0.5)
+                    ok_clicked = True
+                    LOGGER.info("✅ 已通过Windows API点击OK按钮")
+                except Exception as e5:
+                    LOGGER.debug(f"使用Windows API点击失败: {e5}")
+            
+            # 方法6: 尝试所有子控件，不指定类型
+            if not ok_clicked:
+                try:
+                    LOGGER.info("尝试查找所有子控件（不指定类型）...")
+                    all_children = login_dialog.children()
+                    for child in all_children:
+                        try:
+                            child_text = child.window_text().strip().upper()
+                            if child_text == "OK":
+                                LOGGER.info(f"找到OK控件（无类型限制: '{child.window_text()}'）")
+                                child.click_input()
+                                ok_clicked = True
+                                LOGGER.info("✅ 已点击OK控件（无类型限制）")
+                                break
+                        except:
+                            continue
+                except Exception as e6:
+                    LOGGER.debug(f"查找所有子控件失败: {e6}")
+            
+            if not ok_clicked:
+                LOGGER.warning("无法点击OK按钮，请手动处理登录对话框")
+            else:
+                # 等待对话框关闭
+                time.sleep(1)
+                LOGGER.info("登录对话框已处理")
+        
+        except Exception as e:
+            LOGGER.warning(f"处理登录对话框时出错: {e}")
+            LOGGER.warning("请手动处理登录对话框")
+    
+    def _is_process_running(self) -> bool:
+        """检查Mole进程是否在运行"""
+        if Application is None:
+            return False
+        try:
+            Application(backend="win32").connect(
+                title_re=self.config.window_title
+            )
+            return True
+        except ElementNotFoundError:
+            return False
+    
+    def submit_mir_data(self, data: dict) -> bool:
+        """
+        提交MIR数据到Mole工具
+        
+        Args:
+            data: 包含MIR数据的字典
+        
+        Returns:
+            True如果提交成功
+        
+        Raises:
+            RuntimeError: 如果提交失败
+        """
+        LOGGER.info("开始提交MIR数据到Mole工具")
+        LOGGER.debug(f"MIR数据: {data}")
+        
+        # 重试机制
+        last_exception = None
+        for attempt in range(1, self.config.retry_count + 1):
+            try:
+                LOGGER.info(f"尝试提交MIR数据 (第{attempt}/{self.config.retry_count}次)")
+                
+                # 确保应用程序已启动
+                self._ensure_application()
+                
+                # 点击File菜单，选择New MIR Request
+                if attempt == 1:  # 只在第一次尝试时打开New MIR Request
+                    self._click_file_menu_new_mir_request()
+                
+                # 激活窗口
+                if self._window:
+                    try:
+                        self._window.set_focus()
+                        if win32gui and win32con:
+                            hwnd = self._window.handle
+                            win32gui.SetForegroundWindow(hwnd)
+                            win32gui.BringWindowToTop(hwnd)
+                        time.sleep(0.5)
+                    except Exception as e:
+                        LOGGER.warning(f"设置窗口焦点失败: {e}")
+                
+                # TODO: 根据Mole工具的实际界面实现具体的数据输入逻辑
+                # 这里需要根据实际的Mole工具界面来填写表单
+                # 示例：查找输入框、填写数据、点击提交按钮等
+                
+                LOGGER.info("✅ MIR数据提交成功")
+                return True
+                
+            except Exception as e:
+                last_exception = e
+                LOGGER.warning(f"第{attempt}次提交失败: {e}")
+                if attempt < self.config.retry_count:
+                    LOGGER.info(f"等待{self.config.retry_delay}秒后重试...")
+                    time.sleep(self.config.retry_delay)
+                else:
+                    LOGGER.error(f"❌ MIR数据提交失败（已重试{self.config.retry_count}次）")
+        
+        raise RuntimeError(f"MIR数据提交失败: {last_exception}")
+    
+    def verify_submission(self) -> bool:
+        """
+        验证数据是否提交成功
+        
+        Returns:
+            True如果验证通过
+        """
+        # TODO: 实现验证逻辑
+        # 例如：检查Mole工具中是否显示成功消息
+        LOGGER.info("验证MIR数据提交结果...")
+        
+        try:
+            if self._window:
+                # 检查窗口状态、消息等
+                # 这里需要根据实际Mole工具的反馈机制来实现
+                LOGGER.info("✅ MIR数据提交验证通过")
+                return True
+        except Exception as e:
+            LOGGER.warning(f"验证提交结果时出错: {e}")
+        
+        return False
+

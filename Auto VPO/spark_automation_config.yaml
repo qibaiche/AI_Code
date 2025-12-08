@@ -1,0 +1,25 @@
+# Spark自动化配置文件
+# 此文件包含Spark提交VPO所需的关键参数
+
+# 应用程序路径
+mole:
+  executable_path: "C:/Users/qibaiche/Desktop/Mole 2.0.appref-ms"
+
+# Spark配置
+spark:
+  url: "https://spark.app.intel.com/dashboard"
+  vpo_category: "correlation"  # 可选值: correlation, engineering, walk the lot
+  step: "B5"  # Step选项: B4, B5, B0等
+  tags: "CCG_24J-TEST"  # Tags标签
+
+# Test Program路径
+test_program:
+  tp_path: "\\\\gar.corp.intel.com\\ec\\proj\\mdl\\pg\\intel\\tpvalidation\\hdmxprogs\\ptl\\PTLP484BXG24J4AS544\\POR_TP\\PTL_P_CLASS"
+
+# 其他可能需要的配置
+# 如果以后需要添加更多参数，可以在这里扩展
+# 例如：
+# mir:
+#   requestor: "qibaiche"
+#   comments: "Please bring to 2524 level 4"
+

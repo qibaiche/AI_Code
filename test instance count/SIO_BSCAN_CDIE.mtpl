@@ -1,0 +1,1040 @@
+Version 1.0;
+
+ProgramStyle = Modular;
+
+TestPlan SIO_BSCAN_CDIE;
+Import PrimeLotEndFinalizeTestMethod.xml;
+Import AuxiliaryTC.xml;
+Import DDGLeakage.xml;
+Import PrimeFunctionalTestMethod.xml;
+Import SIO_BSCAN_CDIE_vix_Levels.tcg;
+Import SIO_BSCAN_CDIE_vix_Timing.tcg;
+Import PrimeShmooTestMethod.xml;
+Import RtermSEPDorPU.xml;
+Import DDGLeakage.xml;
+Import MultiTestExecution.xml;
+Import TraceAnalyticsDcLeakage.xml;
+Import Legacy_Leakage_CDIE.lvl;
+
+#TODO add content here
+Test PrimeLotEndFinalizeTestMethod dummy
+{
+    BypassPort = 1;
+}
+Test TraceAnalyticsDcLeakage LEAKAGEHI_CPU_P0_DCLKG_POSTSOCMIN_MIN_0000_BSCAN_LEG
+{
+	LevelsTc = "IP_CPU_BASE::SBF_FUNC_min_lvl";
+	TimingsTc = "IP_CPU_BASE::cpu_ctf_timing_tclk100_hclk100_bclk400";
+	ConfigurationFile = GetEnvironmentVariable("~HDMT_TP_BASE_DIR") + "./Modules/SIO_BSCAN_CDIE/InputFiles/Legacy_Leakage_CDIE.dcleak.json";
+	TestType = "VSS";
+	LkgHiPlist = "cpu_lgcio_presoc_25_highz_x_x_x_list";
+	Configuration = "CDIE_Hot_Vmin_High_cdie_bscan_leakage_legacy_pins_10uA";
+       LkgHiLevels = "SIO_BSCAN_CDIE_CDIE_Hot_Vmin_High_cdie_bscan_leakage_legacy_pins_10uA_ForceHigh";
+	LogLevel = "Disabled";
+	LkgLoPlist = "cpu_lgcio_presoc_25_highz_x_x_x_list";
+	BypassPort = 1;
+}
+Test TraceAnalyticsDcLeakage LEAKAGELO_CPU_P0_DCLKG_POSTSOCMIN_MIN_0000_BSCAN_LEG
+{
+	LevelsTc = "IP_CPU_BASE::SBF_FUNC_min_lvl";
+	TimingsTc = "IP_CPU_BASE::cpu_ctf_timing_tclk100_hclk100_bclk400";
+	ConfigurationFile = GetEnvironmentVariable("~HDMT_TP_BASE_DIR") + "./Modules/SIO_BSCAN_CDIE/InputFiles/Legacy_Leakage_CDIE.dcleak.json";
+	TestType = "VCC";
+	LkgLoPlist = "cpu_lgcio_presoc_25_highz_x_x_x_list";
+	Configuration = "CDIE_Hot_Vmin_Low_cdie_bscan_leakage_legacy_pins_10uA";
+    LkgLoLevels = "SIO_BSCAN_CDIE_CDIE_Hot_Vmin_Low_cdie_bscan_leakage_legacy_pins_10uA_ForceLow";
+	LogLevel = "Disabled";
+	BypassPort = 1;
+}
+Test AuxiliaryTC SCREEN_AHMT
+{
+	Expression = "[__shared__::SCVars.SC_LOCN] == '6167' || [__shared__::SCVars.SC_LOCN] == '5167'";
+	DataType = "String";
+	ResultPort = "[R]?2:1";
+}
+Test PrimeFunctionalTestMethod VILSPEC_CPU_P0_FUNC_POSTCPU_MIN_0000_BSCAN_LEG 
+{
+    TimingsTc					 = "IP_CPU_BASE::cpu_ctf_timing_tclk100_hclk100_bclk400";
+    LevelsTc                     = "SIO_BSCAN_CDIE::SIO_BSCAN_CDIE_VMIN";
+    Patlist                      = "IP_CPU::cpu_lgcio_presoc_25_vil_all_x_x_list";  
+	FailuresToCaptureTotal       = 6;
+    FailuresToCapturePerPattern  = 3;
+    MaxFailuresToItuff           = 6;
+    MaxFailuresPerPatternToItuff = 3;
+}
+
+Test PrimeFunctionalTestMethod VIHSPEC_CPU_P0_FUNC_POSTCPU_MIN_0000_BSCAN_LEG
+{
+    TimingsTc					 = "IP_CPU_BASE::cpu_ctf_timing_tclk100_hclk100_bclk400";
+    LevelsTc                     = "SIO_BSCAN_CDIE::SIO_BSCAN_CDIE_VMIN";
+    Patlist                      = "IP_CPU::cpu_lgcio_presoc_25_vih_all_x_x_list";  
+	FailuresToCaptureTotal       = 6;
+    FailuresToCapturePerPattern  = 3;
+    MaxFailuresToItuff           = 6;
+    MaxFailuresPerPatternToItuff = 3;
+}
+
+Test PrimeFunctionalTestMethod VOLSPEC_CPU_P0_FUNC_POSTSOCMIN_MIN_0000_BSCAN_LEG 
+{
+	BypassPort = 1;
+    TimingsTc					 = "IP_CPU_BASE::cpu_ctf_timing_tclk100_hclk100_bclk400";
+    LevelsTc                     = "SIO_BSCAN_CDIE::SIO_BSCAN_CDIE_VMIN";
+    Patlist                      = "IP_CPU::cpu_lgcio_presoc_25_vol_all_x_x_list";  
+    FailuresToCaptureTotal       = 6;
+    FailuresToCapturePerPattern  = 3;
+    MaxFailuresToItuff           = 6;
+    MaxFailuresPerPatternToItuff = 3;
+}
+
+Test PrimeFunctionalTestMethod VOHSPEC_CPU_P0_FUNC_POSTSOCMIN_MIN_0000_BSCAN_LEG 
+{
+	BypassPort = 1;
+    TimingsTc					 = "IP_CPU_BASE::cpu_ctf_timing_tclk100_hclk100_bclk400";
+    LevelsTc                     = "SIO_BSCAN_CDIE::SIO_BSCAN_CDIE_VMIN";
+    Patlist                      = "IP_CPU::cpu_lgcio_presoc_25_voh_all_x_x_list";  
+    FailuresToCaptureTotal       = 6;
+    FailuresToCapturePerPattern  = 3;
+    MaxFailuresToItuff           = 6;
+    MaxFailuresPerPatternToItuff = 3;
+}
+
+Test TraceAnalyticsDcLeakage LKGHIGH_CPU_X_DCLKG_POSTCPU_MAX_X_BSCAN_LGCIO
+{
+	LevelsTc = "IP_CPU::IP_CPU_BASE::SBF_max_lvl";
+	TimingsTc = "IP_CPU::IP_CPU_BASE::cpu_ctf_timing_tclk100_hclk100_bclk400";
+	ConfigurationFile = GetEnvironmentVariable("~HDMT_TP_BASE_DIR") + "./Modules/SIO_BSCAN_CDIE/InputFiles/Legacy_Leakage_CDIE.dcleak.json";
+	TestType = "VSS";
+	LkgHiPlist = "cpu_lgcio_presoc_25_highz_x_x_x_list";
+	Configuration = "CDIE_Hot_Vmax_High_cdie_bscan_leakage_legacy_pins_10uA";
+       LkgHiLevels = "SIO_BSCAN_CDIE::Legacy_Leakage_CDIE_CDIE_Hot_Vmax_High_cdie_bscan_leakage_legacy_pins_10uA_ForceHigh";
+	LogLevel = "Disabled";
+	LkgLoPlist = "cpu_lgcio_presoc_25_highz_x_x_x_list";
+	BypassPort = -1;
+}
+Test TraceAnalyticsDcLeakage LKGLOW_CPU_X_DCLKG_POSTCPU_MAX_X_BSCAN_LGCIO
+{
+	LevelsTc = "IP_CPU::IP_CPU_BASE::SBF_max_lvl";
+	TimingsTc = "IP_CPU::IP_CPU_BASE::cpu_ctf_timing_tclk100_hclk100_bclk400";
+	ConfigurationFile = GetEnvironmentVariable("~HDMT_TP_BASE_DIR") + "./Modules/SIO_BSCAN_CDIE/InputFiles/Legacy_Leakage_CDIE.dcleak.json";
+	TestType = "VCC";
+	LkgLoPlist = "cpu_lgcio_presoc_25_highz_x_x_x_list";
+	Configuration = "CDIE_Hot_Vmax_Low_cdie_bscan_leakage_legacy_pins_100uA";
+    LkgLoLevels = "SIO_BSCAN_CDIE::Legacy_Leakage_CDIE_CDIE_Hot_Vmax_Low_cdie_bscan_leakage_legacy_pins_100uA_ForceLow";
+	LogLevel = "Disabled";
+	LkgHiPlist = "cpu_lgcio_presoc_25_highz_x_x_x_list";
+	BypassPort = -1;
+}
+Test PrimeFunctionalTestMethod VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_LGCIO
+{
+    LevelsTc = "SIO_BSCAN_CDIE::SIO_BSCAN_CDIE_VIX";
+	TimingsTc = "IP_CPU::IP_CPU_BASE::cpu_ctf_timing_tclk100_hclk100_bclk400";
+	Patlist                      = "IP_CPU::cpu_lgcio_presoc_25_vil_all_x_x_list";  
+	FailuresToCaptureTotal       = 6;
+    FailuresToCapturePerPattern  = 3;
+    MaxFailuresToItuff           = 6;
+    MaxFailuresPerPatternToItuff = 3;
+}
+
+Test PrimeFunctionalTestMethod VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_LGCIO
+{
+    LevelsTc = "SIO_BSCAN_CDIE::SIO_BSCAN_CDIE_VIX";
+	TimingsTc = "IP_CPU::IP_CPU_BASE::cpu_ctf_timing_tclk100_hclk100_bclk400";
+    Patlist                      = "IP_CPU::cpu_lgcio_presoc_25_vih_all_x_x_list";  
+	FailuresToCaptureTotal       = 6;
+    FailuresToCapturePerPattern  = 3;
+    MaxFailuresToItuff           = 6;
+    MaxFailuresPerPatternToItuff = 3;
+}
+
+Test RtermSEPDorPU TXRTERMPD_CPU_X_FUNC_POSTCPU_NOM_X_BSCAN_LGCIO
+{
+    LevelsTc   = "IP_CPU::IP_CPU_BASE::SBF_nom_lvl";
+	#LevelsTc  = "IP_CPU::IP_CPU_BASE::SBF_max_lvl";
+	TimingsTc  = "IP_CPU::IP_CPU_BASE::cpu_ctf_timing_tclk100_hclk100_bclk400";
+    Patlist    = "IP_CPU::cpu_lgcio_presoc_25_vol_all_x_x_list"; 
+	ResistanceHighLimit = 22.5; # limits update due to Packege routing + inteposer  around 5[Ohm]
+	ResistanceLowLimit = 13.5; # limits was 7.5-17.5
+	
+	HighLimits       = "1.5V,0.025A,1.5V,0.025A";
+	LowLimits        = "-0.02V,-0.025A,-0.02V,-0.025A";
+	MeasurementTypes = "V,C,V,C";  ##(ISVM=V, VSIM=C) 
+	SamplingCount    = "1,1,1,1";
+	Pins = "IP_CPU::XXVIDSOUT,IP_CPU::XXVIDSOUT, IP_CPU::XXVIDSCK, IP_CPU::XXVIDSCK";
+	SoftwareTriggerConfiguration =  GetEnvironmentVariable("~HDMT_TP_BASE_DIR") + "./Modules/SIO_BSCAN_CDIE/InputFiles/ANA_MEAS/TX_RTERM/LGC__TX_RTERM_SNDC_seperated_dn.json";
+	DataBaseName = "LEGACY";
+}
+
+
+Test RtermSEPDorPU TXRTERMPU_CPU_X_FUNC_POSTCPU_NOM_X_BSCAN_LGCIO
+{
+    LevelsTc   = "IP_CPU::IP_CPU_BASE::SBF_nom_lvl";
+	#LevelsTc  = "IP_CPU::IP_CPU_BASE::SBF_max_lvl";
+	TimingsTc  = "IP_CPU::IP_CPU_BASE::cpu_ctf_timing_tclk100_hclk100_bclk400";
+    Patlist    = "IP_CPU::cpu_lgcio_presoc_25_voh_all_x_x_list"; 
+	ResistanceHighLimit = 39.58;
+	ResistanceLowLimit = 0;
+	
+	HighLimits       = "1.5V,0.025A";
+	LowLimits        = "-0.02V,-0.025A";
+	MeasurementTypes = "V,C";  ##(ISVM=V, VSIM=C) 
+	SamplingCount    = "1,1";
+	Pins = "IP_CPU::XXPECI,IP_CPU::XXPECI";
+	SoftwareTriggerConfiguration =  GetEnvironmentVariable("~HDMT_TP_BASE_DIR") + "./Modules/SIO_BSCAN_CDIE/InputFiles/ANA_MEAS/TX_RTERM/LGC__TX_RTERM_SNDC_seperated_up.json";
+	DataBaseName = "LEGACY";
+}
+Test MultiTestExecution VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOpeci_MTT
+{
+	                                
+	BypassPort = -1;
+	TestName_1 = "SIO_BSCAN_CDIE::VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_LGCIO";
+	
+	X_Execution_Type = "LevelTC";
+	X_Param_or_Handel_Name = "c_peci_vil";
+	X_Range = "0.5:0.8:0.02";
+	Execution_Mode = "Execution_All";
+}
+Test MultiTestExecution VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOpeci_MTT
+{
+	BypassPort = -1;
+	TestName_1 = "SIO_BSCAN_CDIE::VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_LGCIO";
+	X_Execution_Type = "LevelTC";
+	X_Param_or_Handel_Name = "c_peci_vih";
+	X_Range = "1.0:0.3:0.02";
+	Execution_Mode = "Execution_All";
+}
+Test MultiTestExecution VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidalertb_MTT
+{
+	BypassPort = -1;
+	TestName_1 = "SIO_BSCAN_CDIE::VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_LGCIO";
+	X_Execution_Type = "LevelTC";
+	X_Param_or_Handel_Name = "c_vidalertb_vil";
+	X_Range = "0.3:0.6:0.02";
+	Execution_Mode = "Execution_All";
+}
+Test MultiTestExecution VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidsout_MTT
+{
+	BypassPort = -1;
+	TestName_1 = "SIO_BSCAN_CDIE::VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_LGCIO";
+	X_Execution_Type = "LevelTC";
+	X_Param_or_Handel_Name = "c_vidsout_vil";
+	X_Range = "0.5:0.8:0.02";
+	Execution_Mode = "Execution_All";
+}
+Test MultiTestExecution VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidalertb_MTT
+{
+	BypassPort = -1;
+	TestName_1 = "SIO_BSCAN_CDIE::VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_LGCIO";
+	X_Execution_Type = "LevelTC";
+	X_Param_or_Handel_Name = "c_vidalertb_vih";
+	X_Range = "1.0:0.3:0.02";
+	Execution_Mode = "Execution_All";
+}
+Test MultiTestExecution VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidsout_MTT
+{
+	BypassPort = -1;
+	TestName_1 = "SIO_BSCAN_CDIE::VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_LGCIO";
+	X_Execution_Type = "LevelTC";
+	X_Param_or_Handel_Name = "c_vidsout_vih";
+	X_Range = "1.0:0.3:0.02";
+	Execution_Mode = "Execution_All";
+}
+
+
+
+
+
+
+DUTFlow SIO_BSCAN_CDIE_INIT @INIT_CPU
+{
+	DUTFlowItem DUMMY1 dummy
+	{
+		Result -2 { Property PassFail = "Fail"; SetBin SoftBins.b90999901_fail_FAIL_DPS_ALARM;  Return -1;  }
+		Result -1 { Property PassFail = "Fail"; SetBin SoftBins.b90989801_fail_FAIL_SYSTEM_SOFTWARE;  Return -1;  }
+		Result 0
+		{
+			Property PassFail = "Fail";
+			Return 0;
+			#SetBin 
+			#IncrementCounters 
+		}
+		Result 1
+		{
+			Property PassFail = "Pass";
+			Return 1;
+			#SetBin 
+			#IncrementCounters 
+		}
+	}
+}
+
+
+
+
+
+DUTFlow SIO_BSCAN_CDIE_MAV @MAV_SubFlow               
+{
+	DUTFlowItem DUMMY3 dummy
+	{
+		Result -2 { Property PassFail = "Fail"; SetBin SoftBins.b90999901_fail_FAIL_DPS_ALARM;  Return -1;  }
+		Result -1 { Property PassFail = "Fail"; SetBin SoftBins.b90989801_fail_FAIL_SYSTEM_SOFTWARE;  Return -1;  }
+		Result 0
+		{
+			Property PassFail = "Fail";
+			Return 0;
+			#SetBin 
+			#IncrementCounters 
+		}
+		Result 1
+		{
+			Property PassFail = "Pass";
+			Return 1;
+			#SetBin 
+			#IncrementCounters 
+		}
+	}
+}
+
+
+
+DUTFlow SIO_BSCAN_CDIE_FACT @FACT_Subflow
+{
+	DUTFlowItem DUMMY4 dummy
+	{
+		Result -2 { Property PassFail = "Fail"; SetBin SoftBins.b90999901_fail_FAIL_DPS_ALARM;  Return -1;  }
+		Result -1 { Property PassFail = "Fail"; SetBin SoftBins.b90989801_fail_FAIL_SYSTEM_SOFTWARE;  Return -1;  }
+		Result 0
+		{
+			Property PassFail = "Fail";
+			Return 0;
+			#SetBin 
+			#IncrementCounters 
+		}
+		Result 1
+		{
+			Property PassFail = "Pass";
+			Return 1;
+			#SetBin 
+			#IncrementCounters 
+		}
+	}
+}
+DUTFlow LKG_VMAX
+{
+	DUTFlowItem LKGHIGH_CPU_X_DCLKG_POSTCPU_MAX_X_BSCAN_LGCIO LKGHIGH_CPU_X_DCLKG_POSTCPU_MAX_X_BSCAN_LGCIO
+	{
+		Result -2 { Property PassFail = "Fail"; SetBin SoftBins.b90999901_fail_FAIL_DPS_ALARM; Return -2; }
+		Result -1 { Property PassFail = "Fail"; SetBin SoftBins.b90989801_fail_FAIL_SYSTEM_SOFTWARE; Return -1; }
+		Result 0
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90095300_fail_SIO_BSCAN_CDIE_LKGHIGH_CPU_X_DCLKG_POSTCPU_MAX_X_BSCAN_LGCIO_0;
+			Return 0;
+		}
+		Result 1
+		{
+			Property PassFail = "Pass";
+			GoTo LKGLOW_CPU_X_DCLKG_POSTCPU_MAX_X_BSCAN_LGCIO;
+			#SetBin 
+			#IncrementCounters 
+		}
+		Result 2
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90095300_fail_SIO_BSCAN_CDIE_LKGHIGH_CPU_X_DCLKG_POSTCPU_MAX_X_BSCAN_LGCIO_0;
+			Return 0;
+		}
+		Result 3
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90095300_fail_SIO_BSCAN_CDIE_LKGHIGH_CPU_X_DCLKG_POSTCPU_MAX_X_BSCAN_LGCIO_0;
+			Return 0;
+		}
+	}
+	DUTFlowItem LKGLOW_CPU_X_DCLKG_POSTCPU_MAX_X_BSCAN_LGCIO LKGLOW_CPU_X_DCLKG_POSTCPU_MAX_X_BSCAN_LGCIO
+	{
+		Result -2 { Property PassFail = "Fail"; SetBin SoftBins.b90999901_fail_FAIL_DPS_ALARM; Return -2; }
+		Result -1 { Property PassFail = "Fail"; SetBin SoftBins.b90989801_fail_FAIL_SYSTEM_SOFTWARE; Return -1; }
+		Result 0
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90095310_fail_SIO_BSCAN_CDIE_LKGLOW_CPU_X_DCLKG_POSTCPU_MAX_X_BSCAN_LGCIO_0;
+			Return 0;
+		}
+		Result 1
+		{
+			Property PassFail = "Pass";
+			Return 1;
+			#SetBin 
+			#IncrementCounters 
+		}
+		Result 2
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90095310_fail_SIO_BSCAN_CDIE_LKGLOW_CPU_X_DCLKG_POSTCPU_MAX_X_BSCAN_LGCIO_0;
+			Return 0;
+		}
+		Result 3
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90095310_fail_SIO_BSCAN_CDIE_LKGLOW_CPU_X_DCLKG_POSTCPU_MAX_X_BSCAN_LGCIO_0;
+			Return 0;
+		}
+	}
+
+}
+DUTFlow VIX_VMAX
+{
+	DUTFlowItem VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_LGCIO VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_LGCIO
+	{
+		Result -2 { Property PassFail = "Fail"; SetBin SoftBins.b90999901_fail_FAIL_DPS_ALARM; Return -2; }
+		Result -1 { Property PassFail = "Fail"; SetBin SoftBins.b90989801_fail_FAIL_SYSTEM_SOFTWARE; Return -1; }
+		Result 0
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90115320_fail_SIO_BSCAN_CDIE_VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_LGCIO_0;
+			GoTo VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOpeci_MTT;
+		}
+		Result 1
+		{
+			Property PassFail = "Pass";
+			GoTo VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_LGCIO;	
+		}
+		Result 2
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90115320_fail_SIO_BSCAN_CDIE_VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_LGCIO_0;
+			GoTo VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOpeci_MTT;
+		
+		}
+		Result 3
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90115320_fail_SIO_BSCAN_CDIE_VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_LGCIO_0;
+			GoTo VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOpeci_MTT;
+		}
+		Result 4
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90115320_fail_SIO_BSCAN_CDIE_VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_LGCIO_0;
+			GoTo VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOpeci_MTT;
+		}
+		Result 5
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90115320_fail_SIO_BSCAN_CDIE_VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_LGCIO_0;
+			GoTo VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOpeci_MTT;
+		}
+	} 
+	DUTFlowItem VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_LGCIO VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_LGCIO
+	{
+		Result -2 { Property PassFail = "Fail"; SetBin SoftBins.b90999901_fail_FAIL_DPS_ALARM; Return -2; }
+		Result -1 { Property PassFail = "Fail"; SetBin SoftBins.b90989801_fail_FAIL_SYSTEM_SOFTWARE; Return -1; }
+		Result 0
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90115330_fail_SIO_BSCAN_CDIE_VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_LGCIO_0;
+			GoTo VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOpeci_MTT;
+		}
+		Result 1
+		{
+			Property PassFail = "Pass";
+			Return 1;		
+		}
+		Result 2
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90115330_fail_SIO_BSCAN_CDIE_VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_LGCIO_0;
+			GoTo VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOpeci_MTT;
+		
+		}
+		Result 3
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90115330_fail_SIO_BSCAN_CDIE_VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_LGCIO_0;
+			GoTo VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOpeci_MTT;
+		}
+		Result 4
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90115330_fail_SIO_BSCAN_CDIE_VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_LGCIO_0;
+			GoTo VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOpeci_MTT;
+		}
+		Result 5
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90115330_fail_SIO_BSCAN_CDIE_VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_LGCIO_0;
+			GoTo VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOpeci_MTT;
+		}
+	}
+	DUTFlowItem VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOpeci_MTT VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOpeci_MTT @EDC
+	{
+		Result -2 { Property PassFail = "Fail"; SetBin SoftBins.b90999901_fail_FAIL_DPS_ALARM; Return -2; }
+		Result -1 { Property PassFail = "Fail"; SetBin SoftBins.b90989801_fail_FAIL_SYSTEM_SOFTWARE; Return -1; }
+		Result 0
+		{
+			Property PassFail = "Fail";
+			GoTo VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidalertb_MTT;
+		}
+		Result 1
+		{
+			Property PassFail = "Pass";
+			GoTo VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidalertb_MTT;
+		}
+		Result 2
+		{
+			Property PassFail = "Pass";
+			GoTo VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidalertb_MTT;
+		}
+		Result 3
+		{
+			Property PassFail = "Pass";
+			GoTo VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidalertb_MTT;
+		}
+	}
+	DUTFlowItem VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidalertb_MTT VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidalertb_MTT @EDC
+	{
+		Result -2 { Property PassFail = "Fail"; SetBin SoftBins.b90999901_fail_FAIL_DPS_ALARM; Return -2; }
+		Result -1 { Property PassFail = "Fail"; SetBin SoftBins.b90989801_fail_FAIL_SYSTEM_SOFTWARE; Return -1; }
+		Result 0
+		{
+			Property PassFail = "Fail";
+			GoTo VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidsout_MTT;
+		}
+		Result 1
+		{
+			Property PassFail = "Pass";
+			GoTo VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidsout_MTT;
+		}
+		Result 2
+		{
+			Property PassFail = "Pass";
+			GoTo VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidsout_MTT;
+		}
+		Result 3
+		{
+			Property PassFail = "Pass";
+			GoTo VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidsout_MTT;
+		}
+	}
+	DUTFlowItem VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOpeci_MTT VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOpeci_MTT @EDC
+	{
+		Result -2 { Property PassFail = "Fail"; SetBin SoftBins.b90999901_fail_FAIL_DPS_ALARM; Return -2; }
+		Result -1 { Property PassFail = "Fail"; SetBin SoftBins.b90989801_fail_FAIL_SYSTEM_SOFTWARE; Return -1; }
+		Result 0
+		{
+			Property PassFail = "Fail";
+			GoTo VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidalertb_MTT;
+		}
+		Result 1
+		{
+			Property PassFail = "Pass";
+			GoTo VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidalertb_MTT;
+		}
+		Result 2
+		{
+			Property PassFail = "Pass";
+			GoTo VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidalertb_MTT;
+		}
+		Result 3
+		{
+			Property PassFail = "Pass";
+			GoTo VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidalertb_MTT;
+		}
+	}
+	DUTFlowItem VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidalertb_MTT VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidalertb_MTT @EDC
+	{
+		Result -2 { Property PassFail = "Fail"; SetBin SoftBins.b90999901_fail_FAIL_DPS_ALARM; Return -2; }
+		Result -1 { Property PassFail = "Fail"; SetBin SoftBins.b90989801_fail_FAIL_SYSTEM_SOFTWARE; Return -1; }
+		Result 0
+		{
+			Property PassFail = "Fail";
+			GoTo VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidsout_MTT;
+		}
+		Result 1
+		{
+			Property PassFail = "Pass";
+			GoTo VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidsout_MTT;
+		}
+		Result 2
+		{
+			Property PassFail = "Pass";
+			GoTo VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidsout_MTT;
+		}
+		Result 3
+		{
+			Property PassFail = "Pass";
+			GoTo VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidsout_MTT;
+		}
+	}
+	DUTFlowItem VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidsout_MTT VIHSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidsout_MTT @EDC
+	{
+		Result -2 { Property PassFail = "Fail"; SetBin SoftBins.b90999901_fail_FAIL_DPS_ALARM; Return -2; }
+		Result -1 { Property PassFail = "Fail"; SetBin SoftBins.b90989801_fail_FAIL_SYSTEM_SOFTWARE; Return -1; }
+		Result 0
+		{
+			Property PassFail = "Fail";
+			Return 0;
+		}
+		Result 1
+		{
+			Property PassFail = "Pass";
+			Return 0;
+		}
+		Result 2
+		{
+			Property PassFail = "Pass";
+			Return 0;
+		}
+		Result 3
+		{
+			Property PassFail = "Pass";
+			Return 0;
+		}
+	}
+	DUTFlowItem VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidsout_MTT VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_SHMOOvidsout_MTT @EDC
+	{
+		Result -2 { Property PassFail = "Fail"; SetBin SoftBins.b90999901_fail_FAIL_DPS_ALARM; Return -2; }
+		Result -1 { Property PassFail = "Fail"; SetBin SoftBins.b90989801_fail_FAIL_SYSTEM_SOFTWARE; Return -1; }
+		Result 0
+		{
+			Property PassFail = "Fail";
+			##EDC## SetBin SoftBins.b90115320_fail_SIO_BSCAN_CDIE_VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_LGCIO_0;
+			Return 0;
+		}
+		Result 1
+		{
+			Property PassFail = "Pass";
+			##EDC## SetBin SoftBins.b90115320_fail_SIO_BSCAN_CDIE_VILSPEC_CPU_P0_FUNC_POSTCPU_MAX_0000_BSCAN_LGCIO_0;
+			Return 0;
+		}
+		Result 2
+		{
+			Property PassFail = "Pass";
+			Return 0;
+		}
+		Result 3
+		{
+			Property PassFail = "Pass";
+			Return 0;
+		}
+	}
+
+}
+
+DUTFlow VOX_MAX
+{
+	DUTFlowItem TXRTERMPD_CPU_X_FUNC_POSTCPU_NOM_X_BSCAN_LGCIO TXRTERMPD_CPU_X_FUNC_POSTCPU_NOM_X_BSCAN_LGCIO
+	{
+		Result -2 { Property PassFail = "Fail"; SetBin SoftBins.b90999901_fail_FAIL_DPS_ALARM; Return -2; }
+		Result -1 { Property PassFail = "Fail"; SetBin SoftBins.b90989801_fail_FAIL_SYSTEM_SOFTWARE; Return -1; }
+		Result 0
+		{
+			SetBin SoftBins.b90115000_fail_SIO_BSCAN_CDIE_TXRTERMPD_CPU_X_FUNC_POSTCPU_NOM_X_BSCAN_LGCIO_0;
+			Property PassFail = "Fail";
+			Return 0;
+		}
+		Result 1
+		{
+			Property PassFail = "Pass";
+			GoTo TXRTERMPU_CPU_X_FUNC_POSTCPU_NOM_X_BSCAN_LGCIO;
+		}
+		Result 2
+		{
+			SetBin SoftBins.b90115000_fail_SIO_BSCAN_CDIE_TXRTERMPD_CPU_X_FUNC_POSTCPU_NOM_X_BSCAN_LGCIO_0;
+			Property PassFail = "Fail";
+			Return 0;
+		}
+		Result 3
+		{
+			SetBin SoftBins.b90115000_fail_SIO_BSCAN_CDIE_TXRTERMPD_CPU_X_FUNC_POSTCPU_NOM_X_BSCAN_LGCIO_0;
+			Property PassFail = "Fail";
+			Return 0;
+		}
+	}
+	DUTFlowItem TXRTERMPU_CPU_X_FUNC_POSTCPU_NOM_X_BSCAN_LGCIO TXRTERMPU_CPU_X_FUNC_POSTCPU_NOM_X_BSCAN_LGCIO
+	{
+		Result -2 { Property PassFail = "Fail"; SetBin SoftBins.b90999901_fail_FAIL_DPS_ALARM; Return -2; }
+		Result -1 { Property PassFail = "Fail"; SetBin SoftBins.b90989801_fail_FAIL_SYSTEM_SOFTWARE; Return -1; }
+		Result 0
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90115340_fail_SIO_BSCAN_CDIE_TXRTERMPU_CPU_X_FUNC_POSTCPU_NOM_X_BSCAN_LGCIO_0;
+			Return 0;
+		}
+		Result 1
+		{
+			Property PassFail = "Pass";
+			Return 1;
+		}
+		Result 2
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90115340_fail_SIO_BSCAN_CDIE_TXRTERMPU_CPU_X_FUNC_POSTCPU_NOM_X_BSCAN_LGCIO_0;
+			Return 0;
+		}
+		Result 3
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90115340_fail_SIO_BSCAN_CDIE_TXRTERMPU_CPU_X_FUNC_POSTCPU_NOM_X_BSCAN_LGCIO_0;
+			Return 0;
+		}
+	}
+
+}
+
+
+
+DUTFlow SIO_BSCAN_CDIE_VMAX @POSTCPU
+{
+	DUTFlowItem LKG_VMAX LKG_VMAX
+	{
+		Result -2 { Property PassFail = "Fail"; Return -2; }
+		Result -1 { Property PassFail = "Fail"; Return -1; }
+		Result 0 { Property PassFail = "Fail";
+			Return 0; }
+		Result 1 { Property PassFail = "Pass";
+			GoTo CHKAHMT_CPU_BSCAN_AUX_POSTCPU_VMAX_X_X_X; }
+	}
+
+	DUTFlowItem CHKAHMT_CPU_BSCAN_AUX_POSTCPU_VMAX_X_X_X SCREEN_AHMT @EDC
+	{
+		Result -2 { Property PassFail = "Fail"; SetBin SoftBins.b90999901_fail_FAIL_DPS_ALARM; Return -2; }
+		Result -1 { Property PassFail = "Fail"; SetBin SoftBins.b90989801_fail_FAIL_SYSTEM_SOFTWARE; Return -1; }
+		Result 0
+		{
+			Property PassFail = "Fail";
+			#SetBin SoftBins.;
+			GoTo VIX_VMAX;
+		}
+		Result 1
+		{
+			Property PassFail = "Pass";
+			GoTo VIX_VMAX;
+		}
+		Result 2
+		{
+			Property PassFail = "Pass";
+			Return 1;
+		}
+	}
+	DUTFlowItem VIX_VMAX VIX_VMAX
+	{
+		Result -2 { Property PassFail = "Fail"; Return -2; }
+		Result -1 { Property PassFail = "Fail"; Return -1; }
+		Result 0 { Property PassFail = "Fail";
+			Return 0; }
+		Result 1 { Property PassFail = "Pass";
+			GoTo VOX_MAX; }
+	}
+	DUTFlowItem VOX_MAX VOX_MAX
+	{
+		Result -2 { Property PassFail = "Fail"; Return -2; }
+		Result -1 { Property PassFail = "Fail"; Return -1; }
+		Result 0 { Property PassFail = "Fail";
+			Return 0; }
+		Result 1 { Property PassFail = "Pass";
+			Return 1; }
+	}
+}
+DUTFlow LKG_VMIN
+{
+	DUTFlowItem LEAKAGEHI_CPU_P0_DCLKG_POSTSOCMIN_MIN_0000_BSCAN_LEG LEAKAGEHI_CPU_P0_DCLKG_POSTSOCMIN_MIN_0000_BSCAN_LEG @EDC
+	{
+		Result -2 { Property PassFail = "Fail"; SetBin SoftBins.b90999901_fail_FAIL_DPS_ALARM; Return -2; }
+		Result -1 { Property PassFail = "Fail"; SetBin SoftBins.b90989801_fail_FAIL_SYSTEM_SOFTWARE; Return -1; }
+		Result 0
+		{
+			Property PassFail = "Fail";
+			GoTo LEAKAGELO_CPU_P0_DCLKG_POSTSOCMIN_MIN_0000_BSCAN_LEG;
+			#SetBin 
+			#IncrementCounters 
+		}
+		Result 1
+		{
+			Property PassFail = "Pass";
+			GoTo LEAKAGELO_CPU_P0_DCLKG_POSTSOCMIN_MIN_0000_BSCAN_LEG;
+			#SetBin 
+			#IncrementCounters 
+		}
+		Result 2
+		{
+			Property PassFail = "Fail";
+			GoTo LEAKAGELO_CPU_P0_DCLKG_POSTSOCMIN_MIN_0000_BSCAN_LEG;
+			#SetBin 
+			#IncrementCounters 
+		}
+		Result 3
+		{
+			Property PassFail = "Fail";
+			GoTo LEAKAGELO_CPU_P0_DCLKG_POSTSOCMIN_MIN_0000_BSCAN_LEG;
+			#SetBin 
+			#IncrementCounters 
+		}
+	}
+	DUTFlowItem LEAKAGELO_CPU_P0_DCLKG_POSTSOCMIN_MIN_0000_BSCAN_LEG LEAKAGELO_CPU_P0_DCLKG_POSTSOCMIN_MIN_0000_BSCAN_LEG @EDC
+	{
+		Result -2 { Property PassFail = "Fail"; SetBin SoftBins.b90999901_fail_FAIL_DPS_ALARM; Return -2; }
+		Result -1 { Property PassFail = "Fail"; SetBin SoftBins.b90989801_fail_FAIL_SYSTEM_SOFTWARE; Return -1; }
+		Result 0
+		{
+			Property PassFail = "Fail";
+			Return 1;
+			#SetBin 
+			#IncrementCounters 
+		}
+		Result 1
+		{
+			Property PassFail = "Pass";
+			Return 1;
+			#SetBin 
+			#IncrementCounters 
+		}
+		Result 2
+		{
+			Property PassFail = "Fail";
+			Return 1;
+			#SetBin 
+			#IncrementCounters 
+		}
+		Result 3
+		{
+			Property PassFail = "Fail";
+			Return 1;
+			#SetBin 
+			#IncrementCounters 
+		}
+	}
+
+}
+DUTFlow VIX_VMIN
+{
+	DUTFlowItem VILSPEC_CPU_P0_FUNC_POSTCPU_MIN_0000_BSCAN_LEG VILSPEC_CPU_P0_FUNC_POSTCPU_MIN_0000_BSCAN_LEG
+	{
+		Result -2 { Property PassFail = "Fail"; SetBin SoftBins.b90999901_fail_FAIL_DPS_ALARM; Return -2; }
+		Result -1 { Property PassFail = "Fail"; SetBin SoftBins.b90989801_fail_FAIL_SYSTEM_SOFTWARE; Return -1; }
+		Result 0
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90115214_fail_SIO_BSCAN_CDIE_VILSPEC_CPU_P0_FUNC_POSTCPU_MIN_0000_BSCAN_LEG_0;
+			Return 0;
+		}
+		Result 1
+		{
+			Property PassFail = "Pass";
+			GoTo VIHSPEC_CPU_P0_FUNC_POSTCPU_MIN_0000_BSCAN_LEG;	
+		}
+		Result 2
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90115214_fail_SIO_BSCAN_CDIE_VILSPEC_CPU_P0_FUNC_POSTCPU_MIN_0000_BSCAN_LEG_0;
+			Return 0;
+		}
+		Result 3
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90115214_fail_SIO_BSCAN_CDIE_VILSPEC_CPU_P0_FUNC_POSTCPU_MIN_0000_BSCAN_LEG_0;
+			Return 0;
+		}
+		Result 4
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90115214_fail_SIO_BSCAN_CDIE_VILSPEC_CPU_P0_FUNC_POSTCPU_MIN_0000_BSCAN_LEG_0;
+			Return 0;
+		}
+		Result 5
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90115214_fail_SIO_BSCAN_CDIE_VILSPEC_CPU_P0_FUNC_POSTCPU_MIN_0000_BSCAN_LEG_0;
+			Return 0;
+		}
+	} 
+	DUTFlowItem VIHSPEC_CPU_P0_FUNC_POSTCPU_MIN_0000_BSCAN_LEG VIHSPEC_CPU_P0_FUNC_POSTCPU_MIN_0000_BSCAN_LEG
+	{
+		Result -2 { Property PassFail = "Fail"; SetBin SoftBins.b90999901_fail_FAIL_DPS_ALARM; Return -2; }
+		Result -1 { Property PassFail = "Fail"; SetBin SoftBins.b90989801_fail_FAIL_SYSTEM_SOFTWARE; Return -1; }
+		Result 0
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90115141_fail_SIO_BSCAN_CDIE_VIHSPEC_CPU_P0_FUNC_POSTCPU_MIN_0000_BSCAN_LEG_0;
+			Return 0;
+		}
+		Result 1
+		{
+			Property PassFail = "Pass";
+			Return 1;		
+		}
+		Result 2
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90115141_fail_SIO_BSCAN_CDIE_VIHSPEC_CPU_P0_FUNC_POSTCPU_MIN_0000_BSCAN_LEG_0;
+			Return 0;
+		
+		}
+		Result 3
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90115141_fail_SIO_BSCAN_CDIE_VIHSPEC_CPU_P0_FUNC_POSTCPU_MIN_0000_BSCAN_LEG_0;
+			Return 0;
+		}
+		Result 4
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90115141_fail_SIO_BSCAN_CDIE_VIHSPEC_CPU_P0_FUNC_POSTCPU_MIN_0000_BSCAN_LEG_0;
+			Return 0;
+		}
+		Result 5
+		{
+			Property PassFail = "Fail";
+			SetBin SoftBins.b90115141_fail_SIO_BSCAN_CDIE_VIHSPEC_CPU_P0_FUNC_POSTCPU_MIN_0000_BSCAN_LEG_0;
+			Return 0;
+		}
+	}
+
+}
+DUTFlow VOX_VMIN
+{
+	DUTFlowItem VOLSPEC_CPU_P0_FUNC_POSTSOCMIN_MIN_0000_BSCAN_LEG VOLSPEC_CPU_P0_FUNC_POSTSOCMIN_MIN_0000_BSCAN_LEG @EDC
+	{
+		Result -2 { Property PassFail = "Fail"; SetBin SoftBins.b90999901_fail_FAIL_DPS_ALARM; Return -2; }
+		Result -1 { Property PassFail = "Fail"; SetBin SoftBins.b90989801_fail_FAIL_SYSTEM_SOFTWARE; Return -1; }
+		Result 0
+		{
+			Property PassFail = "Fail";
+		    GoTo VOHSPEC_CPU_P0_FUNC_POSTSOCMIN_MIN_0000_BSCAN_LEG;
+			#SetBin 
+			#IncrementCounters 
+		}
+		Result 1
+		{
+			Property PassFail = "Pass";
+			GoTo VOHSPEC_CPU_P0_FUNC_POSTSOCMIN_MIN_0000_BSCAN_LEG;
+			#SetBin 
+			#IncrementCounters 
+		}
+		Result 2
+		{
+			Property PassFail = "Fail";
+			GoTo VOHSPEC_CPU_P0_FUNC_POSTSOCMIN_MIN_0000_BSCAN_LEG;
+			#SetBin 
+			#IncrementCounters 
+		}
+		Result 3
+		{
+			Property PassFail = "Fail";
+		    GoTo VOHSPEC_CPU_P0_FUNC_POSTSOCMIN_MIN_0000_BSCAN_LEG;
+			#SetBin 
+			#IncrementCounters 
+		}
+		Result 4
+		{
+			Property PassFail = "Fail";
+		    GoTo VOHSPEC_CPU_P0_FUNC_POSTSOCMIN_MIN_0000_BSCAN_LEG;
+		}
+		Result 5
+		{
+			Property PassFail = "Fail";
+		    GoTo VOHSPEC_CPU_P0_FUNC_POSTSOCMIN_MIN_0000_BSCAN_LEG;
+		}
+	}
+	DUTFlowItem VOHSPEC_CPU_P0_FUNC_POSTSOCMIN_MIN_0000_BSCAN_LEG VOHSPEC_CPU_P0_FUNC_POSTSOCMIN_MIN_0000_BSCAN_LEG @EDC
+	{
+		Result -2 { Property PassFail = "Fail"; SetBin SoftBins.b90999901_fail_FAIL_DPS_ALARM; Return -2; }
+		Result -1 { Property PassFail = "Fail"; SetBin SoftBins.b90989801_fail_FAIL_SYSTEM_SOFTWARE; Return -1; }
+		Result 0
+		{
+			Property PassFail = "Fail";
+			Return 1;
+			#SetBin 
+			#IncrementCounters 
+		}
+		Result 1
+		{
+			Property PassFail = "Pass";
+			Return 1;
+			#SetBin 
+			#IncrementCounters 
+		}
+		Result 2
+		{
+			Property PassFail = "Fail";
+			Return 1;
+			#SetBin 
+			#IncrementCounters 
+		}
+		Result 3
+		{
+			Property PassFail = "Fail";
+			Return 1;
+			#SetBin 
+			#IncrementCounters 
+		}
+		Result 4
+		{
+			Property PassFail = "Fail";
+			Return 1;
+		}
+		Result 5
+		{
+			Property PassFail = "Fail";
+			Return 1;
+		}
+	}
+
+}
+
+
+
+DUTFlow SIO_BSCAN_CDIE_VMIN @POSTCPU
+{
+	DUTFlowItem LKG_VMIN LKG_VMIN
+	{
+		Result -2 { Property PassFail = "Fail"; Return -2; }
+		Result -1 { Property PassFail = "Fail"; Return -1; }
+		Result 0 { Property PassFail = "Fail";
+			Return 0; }
+		Result 1 { Property PassFail = "Pass";
+			GoTo CHKAHMT_CPU_BSCAN_AUX_POSTCPU_VMIN_X_X_X; }
+	}
+
+	DUTFlowItem CHKAHMT_CPU_BSCAN_AUX_POSTCPU_VMIN_X_X_X SCREEN_AHMT @EDC
+	{
+		Result -2 { Property PassFail = "Fail"; SetBin SoftBins.b90999901_fail_FAIL_DPS_ALARM; Return -2; }
+		Result -1 { Property PassFail = "Fail"; SetBin SoftBins.b90989801_fail_FAIL_SYSTEM_SOFTWARE; Return -1; }
+		Result 0
+		{
+			Property PassFail = "Fail";
+			#SetBin SoftBins.;
+			GoTo VIX_VMIN;
+		}
+		Result 1
+		{
+			Property PassFail = "Pass";
+			GoTo VIX_VMIN;
+		}
+		Result 2
+		{
+			Property PassFail = "Pass";
+			Return 1;
+		}
+	}
+	DUTFlowItem VIX_VMIN VIX_VMIN
+	{
+		Result -2 { Property PassFail = "Fail"; Return -2; }
+		Result -1 { Property PassFail = "Fail"; Return -1; }
+		Result 0 { Property PassFail = "Fail";
+			Return 0; }
+		Result 1 { Property PassFail = "Pass";
+			GoTo VOX_VMIN; }
+	}
+	DUTFlowItem VOX_VMIN VOX_VMIN
+	{
+		Result -2 { Property PassFail = "Fail"; Return -2; }
+		Result -1 { Property PassFail = "Fail"; Return -1; }
+		Result 0 { Property PassFail = "Fail";
+			Return 0; }
+		Result 1 { Property PassFail = "Pass";
+			Return 1; }
+	}
+}
+
+

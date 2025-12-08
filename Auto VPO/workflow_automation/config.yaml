@@ -1,0 +1,59 @@
+paths:
+  input_dir: ".."  # 输入文件目录（Auto VPO根目录）
+  source_lot_file: "../Source Lot.csv"  # Source Lot文件路径（相对于workflow_automation目录）
+  output_dir: "./reports"  # 输出文件目录
+  log_dir: "./logs"  # 日志目录
+  spark_config: "../spark_automation_config.yaml"  # Spark自动化配置文件（新格式）
+  
+  # 已弃用：file_path_config: "../file path.txt"  # 旧的文本配置文件，已被spark_automation_config.yaml替代
+  
+  # 以下配置从spark_automation_config.yaml读取，此处保留作为默认值
+  tp_path: "\\\\gar.corp.intel.com\\ec\\proj\\mdl\\pg\\intel\\tpvalidation\\hdmxprogs\\ptl\\PTLP484BXG24J4AS544\\POR_TP\\PTL_P_CLASS"  # TP路径
+
+# Mole工具配置
+mole:
+  executable_path: "C:/Users/qibaiche/Desktop/Mole 2.0.appref-ms"  # Mole工具可执行文件路径（.appref-ms文件）
+  window_title: ".*MOLE.*"  # Mole工具窗口标题（支持正则表达式，匹配包含MOLE的窗口）
+  login_dialog_title: "MOLE LOGIN"  # 登录对话框标题
+  timeout: 60  # 操作超时时间（秒）
+  retry_count: 3  # 重试次数
+  retry_delay: 2  # 重试延迟（秒）
+
+# Spark网页配置
+spark:
+  url: "https://spark.app.intel.com/dashboard"  # Spark网页URL
+  vpo_category: "correlation"  # VPO类别: correlation, engineering, 或 walk the lot
+  timeout: 60  # 页面加载超时时间（秒）
+  retry_count: 3  # 重试次数
+  retry_delay: 2  # 重试延迟（秒）
+  wait_after_submit: 5  # 提交后等待时间（秒）
+  # Selenium WebDriver配置
+  headless: false  # 是否使用无头模式（false表示显示浏览器）
+  implicit_wait: 10  # 隐式等待时间（秒）
+  explicit_wait: 20  # 显式等待时间（秒）
+
+# GTS网站配置
+gts:
+  url: null  # GTS网站URL，需要用户配置
+  timeout: 60  # 页面加载超时时间（秒）
+  retry_count: 3  # 重试次数
+  retry_delay: 2  # 重试延迟（秒）
+  wait_after_submit: 5  # 提交后等待时间（秒）
+  # Selenium WebDriver配置
+  headless: false  # 是否使用无头模式
+  implicit_wait: 10  # 隐式等待时间（秒）
+  explicit_wait: 20  # 显式等待时间（秒）
+
+# 通用超时配置
+timeouts:
+  excel_read: 30  # Excel读取超时
+  excel_write: 30  # Excel写入超时
+  step_execution: 300  # 每个步骤执行超时（秒）
+  overall: 900  # 整体工作流超时（秒）
+
+# 日志配置
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "workflow_automation.log"
+

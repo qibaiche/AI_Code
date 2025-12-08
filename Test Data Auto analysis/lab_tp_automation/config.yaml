@@ -1,0 +1,60 @@
+paths:
+  lots_file: "../Lot info.txt"
+  vg2_file: "../Lab_Class_Data_Performance.VG2"
+  spf_executable: null  # 通过 VG2 文件关联自动打开 SQLPathFinder
+  output_csv: "C:/Users/qibaiche/AppData/Local/Temp/SQLPathFinder_Temp/Lot_Level_Data.csv"
+  report_dir: "../reports"
+  log_dir: "../logs"
+
+fields:
+  facility: "Facility"
+  operation: "Operation"
+  sub_flow_step: "Sub Flow Step"
+  devrevstep: "Devrevstep"
+  program_name: "Program Name"
+  total_tested: "Total Tested"
+  tested_good: "Tested Good"
+  yield: "Yield"
+  ttg: "TTG"
+  ett: "ETT"
+  rcs: "RCS"
+  recovery_rate: "Recovery Rate"
+
+timeouts:
+  spf_launch: 60
+  ui_action: 30
+  execution_poll_interval: 5
+  file_stabilize_checks: 4
+  file_stabilize_interval: 2
+  overall_timeout: 900
+
+ui:
+  main_window_title: "SQLPathFinder"
+  run_button_automation_id: null
+  lot_popup_title: "Prompt For Values"
+  lot_input_automation_id: null
+  ok_button_automation_id: null
+  run_button_image: "../assets/run_button.png"
+
+processing:
+  # 按 Sub Flow Step 分组
+  group_by:
+    - "Sub Flow Step"
+    - "Devrevstep"
+    - "Program Name"
+
+email:
+  mode: "outlook"
+  to:
+    - "qibai.chen@intel.com"
+  cc: []
+  subject_template: "Lab TP Performance for PDE - {date}"
+  use_outlook_body_template: true
+  outlook_account: null
+  smtp:
+    host: null
+    port: 587
+    username: null
+    password: null
+    use_tls: true
+

@@ -1,0 +1,7 @@
+需要打开的软件 C:\Users\qibaiche\Desktop\Mole 2.0.appref-ms
+
+Spark 网址 https://spark.app.intel.com/dashboard
+
+TP 路径 \\gar.corp.intel.com\ec\proj\mdl\pg\intel\tpvalidation\hdmxprogs\ptl\PTLP484BXG24J4AS544\POR_TP\PTL_P_CLASS
+
+VPO catgory： correlation

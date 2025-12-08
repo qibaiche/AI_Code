@@ -1,0 +1,704 @@
+2025-12-05 07:05:59,486 - __main__ - INFO - ================================================================================
+2025-12-05 07:05:59,487 - __main__ - INFO - 自动化工作流启动
+2025-12-05 07:05:59,489 - __main__ - INFO - ================================================================================
+2025-12-05 07:05:59,491 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-05 07:05:59,492 - workflow_automation.workflow_main - INFO - 开始执行自动化工作流
+2025-12-05 07:05:59,492 - workflow_automation.workflow_main - INFO - 输入文件: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Auto VPO\Source Lot.csv
+2025-12-05 07:05:59,493 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-05 07:05:59,493 - workflow_automation.workflow_main - INFO - 
+================================================================================
+2025-12-05 07:05:59,493 - workflow_automation.workflow_main - INFO - 步骤 0/2: 启动Mole工具
+2025-12-05 07:05:59,494 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-05 07:05:59,494 - workflow_automation.workflow_main - INFO - 正在启动Mole工具...
+2025-12-05 07:05:59,513 - workflow_automation.mole_submitter - INFO - 启动Mole工具: C:\Users\qibaiche\Desktop\Mole 2.0.appref-ms
+2025-12-05 07:05:59,769 - workflow_automation.mole_submitter - INFO - 已通过os.startfile启动.appref-ms文件
+2025-12-05 07:05:59,782 - workflow_automation.mole_submitter - INFO - 等待Mole登录对话框...
+2025-12-05 07:05:59,783 - workflow_automation.mole_submitter - INFO - 等待MOLE LOGIN对话框出现...
+2025-12-05 07:06:09,458 - workflow_automation.mole_submitter - INFO - 找到登录对话框: MOLE LOGIN (backend: uia)
+2025-12-05 07:06:10,002 - workflow_automation.mole_submitter - INFO - 正在分析登录对话框的控件结构...
+2025-12-05 07:06:10,891 - workflow_automation.mole_submitter - INFO - 查找所有可用的控件...
+2025-12-05 07:06:10,980 - workflow_automation.mole_submitter - INFO - 通过children找到 3 个Button控件
+2025-12-05 07:06:10,981 - workflow_automation.mole_submitter - INFO - 总共找到 3 个可能的按钮控件
+2025-12-05 07:06:10,982 - workflow_automation.mole_submitter - INFO -   按钮 1: 'Password'
+2025-12-05 07:06:10,983 - workflow_automation.mole_submitter - INFO -   按钮 2: 'OK'
+2025-12-05 07:06:10,984 - workflow_automation.mole_submitter - INFO -   按钮 3: 'Cancel'
+2025-12-05 07:06:10,989 - workflow_automation.mole_submitter - INFO - 找到OK按钮（从按钮列表中: 'OK'）
+2025-12-05 07:06:11,156 - workflow_automation.mole_submitter - INFO - ✅ 已点击OK按钮（从按钮列表）
+2025-12-05 07:06:12,174 - workflow_automation.mole_submitter - INFO - 登录对话框已处理
+2025-12-05 07:06:17,022 - workflow_automation.mole_submitter - INFO - 已通过进程句柄连接到Mole窗口: MOLE v4.9.12.20  [Chen, Qibai (PNG-CPU - Convergence Site)] - 202549 (backend: win32)
+2025-12-05 07:06:17,028 - workflow_automation.workflow_main - INFO - ✅ Mole工具已启动
+2025-12-05 07:06:17,029 - workflow_automation.workflow_main - INFO - 
+================================================================================
+2025-12-05 07:06:17,030 - workflow_automation.workflow_main - INFO - 步骤 1/2: 读取source lot文件
+2025-12-05 07:06:17,030 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-05 07:06:17,030 - workflow_automation.data_reader - INFO - 正在读取CSV文件: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Auto VPO\Source Lot.csv
+2025-12-05 07:06:17,034 - workflow_automation.data_reader - INFO - 成功使用 utf-8 编码读取CSV文件: 4 行，3 列
+2025-12-05 07:06:17,035 - workflow_automation.workflow_main - INFO - ✅ 成功读取CSV文件: 4 行，3 列
+2025-12-05 07:06:17,035 - workflow_automation.workflow_main - INFO - 
+================================================================================
+2025-12-05 07:06:17,036 - workflow_automation.workflow_main - INFO - 步骤 2/2: 提交MIR数据到Mole工具（循环处理所有行）
+2025-12-05 07:06:17,036 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-05 07:06:17,036 - workflow_automation.workflow_main - INFO - 读取Source Lot文件...
+2025-12-05 07:06:17,036 - workflow_automation.data_reader - INFO - 正在读取CSV文件: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Auto VPO\Source Lot.csv
+2025-12-05 07:06:17,038 - workflow_automation.data_reader - INFO - 成功使用 utf-8 编码读取CSV文件: 4 行，3 列
+2025-12-05 07:06:17,039 - workflow_automation.workflow_main - INFO - Source Lot文件列名: ['SourceLot', 'Part Type', 'Quantity']
+2025-12-05 07:06:17,039 - workflow_automation.workflow_main - INFO - Source Lot文件共有 4 行数据
+2025-12-05 07:06:17,039 - workflow_automation.workflow_main - INFO - 找到SourceLot列: 'SourceLot'
+2025-12-05 07:06:17,040 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-05 07:06:17,040 - workflow_automation.workflow_main - INFO - 处理第 1/4 行: SourceLot = PTPB0DOE400
+2025-12-05 07:06:17,040 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-05 07:06:17,040 - workflow_automation.workflow_main - INFO - 开始Mole工具操作流程...
+2025-12-05 07:06:17,040 - workflow_automation.mole_submitter - INFO - 开始提交MIR数据到Mole工具
+2025-12-05 07:06:17,040 - workflow_automation.mole_submitter - INFO - 尝试提交MIR数据 (第1/3次)
+2025-12-05 07:06:17,040 - workflow_automation.mole_submitter - INFO - 点击File菜单（全屏模式，左上角菜单栏）...
+2025-12-05 07:06:17,541 - workflow_automation.mole_submitter - INFO - 窗口位置: left=-12, top=-12, right=3852, bottom=2100
+2025-12-05 07:06:17,541 - workflow_automation.mole_submitter - INFO - 使用Windows API点击File菜单...
+2025-12-05 07:06:17,541 - workflow_automation.mole_submitter - WARNING - 未找到菜单句柄，尝试其他方法
+2025-12-05 07:06:17,542 - workflow_automation.mole_submitter - INFO - 使用Alt+F快捷键打开File菜单
+2025-12-05 07:06:17,595 - workflow_automation.mole_submitter - INFO - ✅ 已使用Alt+F打开File菜单
+2025-12-05 07:06:18,800 - workflow_automation.mole_submitter - INFO - 在下拉菜单中选择'New MIR Request'（第5个菜单项）...
+2025-12-05 07:06:18,800 - workflow_automation.mole_submitter - INFO - 使用Windows API精确查找'New MIR Request'菜单项...
+2025-12-05 07:06:18,800 - workflow_automation.mole_submitter - INFO - 使用键盘导航选择第5个菜单项'New MIR Request'...
+2025-12-05 07:06:19,001 - workflow_automation.mole_submitter - INFO - 按4次下箭头键...
+2025-12-05 07:06:19,957 - workflow_automation.mole_submitter - INFO - 按Enter键确认选择...
+2025-12-05 07:06:19,975 - workflow_automation.mole_submitter - INFO - ✅ 已使用键盘导航选择'New MIR Request'（下箭头4次+Enter）
+2025-12-05 07:06:20,978 - workflow_automation.mole_submitter - INFO - ✅ 已成功打开New MIR Request
+2025-12-05 07:06:20,979 - workflow_automation.mole_submitter - INFO - 检查是否有'MIR is now MRS!'信息对话框...
+2025-12-05 07:06:21,002 - workflow_automation.mole_submitter - INFO - 找到信息对话框: MIR is now MRS! (backend: win32)
+2025-12-05 07:06:21,817 - workflow_automation.mole_submitter - INFO - 找到 0 个按钮
+2025-12-05 07:06:21,817 - workflow_automation.mole_submitter - INFO - 尝试使用Enter键点击OK按钮
+2025-12-05 07:06:21,832 - workflow_automation.mole_submitter - INFO - ✅ 已使用Enter键点击OK按钮
+2025-12-05 07:06:22,333 - workflow_automation.mole_submitter - INFO - ✅ 信息对话框已处理
+2025-12-05 07:06:23,335 - workflow_automation.mole_submitter - INFO - 点击'Search By VPOs'按钮...
+2025-12-05 07:06:24,522 - workflow_automation.mole_submitter - INFO - 找到 0 个按钮
+2025-12-05 07:06:24,806 - workflow_automation.mole_submitter - INFO - 使用Windows API查找'Search By VPOs'按钮...
+2025-12-05 07:06:25,125 - workflow_automation.mole_submitter - INFO - 通过Windows API找到按钮: 'Search By VPOs' (类名: WindowsForms10.BUTTON.app.0.2ac7198_r9_ad1)
+2025-12-05 07:06:25,764 - workflow_automation.mole_submitter - INFO - ✅ 已通过Windows API点击'Search By VPOs'按钮
+2025-12-05 07:06:26,808 - workflow_automation.mole_submitter - INFO - ✅ 已成功点击'Search By VPOs'按钮
+2025-12-05 07:06:27,486 - workflow_automation.mole_submitter - INFO - ✅ MIR数据提交成功
+2025-12-05 07:06:27,486 - workflow_automation.workflow_main - INFO - 填写VPO搜索对话框...
+2025-12-05 07:06:27,486 - workflow_automation.mole_submitter - INFO - 等待VPO搜索对话框出现...
+2025-12-05 07:06:27,486 - workflow_automation.mole_submitter - INFO - 查找VPO搜索对话框（模态对话框，标题: MOLE）...
+2025-12-05 07:06:27,486 - workflow_automation.mole_submitter - INFO - 使用Windows API枚举所有窗口...
+2025-12-05 07:06:27,487 - workflow_automation.mole_submitter - INFO - 找到 1 个可能的对话框窗口
+2025-12-05 07:06:27,488 - workflow_automation.mole_submitter - INFO -   窗口: 'MOLE' (大小: 675x677)
+2025-12-05 07:06:27,493 - workflow_automation.mole_submitter - INFO - 选择对话框: 'MOLE' (大小: 675x677)
+2025-12-05 07:06:27,498 - workflow_automation.mole_submitter - INFO - ✅ 找到VPO搜索对话框: 'MOLE' (使用主窗口app实例, handle: 3409500)
+2025-12-05 07:06:28,174 - workflow_automation.mole_submitter - INFO - 填写Source Lot值: PTPB0DOE400
+2025-12-05 07:06:28,177 - workflow_automation.mole_submitter - INFO - 已复制值到剪贴板
+2025-12-05 07:06:28,186 - workflow_automation.mole_submitter - INFO - 找到 0 个Edit控件
+2025-12-05 07:06:28,187 - workflow_automation.mole_submitter - INFO - 找到 0 个文本相关控件
+2025-12-05 07:06:28,187 - workflow_automation.mole_submitter - WARNING - 未找到可用的文本输入控件，尝试估算位置...
+2025-12-05 07:06:28,188 - workflow_automation.mole_submitter - INFO - 估算白色区域位置: (1920, 1145)
+2025-12-05 07:06:29,109 - workflow_automation.mole_submitter - INFO - ✅ 已通过估算位置填写Source Lot值: PTPB0DOE400
+2025-12-05 07:06:29,610 - workflow_automation.mole_submitter - INFO - 点击Search按钮...
+2025-12-05 07:06:30,121 - workflow_automation.mole_submitter - INFO - 找到 0 个按钮
+2025-12-05 07:06:30,122 - workflow_automation.mole_submitter - INFO - 尝试使用uia backend查找Search按钮...
+2025-12-05 07:06:30,761 - workflow_automation.mole_submitter - INFO - 使用uia backend找到Search按钮
+2025-12-05 07:06:31,220 - workflow_automation.mole_submitter - INFO - ✅ 已通过uia backend点击Search按钮
+2025-12-05 07:06:32,334 - workflow_automation.mole_submitter - INFO - ✅ 已成功填写Source Lot值并点击Search按钮
+2025-12-05 07:06:32,439 - workflow_automation.workflow_main - INFO - 检查搜索结果行状态...
+2025-12-05 07:06:32,512 - workflow_automation.mole_submitter - INFO - 执行选择和添加流程...
+2025-12-05 07:06:34,529 - workflow_automation.mole_submitter - INFO - 步骤1: 点击 'Select Visible Rows'
+2025-12-05 07:06:34,529 - workflow_automation.mole_submitter - INFO - 查找并点击'Select Visible Rows'按钮...
+2025-12-05 07:06:34,904 - workflow_automation.mole_submitter - INFO - 找到 0 个按钮
+2025-12-05 07:06:34,904 - workflow_automation.mole_submitter - INFO - 使用Windows API找到按钮: 'Select Visible Rows'
+2025-12-05 07:06:35,537 - workflow_automation.mole_submitter - INFO - ✅ 已通过坐标点击'Select Visible Rows'按钮（位置: 218, 814）
+2025-12-05 07:06:36,541 - workflow_automation.mole_submitter - INFO - 步骤2: 点击 'Add to Summary'
+2025-12-05 07:06:36,541 - workflow_automation.mole_submitter - INFO - 查找并点击左下角的'Add to summary'按钮...
+2025-12-05 07:06:36,909 - workflow_automation.mole_submitter - INFO - 找到 0 个按钮
+2025-12-05 07:06:36,910 - workflow_automation.mole_submitter - INFO - 使用Windows API找到按钮: 'Add to Summary'（距离左下角: 389.2像素）
+2025-12-05 07:06:37,536 - workflow_automation.mole_submitter - INFO - ✅ 已通过坐标点击'Add to summary'按钮（位置: 218, 1778，已调整Y坐标往上）
+2025-12-05 07:06:39,041 - workflow_automation.mole_submitter - INFO - 步骤3: 点击 '3. View Summary' 标签
+2025-12-05 07:06:39,045 - workflow_automation.mole_submitter - INFO - 点击 '3. View Summary' 标签页（使用相对定位）...
+2025-12-05 07:06:39,257 - workflow_automation.mole_submitter - INFO - 窗口位置: left=-12, top=-12, width=3864, height=2112
+2025-12-05 07:06:39,270 - workflow_automation.mole_submitter - INFO - 找到参考标签 '1. Transfer Type' 中心: (223, 108)
+2025-12-05 07:06:39,271 - workflow_automation.mole_submitter - INFO - 参考标签相对位置: X=6.08%, Y=5.68%
+2025-12-05 07:06:39,271 - workflow_automation.mole_submitter - INFO - 基于参考标签计算: 目标位置=(253, 160)
+2025-12-05 07:06:39,271 - workflow_automation.mole_submitter - INFO -   相对偏移: X=0.80%窗口宽度, Y=2.50%窗口高度
+2025-12-05 07:06:39,272 - workflow_automation.mole_submitter - INFO - 最终点击位置: (253, 160)
+2025-12-05 07:06:40,380 - workflow_automation.mole_submitter - INFO - ✅ 已点击 '3. View Summary' 标签页 at (253, 160)
+2025-12-05 07:06:41,414 - workflow_automation.mole_submitter - INFO - 步骤4: 填写 'Requestor Comments'
+2025-12-05 07:06:41,414 - workflow_automation.mole_submitter - INFO - 填写Requestor Comments...
+2025-12-05 07:06:41,715 - workflow_automation.mole_submitter - INFO - 读取MIR Comments文件: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Auto VPO\MIR Comments.txt
+2025-12-05 07:06:41,716 - workflow_automation.mole_submitter - INFO - MIR Comments内容: This MIR for submit validation please direct close...
+2025-12-05 07:06:41,726 - workflow_automation.mole_submitter - INFO - 已复制内容到剪贴板
+2025-12-05 07:06:41,732 - workflow_automation.mole_submitter - INFO - 窗口位置: left=-12, top=-12, width=3864, height=2112
+2025-12-05 07:06:41,738 - workflow_automation.mole_submitter - INFO - 查找'Requestor Comments'标签...
+2025-12-05 07:06:41,743 - workflow_automation.mole_submitter - INFO - 找到'Requestor Comments'标签: 位置=(672, 189), 文本='Requestor Comments:'
+2025-12-05 07:06:41,744 - workflow_automation.mole_submitter - INFO - 标签位置: left=672, top=189, right=839, bottom=209
+2025-12-05 07:06:41,776 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(672, 224), 面积=159681, 距离标签=167.7
+2025-12-05 07:06:41,782 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(672, 284), 面积=338148, 距离标签=183.1
+2025-12-05 07:06:41,788 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(222, 293), 面积=5670, 距离标签=622.7
+2025-12-05 07:06:41,790 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(420, 293), 面积=7020, 距离标签=427.3
+2025-12-05 07:06:41,793 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(222, 357), 面积=12960, 距离标签=634.5
+2025-12-05 07:06:41,806 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(213, 488), 面积=5130, 距离标签=685.4
+2025-12-05 07:06:41,807 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(393, 488), 面积=6480, 距离标签=526.1
+2025-12-05 07:06:41,812 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(771, 488), 面积=5730, 距离标签=287.2
+2025-12-05 07:06:41,813 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(971, 488), 面积=7650, 距离标签=308.7
+2025-12-05 07:06:41,818 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1235, 488), 面积=7650, 距离标签=484.4
+2025-12-05 07:06:41,825 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(224, 449), 面积=149556, 距离标签=660.2
+2025-12-05 07:06:41,836 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(272, 401), 面积=6360, 距离标签=598.6
+2025-12-05 07:06:41,842 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(272, 359), 面积=13230, 距离标签=586.5
+2025-12-05 07:06:41,851 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(729, 234), 面积=607068, 距离标签=112.8
+2025-12-05 07:06:41,859 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(224, 273), 面积=5310, 距离标签=618.3
+2025-12-05 07:06:41,861 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(410, 273), 面积=9090, 距离标签=433.7
+2025-12-05 07:06:41,864 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(224, 314), 面积=11490, 距离标签=623.9
+2025-12-05 07:06:41,891 - workflow_automation.mole_submitter - INFO - 选择最近的文本区域: 位置=(729, 234)
+2025-12-05 07:06:41,891 - workflow_automation.mole_submitter - INFO - 点击文本区域中心位置: (2262, 333)
+2025-12-05 07:06:43,187 - workflow_automation.mole_submitter - INFO - ✅ 已填写Requestor Comments（使用剪贴板粘贴）
+2025-12-05 07:06:43,688 - workflow_automation.mole_submitter - INFO - ✅ 已完成选择和添加操作，并切换到Summary标签，已填写Comments
+2025-12-05 07:06:43,688 - workflow_automation.workflow_main - INFO - 点击Submit按钮...
+2025-12-05 07:06:43,688 - workflow_automation.mole_submitter - INFO - 点击'Submit'按钮...
+2025-12-05 07:06:44,320 - workflow_automation.mole_submitter - INFO - 找到 0 个按钮
+2025-12-05 07:06:44,441 - workflow_automation.mole_submitter - INFO - 使用Windows API查找'Submit'按钮...
+2025-12-05 07:06:44,442 - workflow_automation.mole_submitter - INFO - 通过Windows API找到按钮: 'Submit' (类名: WindowsForms10.BUTTON.app.0.2ac7198_r9_ad1)
+2025-12-05 07:06:44,943 - workflow_automation.mole_submitter - INFO - ✅ 已通过Windows API点击'Submit'按钮
+2025-12-05 07:06:47,945 - workflow_automation.mole_submitter - INFO - 发现Warning对话框: 'Warning' (类名: #32770)
+2025-12-05 07:06:47,946 - workflow_automation.mole_submitter - INFO - 检测到 1 个对话框
+2025-12-05 07:06:47,946 - workflow_automation.mole_submitter - INFO - ✅ 检测到Warning对话框: 'Warning' - Submit按钮点击成功！
+2025-12-05 07:06:47,946 - workflow_automation.mole_submitter - INFO - 检查并处理Submit后的确认对话框...
+2025-12-05 07:06:47,946 - workflow_automation.mole_submitter - INFO - 等待 2.0 秒，让对话框 #1 弹出...
+2025-12-05 07:06:49,948 - workflow_automation.mole_submitter - INFO - 当前所有可见窗口（共7个）：
+2025-12-05 07:06:49,948 - workflow_automation.mole_submitter - INFO -     窗口: 'Warning' (类名: #32770)
+2025-12-05 07:06:49,948 - workflow_automation.mole_submitter - INFO -     窗口: 'MOLE v4.9.12.20  [Chen, Qibai (PNG-CPU - Convergence Site)] - 202549 - [Submit MIR Request]' (类名: WindowsForms10.Window.8.app.0.2ac7198_r9_ad1)
+2025-12-05 07:06:49,949 - workflow_automation.mole_submitter - INFO -     窗口: 'C:\WINDOWS\system32\cmd.exe' (类名: CASCADIA_HOSTING_WINDOW_CLASS)
+2025-12-05 07:06:49,949 - workflow_automation.mole_submitter - INFO -     窗口: 'Auto VPO - File Explorer' (类名: CabinetWClass)
+2025-12-05 07:06:49,950 - workflow_automation.mole_submitter - INFO -     窗口: 'AI_Code - Cursor [Administrator]' (类名: Chrome_WidgetWin_1)
+2025-12-05 07:06:49,950 - workflow_automation.mole_submitter - INFO -     窗口: 'Windows Input Experience' (类名: Windows.UI.Core.CoreWindow)
+2025-12-05 07:06:49,951 - workflow_automation.mole_submitter - INFO -     窗口: 'Program Manager' (类名: Progman)
+2025-12-05 07:06:49,956 - workflow_automation.mole_submitter - INFO -     潜在对话框: 'Warning', 类名=#32770
+2025-12-05 07:06:49,957 - workflow_automation.mole_submitter - INFO -     ✅ 确认为对话框: 'Warning', 类名=#32770
+2025-12-05 07:06:49,957 - workflow_automation.mole_submitter - INFO -     潜在对话框: 'MOLE v4.9.12.20  [Chen, Qibai (PNG-CPU - Convergence Site)] - 202549 - [Submit MIR Request]', 类名=WindowsForms10.Window.8.app.0.2ac7198_r9_ad1
+2025-12-05 07:06:49,958 - workflow_automation.mole_submitter - INFO - 扫描到 1 个对话框，已处理: 0 个
+2025-12-05 07:06:49,958 - workflow_automation.mole_submitter - INFO - 找到确认对话框 #1: 'Warning' (尝试 1/3)
+2025-12-05 07:06:49,958 - workflow_automation.mole_submitter - INFO - 准备处理对话框 #1: 'Warning' (句柄: 3147856)
+2025-12-05 07:06:49,959 - workflow_automation.mole_submitter - INFO - 对话框可见性: 1
+2025-12-05 07:06:49,959 - workflow_automation.mole_submitter - INFO - 开始点击对话框 #1 的Yes按钮...
+2025-12-05 07:06:49,959 - workflow_automation.mole_submitter - INFO - 点击尝试 1/3...
+2025-12-05 07:06:49,959 - workflow_automation.mole_submitter - INFO - 正在处理独立窗口: 'Warning' (Handle: 3147856)
+2025-12-05 07:06:50,461 - workflow_automation.mole_submitter - INFO -   扫描到按钮: '&Yes' (类名: Button)
+2025-12-05 07:06:50,461 - workflow_automation.mole_submitter - INFO -   ✅ 匹配到Yes按钮！原始文本: '&Yes'
+2025-12-05 07:06:50,461 - workflow_automation.mole_submitter - INFO - ✅ 找到Yes按钮! 屏幕坐标: (1910, 1166)
+2025-12-05 07:06:50,942 - workflow_automation.mole_submitter - INFO - 🖱️ 已执行鼠标点击
+2025-12-05 07:06:51,246 - workflow_automation.mole_submitter - INFO - ✅ 已成功处理对话框 #1: 'Warning'
+2025-12-05 07:06:51,248 - workflow_automation.mole_submitter - INFO - 等待下一个对话框弹出...
+2025-12-05 07:06:51,261 - workflow_automation.mole_submitter - INFO - 等待 4.0 秒，让对话框 #2 弹出...
+2025-12-05 07:06:55,268 - workflow_automation.mole_submitter - INFO - 当前所有可见窗口（共7个）：
+2025-12-05 07:06:55,272 - workflow_automation.mole_submitter - INFO -     窗口: 'Submit MIR Request' (类名: WindowsForms10.Window.8.app.0.2ac7198_r9_ad1)
+2025-12-05 07:06:55,283 - workflow_automation.mole_submitter - INFO -     窗口: 'MOLE v4.9.12.20  [Chen, Qibai (PNG-CPU - Convergence Site)] - 202549 - [Submit MIR Request]' (类名: WindowsForms10.Window.8.app.0.2ac7198_r9_ad1)
+2025-12-05 07:06:55,286 - workflow_automation.mole_submitter - INFO -     窗口: 'C:\WINDOWS\system32\cmd.exe' (类名: CASCADIA_HOSTING_WINDOW_CLASS)
+2025-12-05 07:06:55,286 - workflow_automation.mole_submitter - INFO -     窗口: 'Auto VPO - File Explorer' (类名: CabinetWClass)
+2025-12-05 07:06:55,287 - workflow_automation.mole_submitter - INFO -     窗口: 'AI_Code - Cursor [Administrator]' (类名: Chrome_WidgetWin_1)
+2025-12-05 07:06:55,287 - workflow_automation.mole_submitter - INFO -     窗口: 'Windows Input Experience' (类名: Windows.UI.Core.CoreWindow)
+2025-12-05 07:06:55,287 - workflow_automation.mole_submitter - INFO -     窗口: 'Program Manager' (类名: Progman)
+2025-12-05 07:06:55,288 - workflow_automation.mole_submitter - INFO -     潜在对话框: 'Submit MIR Request', 类名=WindowsForms10.Window.8.app.0.2ac7198_r9_ad1
+2025-12-05 07:06:55,288 - workflow_automation.mole_submitter - INFO -     根据标题匹配为对话框: 'Submit MIR Request'
+2025-12-05 07:06:55,288 - workflow_automation.mole_submitter - INFO -     ✅ 确认为对话框: 'Submit MIR Request', 类名=WindowsForms10.Window.8.app.0.2ac7198_r9_ad1
+2025-12-05 07:06:55,288 - workflow_automation.mole_submitter - INFO -     潜在对话框: 'MOLE v4.9.12.20  [Chen, Qibai (PNG-CPU - Convergence Site)] - 202549 - [Submit MIR Request]', 类名=WindowsForms10.Window.8.app.0.2ac7198_r9_ad1
+2025-12-05 07:06:55,289 - workflow_automation.mole_submitter - INFO - 扫描到 1 个对话框，已处理: 1 个
+2025-12-05 07:06:55,290 - workflow_automation.mole_submitter - INFO - 找到确认对话框 #2: 'Submit MIR Request' (尝试 1/3)
+2025-12-05 07:06:55,290 - workflow_automation.mole_submitter - INFO - 准备处理对话框 #2: 'Submit MIR Request' (句柄: 4654986)
+2025-12-05 07:06:55,290 - workflow_automation.mole_submitter - INFO - 对话框可见性: 1
+2025-12-05 07:06:55,290 - workflow_automation.mole_submitter - INFO - 开始点击对话框 #2 的Yes按钮...
+2025-12-05 07:06:55,291 - workflow_automation.mole_submitter - INFO - 点击尝试 1/3...
+2025-12-05 07:06:55,291 - workflow_automation.mole_submitter - INFO - 正在处理独立窗口: 'Submit MIR Request' (Handle: 4654986)
+2025-12-05 07:06:55,792 - workflow_automation.mole_submitter - INFO -   扫描到按钮: 'Yes' (类名: WindowsForms10.BUTTON.app.0.2ac7198_r9_ad1)
+2025-12-05 07:06:55,794 - workflow_automation.mole_submitter - INFO -   ✅ 匹配到Yes按钮！原始文本: 'Yes'
+2025-12-05 07:06:55,798 - workflow_automation.mole_submitter - INFO - ✅ 找到Yes按钮! 屏幕坐标: (1854, 1258)
+2025-12-05 07:06:56,288 - workflow_automation.mole_submitter - INFO - 🖱️ 已执行鼠标点击
+2025-12-05 07:06:56,591 - workflow_automation.mole_submitter - INFO - ✅ 已成功处理对话框 #2: 'Submit MIR Request'
+2025-12-05 07:06:56,591 - workflow_automation.mole_submitter - INFO - 等待下一个对话框弹出...
+2025-12-05 07:06:56,591 - workflow_automation.mole_submitter - INFO - 等待 4.0 秒，让对话框 #3 弹出...
+2025-12-05 07:07:00,593 - workflow_automation.mole_submitter - INFO - 当前所有可见窗口（共6个）：
+2025-12-05 07:07:00,594 - workflow_automation.mole_submitter - INFO -     窗口: 'MOLE v4.9.12.20  [Chen, Qibai (PNG-CPU - Convergence Site)] - 202549 - [Submit MIR Request]' (类名: WindowsForms10.Window.8.app.0.2ac7198_r9_ad1)
+2025-12-05 07:07:00,594 - workflow_automation.mole_submitter - INFO -     窗口: 'C:\WINDOWS\system32\cmd.exe' (类名: CASCADIA_HOSTING_WINDOW_CLASS)
+2025-12-05 07:07:00,594 - workflow_automation.mole_submitter - INFO -     窗口: 'Auto VPO - File Explorer' (类名: CabinetWClass)
+2025-12-05 07:07:00,595 - workflow_automation.mole_submitter - INFO -     窗口: 'AI_Code - Cursor [Administrator]' (类名: Chrome_WidgetWin_1)
+2025-12-05 07:07:00,595 - workflow_automation.mole_submitter - INFO -     窗口: 'Windows Input Experience' (类名: Windows.UI.Core.CoreWindow)
+2025-12-05 07:07:00,595 - workflow_automation.mole_submitter - INFO -     窗口: 'Program Manager' (类名: Progman)
+2025-12-05 07:07:00,596 - workflow_automation.mole_submitter - INFO -     潜在对话框: 'MOLE v4.9.12.20  [Chen, Qibai (PNG-CPU - Convergence Site)] - 202549 - [Submit MIR Request]', 类名=WindowsForms10.Window.8.app.0.2ac7198_r9_ad1
+2025-12-05 07:07:00,599 - workflow_automation.mole_submitter - INFO - 扫描到 0 个对话框，已处理: 2 个
+2025-12-05 07:07:00,600 - workflow_automation.mole_submitter - INFO - 暂未找到新对话框，等待1.5秒后重试... (尝试 1/3)
+2025-12-05 07:07:02,101 - workflow_automation.mole_submitter - INFO -     潜在对话框: 'MOLE v4.9.12.20  [Chen, Qibai (PNG-CPU - Convergence Site)] - 202549 - [Submit MIR Request]', 类名=WindowsForms10.Window.8.app.0.2ac7198_r9_ad1
+2025-12-05 07:07:02,102 - workflow_automation.mole_submitter - INFO - 扫描到 0 个对话框，已处理: 2 个
+2025-12-05 07:07:02,103 - workflow_automation.mole_submitter - INFO - 暂未找到新对话框，等待1.5秒后重试... (尝试 2/3)
+2025-12-05 07:07:03,603 - workflow_automation.mole_submitter - INFO -     潜在对话框: 'MOLE v4.9.12.20  [Chen, Qibai (PNG-CPU - Convergence Site)] - 202549 - [Submit MIR Request]', 类名=WindowsForms10.Window.8.app.0.2ac7198_r9_ad1
+2025-12-05 07:07:03,604 - workflow_automation.mole_submitter - INFO - 扫描到 0 个对话框，已处理: 2 个
+2025-12-05 07:07:03,605 - workflow_automation.mole_submitter - INFO - ✅ 已处理所有确认对话框（共2个）
+2025-12-05 07:07:03,605 - workflow_automation.mole_submitter - INFO - ✅ 已成功点击'Submit'按钮（验证通过：检测到Warning对话框）
+2025-12-05 07:07:03,605 - workflow_automation.workflow_main - INFO - 处理最终成功对话框并获取MIR号码...
+2025-12-05 07:07:03,607 - workflow_automation.mole_submitter - INFO - 等待最终成功对话框出现...
+2025-12-05 07:07:05,607 - workflow_automation.mole_submitter - INFO - 找到成功对话框: 'Submit MIR Request' (类名: WindowsForms10.Window.8.app.0.2ac7198_r9_ad1)
+2025-12-05 07:07:05,608 - workflow_automation.mole_submitter - INFO - ✅ 找到成功对话框 (句柄: 4720522)
+2025-12-05 07:07:06,110 - workflow_automation.mole_submitter - INFO -   扫描到按钮: 'Close' (类名: WindowsForms10.BUTTON.app.0.2ac7198_r9_ad1)
+2025-12-05 07:07:06,110 - workflow_automation.mole_submitter - INFO -   扫描到按钮: 'Copy MIR# && Close' (类名: WindowsForms10.BUTTON.app.0.2ac7198_r9_ad1)
+2025-12-05 07:07:06,110 - workflow_automation.mole_submitter - INFO -   ✅ 匹配到Copy MIR & Close按钮！原始文本: 'Copy MIR# && Close'
+2025-12-05 07:07:06,110 - workflow_automation.mole_submitter - INFO - ✅ 找到Copy MIR & Close按钮! 屏幕坐标: (1839, 1132)
+2025-12-05 07:07:06,599 - workflow_automation.mole_submitter - INFO - 🖱️ 已点击Copy MIR & Close按钮
+2025-12-05 07:07:07,104 - workflow_automation.mole_submitter - INFO - ✅ 已从剪贴板获取MIR号码: 2558284
+2025-12-05 07:07:07,105 - workflow_automation.workflow_main - INFO - ✅ 第 1 行处理成功: SourceLot=PTPB0DOE400, MIR=2558284
+2025-12-05 07:07:07,106 - workflow_automation.workflow_main - INFO - 等待2秒后处理下一行...
+2025-12-05 07:07:09,108 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-05 07:07:09,108 - workflow_automation.workflow_main - INFO - 处理第 2/4 行: SourceLot = PTPB0DOE401
+2025-12-05 07:07:09,108 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-05 07:07:09,108 - workflow_automation.workflow_main - INFO - 开始Mole工具操作流程...
+2025-12-05 07:07:09,109 - workflow_automation.mole_submitter - INFO - 开始提交MIR数据到Mole工具
+2025-12-05 07:07:09,109 - workflow_automation.mole_submitter - INFO - 尝试提交MIR数据 (第1/3次)
+2025-12-05 07:07:09,109 - workflow_automation.mole_submitter - INFO - 点击File菜单（全屏模式，左上角菜单栏）...
+2025-12-05 07:07:09,614 - workflow_automation.mole_submitter - INFO - 窗口位置: left=-12, top=-12, right=3852, bottom=2100
+2025-12-05 07:07:09,614 - workflow_automation.mole_submitter - INFO - 使用Windows API点击File菜单...
+2025-12-05 07:07:09,614 - workflow_automation.mole_submitter - WARNING - 未找到菜单句柄，尝试其他方法
+2025-12-05 07:07:09,614 - workflow_automation.mole_submitter - INFO - 使用Alt+F快捷键打开File菜单
+2025-12-05 07:07:09,663 - workflow_automation.mole_submitter - INFO - ✅ 已使用Alt+F打开File菜单
+2025-12-05 07:07:10,866 - workflow_automation.mole_submitter - INFO - 在下拉菜单中选择'New MIR Request'（第5个菜单项）...
+2025-12-05 07:07:10,866 - workflow_automation.mole_submitter - INFO - 使用Windows API精确查找'New MIR Request'菜单项...
+2025-12-05 07:07:10,866 - workflow_automation.mole_submitter - INFO - 使用键盘导航选择第5个菜单项'New MIR Request'...
+2025-12-05 07:07:11,067 - workflow_automation.mole_submitter - INFO - 按4次下箭头键...
+2025-12-05 07:07:12,027 - workflow_automation.mole_submitter - INFO - 按Enter键确认选择...
+2025-12-05 07:07:12,044 - workflow_automation.mole_submitter - INFO - ✅ 已使用键盘导航选择'New MIR Request'（下箭头4次+Enter）
+2025-12-05 07:07:13,048 - workflow_automation.mole_submitter - INFO - ✅ 已成功打开New MIR Request
+2025-12-05 07:07:13,048 - workflow_automation.mole_submitter - INFO - 检查是否有'MIR is now MRS!'信息对话框...
+2025-12-05 07:07:25,946 - workflow_automation.mole_submitter - INFO - 未找到'MIR is now MRS!'对话框，可能未出现或已关闭
+2025-12-05 07:07:26,946 - workflow_automation.mole_submitter - INFO - 点击'Search By VPOs'按钮...
+2025-12-05 07:07:27,572 - workflow_automation.mole_submitter - INFO - 找到 0 个按钮
+2025-12-05 07:07:27,694 - workflow_automation.mole_submitter - INFO - 使用Windows API查找'Search By VPOs'按钮...
+2025-12-05 07:07:27,695 - workflow_automation.mole_submitter - INFO - 通过Windows API找到按钮: 'Search By VPOs' (类名: WindowsForms10.BUTTON.app.0.2ac7198_r9_ad1)
+2025-12-05 07:07:28,197 - workflow_automation.mole_submitter - INFO - ✅ 已通过Windows API点击'Search By VPOs'按钮
+2025-12-05 07:07:29,198 - workflow_automation.mole_submitter - INFO - ✅ 已成功点击'Search By VPOs'按钮
+2025-12-05 07:07:29,699 - workflow_automation.mole_submitter - INFO - ✅ MIR数据提交成功
+2025-12-05 07:07:29,700 - workflow_automation.workflow_main - INFO - 填写VPO搜索对话框...
+2025-12-05 07:07:29,700 - workflow_automation.mole_submitter - INFO - 等待VPO搜索对话框出现...
+2025-12-05 07:07:29,700 - workflow_automation.mole_submitter - INFO - 查找VPO搜索对话框（模态对话框，标题: MOLE）...
+2025-12-05 07:07:29,701 - workflow_automation.mole_submitter - INFO - 使用Windows API枚举所有窗口...
+2025-12-05 07:07:29,701 - workflow_automation.mole_submitter - INFO - 找到 0 个可能的对话框窗口
+2025-12-05 07:07:29,702 - workflow_automation.mole_submitter - INFO - 使用pywinauto方法查找对话框...
+2025-12-05 07:07:44,766 - workflow_automation.workflow_main - ERROR - ❌ 第 2 行处理失败: 未找到VPO搜索对话框（标题: MOLE）
+2025-12-05 07:07:44,773 - workflow_automation.workflow_main - ERROR - Traceback (most recent call last):
+  File "C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Auto VPO\workflow_automation\workflow_main.py", line 253, in _step_submit_to_mole
+    self.mole_submitter._fill_vpo_search_dialog(source_lot_value)
+  File "C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Auto VPO\workflow_automation\mole_submitter.py", line 905, in _fill_vpo_search_dialog
+    raise RuntimeError("未找到VPO搜索对话框（标题: MOLE）")
+RuntimeError: 未找到VPO搜索对话框（标题: MOLE）
+
+2025-12-05 07:07:44,773 - workflow_automation.workflow_main - INFO - 等待2秒后处理下一行...
+2025-12-05 07:07:46,775 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-05 07:07:46,776 - workflow_automation.workflow_main - INFO - 处理第 3/4 行: SourceLot = PTPB0TPI400
+2025-12-05 07:07:46,776 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-05 07:07:46,776 - workflow_automation.workflow_main - INFO - 开始Mole工具操作流程...
+2025-12-05 07:07:46,776 - workflow_automation.mole_submitter - INFO - 开始提交MIR数据到Mole工具
+2025-12-05 07:07:46,777 - workflow_automation.mole_submitter - INFO - 尝试提交MIR数据 (第1/3次)
+2025-12-05 07:07:46,777 - workflow_automation.mole_submitter - INFO - 点击File菜单（全屏模式，左上角菜单栏）...
+2025-12-05 07:07:47,282 - workflow_automation.mole_submitter - INFO - 窗口位置: left=-12, top=-12, right=3852, bottom=2100
+2025-12-05 07:07:47,283 - workflow_automation.mole_submitter - INFO - 使用Windows API点击File菜单...
+2025-12-05 07:07:47,283 - workflow_automation.mole_submitter - WARNING - 未找到菜单句柄，尝试其他方法
+2025-12-05 07:07:47,283 - workflow_automation.mole_submitter - INFO - 使用Alt+F快捷键打开File菜单
+2025-12-05 07:07:47,320 - workflow_automation.mole_submitter - INFO - ✅ 已使用Alt+F打开File菜单
+2025-12-05 07:07:48,521 - workflow_automation.mole_submitter - INFO - 在下拉菜单中选择'New MIR Request'（第5个菜单项）...
+2025-12-05 07:07:48,522 - workflow_automation.mole_submitter - INFO - 使用Windows API精确查找'New MIR Request'菜单项...
+2025-12-05 07:07:48,522 - workflow_automation.mole_submitter - INFO - 使用键盘导航选择第5个菜单项'New MIR Request'...
+2025-12-05 07:07:48,722 - workflow_automation.mole_submitter - INFO - 按4次下箭头键...
+2025-12-05 07:07:49,680 - workflow_automation.mole_submitter - INFO - 按Enter键确认选择...
+2025-12-05 07:07:49,697 - workflow_automation.mole_submitter - INFO - ✅ 已使用键盘导航选择'New MIR Request'（下箭头4次+Enter）
+2025-12-05 07:07:50,706 - workflow_automation.mole_submitter - INFO - ✅ 已成功打开New MIR Request
+2025-12-05 07:07:50,707 - workflow_automation.mole_submitter - INFO - 检查是否有'MIR is now MRS!'信息对话框...
+2025-12-05 07:07:50,728 - workflow_automation.mole_submitter - INFO - 找到信息对话框: MIR is now MRS! (backend: win32)
+2025-12-05 07:07:51,562 - workflow_automation.mole_submitter - INFO - 找到 0 个按钮
+2025-12-05 07:07:51,581 - workflow_automation.mole_submitter - INFO - 尝试使用Enter键点击OK按钮
+2025-12-05 07:07:51,855 - workflow_automation.mole_submitter - INFO - ✅ 已使用Enter键点击OK按钮
+2025-12-05 07:07:52,361 - workflow_automation.mole_submitter - INFO - ✅ 信息对话框已处理
+2025-12-05 07:07:53,399 - workflow_automation.mole_submitter - INFO - 点击'Search By VPOs'按钮...
+2025-12-05 07:07:54,128 - workflow_automation.mole_submitter - INFO - 找到 0 个按钮
+2025-12-05 07:07:54,310 - workflow_automation.mole_submitter - INFO - 使用Windows API查找'Search By VPOs'按钮...
+2025-12-05 07:07:54,311 - workflow_automation.mole_submitter - INFO - 通过Windows API找到按钮: 'Search By VPOs' (类名: WindowsForms10.BUTTON.app.0.2ac7198_r9_ad1)
+2025-12-05 07:07:54,812 - workflow_automation.mole_submitter - INFO - ✅ 已通过Windows API点击'Search By VPOs'按钮
+2025-12-05 07:07:55,813 - workflow_automation.mole_submitter - INFO - ✅ 已成功点击'Search By VPOs'按钮
+2025-12-05 07:07:56,490 - workflow_automation.mole_submitter - INFO - ✅ MIR数据提交成功
+2025-12-05 07:07:56,490 - workflow_automation.workflow_main - INFO - 填写VPO搜索对话框...
+2025-12-05 07:07:56,491 - workflow_automation.mole_submitter - INFO - 等待VPO搜索对话框出现...
+2025-12-05 07:07:56,492 - workflow_automation.mole_submitter - INFO - 查找VPO搜索对话框（模态对话框，标题: MOLE）...
+2025-12-05 07:07:56,492 - workflow_automation.mole_submitter - INFO - 使用Windows API枚举所有窗口...
+2025-12-05 07:07:56,496 - workflow_automation.mole_submitter - INFO - 找到 1 个可能的对话框窗口
+2025-12-05 07:07:56,498 - workflow_automation.mole_submitter - INFO -   窗口: 'MOLE' (大小: 675x677)
+2025-12-05 07:07:56,498 - workflow_automation.mole_submitter - INFO - 选择对话框: 'MOLE' (大小: 675x677)
+2025-12-05 07:07:56,501 - workflow_automation.mole_submitter - INFO - ✅ 找到VPO搜索对话框: 'MOLE' (使用主窗口app实例, handle: 2819518)
+2025-12-05 07:07:57,180 - workflow_automation.mole_submitter - INFO - 填写Source Lot值: PTPB0TPI400
+2025-12-05 07:07:57,180 - workflow_automation.mole_submitter - INFO - 已复制值到剪贴板
+2025-12-05 07:07:57,187 - workflow_automation.mole_submitter - INFO - 找到 0 个Edit控件
+2025-12-05 07:07:57,188 - workflow_automation.mole_submitter - INFO - 找到 0 个文本相关控件
+2025-12-05 07:07:57,188 - workflow_automation.mole_submitter - WARNING - 未找到可用的文本输入控件，尝试估算位置...
+2025-12-05 07:07:57,189 - workflow_automation.mole_submitter - INFO - 估算白色区域位置: (1920, 1145)
+2025-12-05 07:07:57,895 - workflow_automation.mole_submitter - INFO - ✅ 已通过估算位置填写Source Lot值: PTPB0TPI400
+2025-12-05 07:07:58,396 - workflow_automation.mole_submitter - INFO - 点击Search按钮...
+2025-12-05 07:07:58,907 - workflow_automation.mole_submitter - INFO - 找到 0 个按钮
+2025-12-05 07:07:58,907 - workflow_automation.mole_submitter - INFO - 尝试使用uia backend查找Search按钮...
+2025-12-05 07:07:59,466 - workflow_automation.mole_submitter - INFO - 使用uia backend找到Search按钮
+2025-12-05 07:07:59,808 - workflow_automation.mole_submitter - INFO - ✅ 已通过uia backend点击Search按钮
+2025-12-05 07:08:00,818 - workflow_automation.mole_submitter - INFO - ✅ 已成功填写Source Lot值并点击Search按钮
+2025-12-05 07:08:00,818 - workflow_automation.workflow_main - INFO - 检查搜索结果行状态...
+2025-12-05 07:08:00,818 - workflow_automation.mole_submitter - INFO - 执行选择和添加流程...
+2025-12-05 07:08:02,820 - workflow_automation.mole_submitter - INFO - 步骤1: 点击 'Select Visible Rows'
+2025-12-05 07:08:02,820 - workflow_automation.mole_submitter - INFO - 查找并点击'Select Visible Rows'按钮...
+2025-12-05 07:08:03,305 - workflow_automation.mole_submitter - INFO - 找到 0 个按钮
+2025-12-05 07:08:03,306 - workflow_automation.mole_submitter - INFO - 使用Windows API找到按钮: 'Select Visible Rows'
+2025-12-05 07:08:03,913 - workflow_automation.mole_submitter - INFO - ✅ 已通过坐标点击'Select Visible Rows'按钮（位置: 218, 814）
+2025-12-05 07:08:04,914 - workflow_automation.mole_submitter - INFO - 步骤2: 点击 'Add to Summary'
+2025-12-05 07:08:04,915 - workflow_automation.mole_submitter - INFO - 查找并点击左下角的'Add to summary'按钮...
+2025-12-05 07:08:05,394 - workflow_automation.mole_submitter - INFO - 找到 0 个按钮
+2025-12-05 07:08:05,396 - workflow_automation.mole_submitter - INFO - 使用Windows API找到按钮: 'Add to Summary'（距离左下角: 389.2像素）
+2025-12-05 07:08:06,007 - workflow_automation.mole_submitter - INFO - ✅ 已通过坐标点击'Add to summary'按钮（位置: 218, 1778，已调整Y坐标往上）
+2025-12-05 07:08:07,510 - workflow_automation.mole_submitter - INFO - 步骤3: 点击 '3. View Summary' 标签
+2025-12-05 07:08:07,510 - workflow_automation.mole_submitter - INFO - 点击 '3. View Summary' 标签页（使用相对定位）...
+2025-12-05 07:08:07,714 - workflow_automation.mole_submitter - INFO - 窗口位置: left=-12, top=-12, width=3864, height=2112
+2025-12-05 07:08:07,740 - workflow_automation.mole_submitter - INFO - 找到参考标签 '1. Transfer Type' 中心: (223, 108)
+2025-12-05 07:08:07,746 - workflow_automation.mole_submitter - INFO - 参考标签相对位置: X=6.08%, Y=5.68%
+2025-12-05 07:08:07,750 - workflow_automation.mole_submitter - INFO - 基于参考标签计算: 目标位置=(253, 160)
+2025-12-05 07:08:07,752 - workflow_automation.mole_submitter - INFO -   相对偏移: X=0.80%窗口宽度, Y=2.50%窗口高度
+2025-12-05 07:08:07,754 - workflow_automation.mole_submitter - INFO - 最终点击位置: (253, 160)
+2025-12-05 07:08:08,862 - workflow_automation.mole_submitter - INFO - ✅ 已点击 '3. View Summary' 标签页 at (253, 160)
+2025-12-05 07:08:09,863 - workflow_automation.mole_submitter - INFO - 步骤4: 填写 'Requestor Comments'
+2025-12-05 07:08:09,866 - workflow_automation.mole_submitter - INFO - 填写Requestor Comments...
+2025-12-05 07:08:10,169 - workflow_automation.mole_submitter - INFO - 读取MIR Comments文件: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Auto VPO\MIR Comments.txt
+2025-12-05 07:08:10,170 - workflow_automation.mole_submitter - INFO - MIR Comments内容: This MIR for submit validation please direct close...
+2025-12-05 07:08:10,178 - workflow_automation.mole_submitter - INFO - 已复制内容到剪贴板
+2025-12-05 07:08:10,178 - workflow_automation.mole_submitter - INFO - 窗口位置: left=-12, top=-12, width=3864, height=2112
+2025-12-05 07:08:10,180 - workflow_automation.mole_submitter - INFO - 查找'Requestor Comments'标签...
+2025-12-05 07:08:10,197 - workflow_automation.mole_submitter - INFO - 找到'Requestor Comments'标签: 位置=(672, 189), 文本='Requestor Comments:'
+2025-12-05 07:08:10,197 - workflow_automation.mole_submitter - INFO - 标签位置: left=672, top=189, right=839, bottom=209
+2025-12-05 07:08:10,224 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(672, 224), 面积=159681, 距离标签=167.7
+2025-12-05 07:08:10,226 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(672, 284), 面积=338148, 距离标签=183.1
+2025-12-05 07:08:10,231 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(222, 293), 面积=5670, 距离标签=622.7
+2025-12-05 07:08:10,233 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(420, 293), 面积=7020, 距离标签=427.3
+2025-12-05 07:08:10,236 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(222, 357), 面积=12960, 距离标签=634.5
+2025-12-05 07:08:10,248 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(213, 488), 面积=5130, 距离标签=685.4
+2025-12-05 07:08:10,250 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(393, 488), 面积=6480, 距离标签=526.1
+2025-12-05 07:08:10,253 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(771, 488), 面积=5730, 距离标签=287.2
+2025-12-05 07:08:10,254 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(971, 488), 面积=7650, 距离标签=308.7
+2025-12-05 07:08:10,259 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1235, 488), 面积=7650, 距离标签=484.4
+2025-12-05 07:08:10,265 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(224, 449), 面积=149556, 距离标签=660.2
+2025-12-05 07:08:10,276 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(272, 401), 面积=6360, 距离标签=598.6
+2025-12-05 07:08:10,283 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(272, 359), 面积=13230, 距离标签=586.5
+2025-12-05 07:08:10,291 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(729, 234), 面积=607068, 距离标签=112.8
+2025-12-05 07:08:10,299 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(224, 273), 面积=5310, 距离标签=618.3
+2025-12-05 07:08:10,301 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(410, 273), 面积=9090, 距离标签=433.7
+2025-12-05 07:08:10,304 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(224, 314), 面积=11490, 距离标签=623.9
+2025-12-05 07:08:10,348 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1665, 732), 面积=58395, 距离标签=977.7
+2025-12-05 07:08:10,350 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1665, 792), 面积=123660, 距离标签=1011.0
+2025-12-05 07:08:10,353 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1413, 702), 面积=7020, 距离标签=756.7
+2025-12-05 07:08:10,355 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1215, 702), 面积=5670, 距离标签=620.0
+2025-12-05 07:08:10,356 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1215, 801), 面积=5670, 距离标签=701.3
+2025-12-05 07:08:10,358 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1413, 801), 面积=7020, 距离标签=824.6
+2025-12-05 07:08:10,361 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1215, 866), 面积=12960, 距离标签=757.0
+2025-12-05 07:08:10,374 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1206, 996), 面积=5130, 距离标签=868.4
+2025-12-05 07:08:10,376 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1386, 996), 面积=6480, 距离标签=958.4
+2025-12-05 07:08:10,378 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1764, 996), 面积=5730, 距离标签=1214.5
+2025-12-05 07:08:10,383 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1964, 996), 面积=7650, 距离标签=1373.0
+2025-12-05 07:08:10,387 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(2228, 996), 面积=7650, 距离标签=1596.5
+2025-12-05 07:08:10,394 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1217, 957), 面积=62172, 距离标签=838.1
+2025-12-05 07:08:10,404 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1265, 909), 面积=6360, 距离标签=819.4
+2025-12-05 07:08:10,411 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1265, 867), 面积=13230, 距离标签=783.9
+2025-12-05 07:08:10,419 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1722, 743), 面积=213840, 距离标签=1031.9
+2025-12-05 07:08:10,422 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1217, 704), 面积=5310, 距离标签=622.8
+2025-12-05 07:08:10,424 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1403, 704), 面积=9090, 距离标签=750.4
+2025-12-05 07:08:10,429 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1217, 782), 面积=5310, 距离标签=686.4
+2025-12-05 07:08:10,430 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1403, 782), 面积=9090, 距离标签=804.0
+2025-12-05 07:08:10,433 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1217, 822), 面积=11490, 距离标签=720.2
+2025-12-05 07:08:10,458 - workflow_automation.mole_submitter - INFO - 选择最近的文本区域: 位置=(729, 234)
+2025-12-05 07:08:10,458 - workflow_automation.mole_submitter - INFO - 点击文本区域中心位置: (2262, 333)
+2025-12-05 07:08:11,938 - workflow_automation.mole_submitter - INFO - ✅ 已填写Requestor Comments（使用剪贴板粘贴）
+2025-12-05 07:08:12,439 - workflow_automation.mole_submitter - INFO - ✅ 已完成选择和添加操作，并切换到Summary标签，已填写Comments
+2025-12-05 07:08:12,439 - workflow_automation.workflow_main - INFO - 点击Submit按钮...
+2025-12-05 07:08:12,439 - workflow_automation.mole_submitter - INFO - 点击'Submit'按钮...
+2025-12-05 07:08:13,187 - workflow_automation.mole_submitter - INFO - 找到 0 个按钮
+2025-12-05 07:08:13,431 - workflow_automation.mole_submitter - INFO - 使用Windows API查找'Submit'按钮...
+2025-12-05 07:08:13,432 - workflow_automation.mole_submitter - INFO - 通过Windows API找到按钮: 'Submit' (类名: WindowsForms10.BUTTON.app.0.2ac7198_r9_ad1)
+2025-12-05 07:08:13,933 - workflow_automation.mole_submitter - INFO - ✅ 已通过Windows API点击'Submit'按钮
+2025-12-05 07:08:16,934 - workflow_automation.mole_submitter - INFO - 发现Warning对话框: 'Warning' (类名: #32770)
+2025-12-05 07:08:16,934 - workflow_automation.mole_submitter - INFO - 检测到 1 个对话框
+2025-12-05 07:08:16,935 - workflow_automation.mole_submitter - INFO - ✅ 检测到Warning对话框: 'Warning' - Submit按钮点击成功！
+2025-12-05 07:08:16,935 - workflow_automation.mole_submitter - INFO - 检查并处理Submit后的确认对话框...
+2025-12-05 07:08:16,935 - workflow_automation.mole_submitter - INFO - 等待 2.0 秒，让对话框 #1 弹出...
+2025-12-05 07:08:18,937 - workflow_automation.mole_submitter - INFO - 当前所有可见窗口（共7个）：
+2025-12-05 07:08:18,937 - workflow_automation.mole_submitter - INFO -     窗口: 'Warning' (类名: #32770)
+2025-12-05 07:08:18,938 - workflow_automation.mole_submitter - INFO -     窗口: 'MOLE v4.9.12.20  [Chen, Qibai (PNG-CPU - Convergence Site)] - 202549 - [Submit MIR Request]' (类名: WindowsForms10.Window.8.app.0.2ac7198_r9_ad1)
+2025-12-05 07:08:18,938 - workflow_automation.mole_submitter - INFO -     窗口: 'C:\WINDOWS\system32\cmd.exe' (类名: CASCADIA_HOSTING_WINDOW_CLASS)
+2025-12-05 07:08:18,938 - workflow_automation.mole_submitter - INFO -     窗口: 'Auto VPO - File Explorer' (类名: CabinetWClass)
+2025-12-05 07:08:18,938 - workflow_automation.mole_submitter - INFO -     窗口: 'AI_Code - Cursor [Administrator]' (类名: Chrome_WidgetWin_1)
+2025-12-05 07:08:18,938 - workflow_automation.mole_submitter - INFO -     窗口: 'Windows Input Experience' (类名: Windows.UI.Core.CoreWindow)
+2025-12-05 07:08:18,938 - workflow_automation.mole_submitter - INFO -     窗口: 'Program Manager' (类名: Progman)
+2025-12-05 07:08:18,939 - workflow_automation.mole_submitter - INFO -     潜在对话框: 'Warning', 类名=#32770
+2025-12-05 07:08:18,943 - workflow_automation.mole_submitter - INFO -     ✅ 确认为对话框: 'Warning', 类名=#32770
+2025-12-05 07:08:18,943 - workflow_automation.mole_submitter - INFO -     潜在对话框: 'MOLE v4.9.12.20  [Chen, Qibai (PNG-CPU - Convergence Site)] - 202549 - [Submit MIR Request]', 类名=WindowsForms10.Window.8.app.0.2ac7198_r9_ad1
+2025-12-05 07:08:18,944 - workflow_automation.mole_submitter - INFO - 扫描到 1 个对话框，已处理: 0 个
+2025-12-05 07:08:18,945 - workflow_automation.mole_submitter - INFO - 找到确认对话框 #1: 'Warning' (尝试 1/3)
+2025-12-05 07:08:18,946 - workflow_automation.mole_submitter - INFO - 准备处理对话框 #1: 'Warning' (句柄: 1443930)
+2025-12-05 07:08:18,946 - workflow_automation.mole_submitter - INFO - 对话框可见性: 1
+2025-12-05 07:08:18,946 - workflow_automation.mole_submitter - INFO - 开始点击对话框 #1 的Yes按钮...
+2025-12-05 07:08:18,946 - workflow_automation.mole_submitter - INFO - 点击尝试 1/3...
+2025-12-05 07:08:18,947 - workflow_automation.mole_submitter - INFO - 正在处理独立窗口: 'Warning' (Handle: 1443930)
+2025-12-05 07:08:19,448 - workflow_automation.mole_submitter - INFO -   扫描到按钮: '&Yes' (类名: Button)
+2025-12-05 07:08:19,448 - workflow_automation.mole_submitter - INFO -   ✅ 匹配到Yes按钮！原始文本: '&Yes'
+2025-12-05 07:08:19,448 - workflow_automation.mole_submitter - INFO - ✅ 找到Yes按钮! 屏幕坐标: (1910, 1166)
+2025-12-05 07:08:19,938 - workflow_automation.mole_submitter - INFO - 🖱️ 已执行鼠标点击
+2025-12-05 07:08:20,243 - workflow_automation.mole_submitter - INFO - ✅ 已成功处理对话框 #1: 'Warning'
+2025-12-05 07:08:20,243 - workflow_automation.mole_submitter - INFO - 等待下一个对话框弹出...
+2025-12-05 07:08:20,243 - workflow_automation.mole_submitter - INFO - 等待 4.0 秒，让对话框 #2 弹出...
+2025-12-05 07:08:24,245 - workflow_automation.mole_submitter - INFO - 当前所有可见窗口（共7个）：
+2025-12-05 07:08:24,245 - workflow_automation.mole_submitter - INFO -     窗口: 'Submit MIR Request' (类名: WindowsForms10.Window.8.app.0.2ac7198_r9_ad1)
+2025-12-05 07:08:24,246 - workflow_automation.mole_submitter - INFO -     窗口: 'MOLE v4.9.12.20  [Chen, Qibai (PNG-CPU - Convergence Site)] - 202549 - [Submit MIR Request]' (类名: WindowsForms10.Window.8.app.0.2ac7198_r9_ad1)
+2025-12-05 07:08:24,246 - workflow_automation.mole_submitter - INFO -     窗口: 'C:\WINDOWS\system32\cmd.exe' (类名: CASCADIA_HOSTING_WINDOW_CLASS)
+2025-12-05 07:08:24,246 - workflow_automation.mole_submitter - INFO -     窗口: 'Auto VPO - File Explorer' (类名: CabinetWClass)
+2025-12-05 07:08:24,246 - workflow_automation.mole_submitter - INFO -     窗口: 'AI_Code - Cursor [Administrator]' (类名: Chrome_WidgetWin_1)
+2025-12-05 07:08:24,247 - workflow_automation.mole_submitter - INFO -     窗口: 'Windows Input Experience' (类名: Windows.UI.Core.CoreWindow)
+2025-12-05 07:08:24,247 - workflow_automation.mole_submitter - INFO -     窗口: 'Program Manager' (类名: Progman)
+2025-12-05 07:08:24,248 - workflow_automation.mole_submitter - INFO -     潜在对话框: 'Submit MIR Request', 类名=WindowsForms10.Window.8.app.0.2ac7198_r9_ad1
+2025-12-05 07:08:24,251 - workflow_automation.mole_submitter - INFO -     根据标题匹配为对话框: 'Submit MIR Request'
+2025-12-05 07:08:24,251 - workflow_automation.mole_submitter - INFO -     ✅ 确认为对话框: 'Submit MIR Request', 类名=WindowsForms10.Window.8.app.0.2ac7198_r9_ad1
+2025-12-05 07:08:24,252 - workflow_automation.mole_submitter - INFO -     潜在对话框: 'MOLE v4.9.12.20  [Chen, Qibai (PNG-CPU - Convergence Site)] - 202549 - [Submit MIR Request]', 类名=WindowsForms10.Window.8.app.0.2ac7198_r9_ad1
+2025-12-05 07:08:24,253 - workflow_automation.mole_submitter - INFO - 扫描到 1 个对话框，已处理: 1 个
+2025-12-05 07:08:24,254 - workflow_automation.mole_submitter - INFO - 找到确认对话框 #2: 'Submit MIR Request' (尝试 1/3)
+2025-12-05 07:08:24,254 - workflow_automation.mole_submitter - INFO - 准备处理对话框 #2: 'Submit MIR Request' (句柄: 199118)
+2025-12-05 07:08:24,255 - workflow_automation.mole_submitter - INFO - 对话框可见性: 1
+2025-12-05 07:08:24,255 - workflow_automation.mole_submitter - INFO - 开始点击对话框 #2 的Yes按钮...
+2025-12-05 07:08:24,255 - workflow_automation.mole_submitter - INFO - 点击尝试 1/3...
+2025-12-05 07:08:24,255 - workflow_automation.mole_submitter - INFO - 正在处理独立窗口: 'Submit MIR Request' (Handle: 199118)
+2025-12-05 07:08:24,757 - workflow_automation.mole_submitter - INFO -   扫描到按钮: 'Yes' (类名: WindowsForms10.BUTTON.app.0.2ac7198_r9_ad1)
+2025-12-05 07:08:24,757 - workflow_automation.mole_submitter - INFO -   ✅ 匹配到Yes按钮！原始文本: 'Yes'
+2025-12-05 07:08:24,757 - workflow_automation.mole_submitter - INFO - ✅ 找到Yes按钮! 屏幕坐标: (1854, 1258)
+2025-12-05 07:08:25,229 - workflow_automation.mole_submitter - INFO - 🖱️ 已执行鼠标点击
+2025-12-05 07:08:25,532 - workflow_automation.mole_submitter - INFO - ✅ 已成功处理对话框 #2: 'Submit MIR Request'
+2025-12-05 07:08:25,532 - workflow_automation.mole_submitter - INFO - 等待下一个对话框弹出...
+2025-12-05 07:08:25,533 - workflow_automation.mole_submitter - INFO - 等待 4.0 秒，让对话框 #3 弹出...
+2025-12-05 07:08:29,534 - workflow_automation.mole_submitter - INFO - 当前所有可见窗口（共6个）：
+2025-12-05 07:08:29,535 - workflow_automation.mole_submitter - INFO -     窗口: 'MOLE v4.9.12.20  [Chen, Qibai (PNG-CPU - Convergence Site)] - 202549 - [Submit MIR Request]' (类名: WindowsForms10.Window.8.app.0.2ac7198_r9_ad1)
+2025-12-05 07:08:29,535 - workflow_automation.mole_submitter - INFO -     窗口: 'C:\WINDOWS\system32\cmd.exe' (类名: CASCADIA_HOSTING_WINDOW_CLASS)
+2025-12-05 07:08:29,535 - workflow_automation.mole_submitter - INFO -     窗口: 'Auto VPO - File Explorer' (类名: CabinetWClass)
+2025-12-05 07:08:29,535 - workflow_automation.mole_submitter - INFO -     窗口: 'AI_Code - Cursor [Administrator]' (类名: Chrome_WidgetWin_1)
+2025-12-05 07:08:29,536 - workflow_automation.mole_submitter - INFO -     窗口: 'Windows Input Experience' (类名: Windows.UI.Core.CoreWindow)
+2025-12-05 07:08:29,536 - workflow_automation.mole_submitter - INFO -     窗口: 'Program Manager' (类名: Progman)
+2025-12-05 07:08:29,537 - workflow_automation.mole_submitter - INFO -     潜在对话框: 'MOLE v4.9.12.20  [Chen, Qibai (PNG-CPU - Convergence Site)] - 202549 - [Submit MIR Request]', 类名=WindowsForms10.Window.8.app.0.2ac7198_r9_ad1
+2025-12-05 07:08:29,541 - workflow_automation.mole_submitter - INFO - 扫描到 0 个对话框，已处理: 2 个
+2025-12-05 07:08:29,541 - workflow_automation.mole_submitter - INFO - 暂未找到新对话框，等待1.5秒后重试... (尝试 1/3)
+2025-12-05 07:08:31,042 - workflow_automation.mole_submitter - INFO -     潜在对话框: 'MOLE v4.9.12.20  [Chen, Qibai (PNG-CPU - Convergence Site)] - 202549 - [Submit MIR Request]', 类名=WindowsForms10.Window.8.app.0.2ac7198_r9_ad1
+2025-12-05 07:08:31,043 - workflow_automation.mole_submitter - INFO - 扫描到 0 个对话框，已处理: 2 个
+2025-12-05 07:08:31,044 - workflow_automation.mole_submitter - INFO - 暂未找到新对话框，等待1.5秒后重试... (尝试 2/3)
+2025-12-05 07:08:32,633 - workflow_automation.mole_submitter - INFO -     潜在对话框: 'Submit MIR Request', 类名=WindowsForms10.Window.8.app.0.2ac7198_r9_ad1
+2025-12-05 07:08:32,782 - workflow_automation.mole_submitter - INFO -     根据标题匹配为对话框: 'Submit MIR Request'
+2025-12-05 07:08:32,857 - workflow_automation.mole_submitter - INFO -     ✅ 确认为对话框: 'Submit MIR Request', 类名=WindowsForms10.Window.8.app.0.2ac7198_r9_ad1
+2025-12-05 07:08:32,872 - workflow_automation.mole_submitter - INFO -     潜在对话框: 'MOLE v4.9.12.20  [Chen, Qibai (PNG-CPU - Convergence Site)] - 202549 - [Submit MIR Request]', 类名=WindowsForms10.Window.8.app.0.2ac7198_r9_ad1
+2025-12-05 07:08:32,880 - workflow_automation.mole_submitter - INFO - 扫描到 1 个对话框，已处理: 2 个
+2025-12-05 07:08:32,916 - workflow_automation.mole_submitter - INFO - ✅ 已处理所有确认对话框（共2个）
+2025-12-05 07:08:33,045 - workflow_automation.mole_submitter - INFO - ✅ 已成功点击'Submit'按钮（验证通过：检测到Warning对话框）
+2025-12-05 07:08:33,079 - workflow_automation.workflow_main - INFO - 处理最终成功对话框并获取MIR号码...
+2025-12-05 07:08:33,106 - workflow_automation.mole_submitter - INFO - 等待最终成功对话框出现...
+2025-12-05 07:08:35,109 - workflow_automation.mole_submitter - INFO - 找到成功对话框: 'Submit MIR Request' (类名: WindowsForms10.Window.8.app.0.2ac7198_r9_ad1)
+2025-12-05 07:08:35,109 - workflow_automation.mole_submitter - INFO - ✅ 找到成功对话框 (句柄: 264654)
+2025-12-05 07:08:35,611 - workflow_automation.mole_submitter - INFO -   扫描到按钮: 'Close' (类名: WindowsForms10.BUTTON.app.0.2ac7198_r9_ad1)
+2025-12-05 07:08:35,611 - workflow_automation.mole_submitter - INFO -   扫描到按钮: 'Copy MIR# && Close' (类名: WindowsForms10.BUTTON.app.0.2ac7198_r9_ad1)
+2025-12-05 07:08:35,611 - workflow_automation.mole_submitter - INFO -   ✅ 匹配到Copy MIR & Close按钮！原始文本: 'Copy MIR# && Close'
+2025-12-05 07:08:35,612 - workflow_automation.mole_submitter - INFO - ✅ 找到Copy MIR & Close按钮! 屏幕坐标: (1839, 1132)
+2025-12-05 07:08:36,069 - workflow_automation.mole_submitter - INFO - 🖱️ 已点击Copy MIR & Close按钮
+2025-12-05 07:08:36,572 - workflow_automation.mole_submitter - INFO - ✅ 已从剪贴板获取MIR号码: 2558287
+2025-12-05 07:08:36,572 - workflow_automation.workflow_main - INFO - ✅ 第 3 行处理成功: SourceLot=PTPB0TPI400, MIR=2558287
+2025-12-05 07:08:36,574 - workflow_automation.workflow_main - INFO - 等待2秒后处理下一行...
+2025-12-05 07:08:38,575 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-05 07:08:38,576 - workflow_automation.workflow_main - INFO - 处理第 4/4 行: SourceLot = PTPB0DOE402
+2025-12-05 07:08:38,576 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-05 07:08:38,577 - workflow_automation.workflow_main - INFO - 开始Mole工具操作流程...
+2025-12-05 07:08:38,577 - workflow_automation.mole_submitter - INFO - 开始提交MIR数据到Mole工具
+2025-12-05 07:08:38,577 - workflow_automation.mole_submitter - INFO - 尝试提交MIR数据 (第1/3次)
+2025-12-05 07:08:38,577 - workflow_automation.mole_submitter - INFO - 点击File菜单（全屏模式，左上角菜单栏）...
+2025-12-05 07:08:39,081 - workflow_automation.mole_submitter - INFO - 窗口位置: left=-12, top=-12, right=3852, bottom=2100
+2025-12-05 07:08:39,081 - workflow_automation.mole_submitter - INFO - 使用Windows API点击File菜单...
+2025-12-05 07:08:39,081 - workflow_automation.mole_submitter - WARNING - 未找到菜单句柄，尝试其他方法
+2025-12-05 07:08:39,081 - workflow_automation.mole_submitter - INFO - 使用Alt+F快捷键打开File菜单
+2025-12-05 07:08:39,149 - workflow_automation.mole_submitter - INFO - ✅ 已使用Alt+F打开File菜单
+2025-12-05 07:08:40,357 - workflow_automation.mole_submitter - INFO - 在下拉菜单中选择'New MIR Request'（第5个菜单项）...
+2025-12-05 07:08:40,357 - workflow_automation.mole_submitter - INFO - 使用Windows API精确查找'New MIR Request'菜单项...
+2025-12-05 07:08:40,357 - workflow_automation.mole_submitter - INFO - 使用键盘导航选择第5个菜单项'New MIR Request'...
+2025-12-05 07:08:40,558 - workflow_automation.mole_submitter - INFO - 按4次下箭头键...
+2025-12-05 07:08:41,516 - workflow_automation.mole_submitter - INFO - 按Enter键确认选择...
+2025-12-05 07:08:41,534 - workflow_automation.mole_submitter - INFO - ✅ 已使用键盘导航选择'New MIR Request'（下箭头4次+Enter）
+2025-12-05 07:08:42,537 - workflow_automation.mole_submitter - INFO - ✅ 已成功打开New MIR Request
+2025-12-05 07:08:42,537 - workflow_automation.mole_submitter - INFO - 检查是否有'MIR is now MRS!'信息对话框...
+2025-12-05 07:08:42,558 - workflow_automation.mole_submitter - INFO - 找到信息对话框: MIR is now MRS! (backend: win32)
+2025-12-05 07:08:43,374 - workflow_automation.mole_submitter - INFO - 找到 0 个按钮
+2025-12-05 07:08:43,375 - workflow_automation.mole_submitter - INFO - 尝试使用Enter键点击OK按钮
+2025-12-05 07:08:43,396 - workflow_automation.mole_submitter - INFO - ✅ 已使用Enter键点击OK按钮
+2025-12-05 07:08:43,897 - workflow_automation.mole_submitter - INFO - ✅ 信息对话框已处理
+2025-12-05 07:08:44,997 - workflow_automation.mole_submitter - INFO - 点击'Search By VPOs'按钮...
+2025-12-05 07:08:45,973 - workflow_automation.mole_submitter - INFO - 找到 0 个按钮
+2025-12-05 07:08:46,282 - workflow_automation.mole_submitter - INFO - 使用Windows API查找'Search By VPOs'按钮...
+2025-12-05 07:08:46,282 - workflow_automation.mole_submitter - INFO - 通过Windows API找到按钮: 'Search By VPOs' (类名: WindowsForms10.BUTTON.app.0.2ac7198_r9_ad1)
+2025-12-05 07:08:46,783 - workflow_automation.mole_submitter - INFO - ✅ 已通过Windows API点击'Search By VPOs'按钮
+2025-12-05 07:08:47,784 - workflow_automation.mole_submitter - INFO - ✅ 已成功点击'Search By VPOs'按钮
+2025-12-05 07:08:48,460 - workflow_automation.mole_submitter - INFO - ✅ MIR数据提交成功
+2025-12-05 07:08:48,461 - workflow_automation.workflow_main - INFO - 填写VPO搜索对话框...
+2025-12-05 07:08:48,461 - workflow_automation.mole_submitter - INFO - 等待VPO搜索对话框出现...
+2025-12-05 07:08:48,462 - workflow_automation.mole_submitter - INFO - 查找VPO搜索对话框（模态对话框，标题: MOLE）...
+2025-12-05 07:08:48,462 - workflow_automation.mole_submitter - INFO - 使用Windows API枚举所有窗口...
+2025-12-05 07:08:48,466 - workflow_automation.mole_submitter - INFO - 找到 1 个可能的对话框窗口
+2025-12-05 07:08:48,470 - workflow_automation.mole_submitter - INFO -   窗口: 'MOLE' (大小: 675x677)
+2025-12-05 07:08:48,471 - workflow_automation.mole_submitter - INFO - 选择对话框: 'MOLE' (大小: 675x677)
+2025-12-05 07:08:48,472 - workflow_automation.mole_submitter - INFO - ✅ 找到VPO搜索对话框: 'MOLE' (使用主窗口app实例, handle: 68236)
+2025-12-05 07:08:49,153 - workflow_automation.mole_submitter - INFO - 填写Source Lot值: PTPB0DOE402
+2025-12-05 07:08:49,156 - workflow_automation.mole_submitter - INFO - 已复制值到剪贴板
+2025-12-05 07:08:49,170 - workflow_automation.mole_submitter - INFO - 找到 0 个Edit控件
+2025-12-05 07:08:49,172 - workflow_automation.mole_submitter - INFO - 找到 0 个文本相关控件
+2025-12-05 07:08:49,172 - workflow_automation.mole_submitter - WARNING - 未找到可用的文本输入控件，尝试估算位置...
+2025-12-05 07:08:49,173 - workflow_automation.mole_submitter - INFO - 估算白色区域位置: (1920, 1145)
+2025-12-05 07:08:49,894 - workflow_automation.mole_submitter - INFO - ✅ 已通过估算位置填写Source Lot值: PTPB0DOE402
+2025-12-05 07:08:50,395 - workflow_automation.mole_submitter - INFO - 点击Search按钮...
+2025-12-05 07:08:50,906 - workflow_automation.mole_submitter - INFO - 找到 0 个按钮
+2025-12-05 07:08:50,907 - workflow_automation.mole_submitter - INFO - 尝试使用uia backend查找Search按钮...
+2025-12-05 07:08:51,613 - workflow_automation.mole_submitter - INFO - 使用uia backend找到Search按钮
+2025-12-05 07:08:51,966 - workflow_automation.mole_submitter - INFO - ✅ 已通过uia backend点击Search按钮
+2025-12-05 07:08:52,969 - workflow_automation.mole_submitter - INFO - ✅ 已成功填写Source Lot值并点击Search按钮
+2025-12-05 07:08:52,970 - workflow_automation.workflow_main - INFO - 检查搜索结果行状态...
+2025-12-05 07:08:52,970 - workflow_automation.mole_submitter - INFO - 执行选择和添加流程...
+2025-12-05 07:08:54,971 - workflow_automation.mole_submitter - INFO - 步骤1: 点击 'Select Visible Rows'
+2025-12-05 07:08:54,971 - workflow_automation.mole_submitter - INFO - 查找并点击'Select Visible Rows'按钮...
+2025-12-05 07:08:55,575 - workflow_automation.mole_submitter - INFO - 找到 0 个按钮
+2025-12-05 07:08:55,577 - workflow_automation.mole_submitter - INFO - 使用Windows API找到按钮: 'Select Visible Rows'
+2025-12-05 07:08:56,202 - workflow_automation.mole_submitter - INFO - ✅ 已通过坐标点击'Select Visible Rows'按钮（位置: 218, 814）
+2025-12-05 07:08:57,203 - workflow_automation.mole_submitter - INFO - 步骤2: 点击 'Add to Summary'
+2025-12-05 07:08:57,203 - workflow_automation.mole_submitter - INFO - 查找并点击左下角的'Add to summary'按钮...
+2025-12-05 07:08:57,799 - workflow_automation.mole_submitter - INFO - 找到 0 个按钮
+2025-12-05 07:08:57,801 - workflow_automation.mole_submitter - INFO - 使用Windows API找到按钮: 'Add to Summary'（距离左下角: 389.2像素）
+2025-12-05 07:08:58,413 - workflow_automation.mole_submitter - INFO - ✅ 已通过坐标点击'Add to summary'按钮（位置: 218, 1778，已调整Y坐标往上）
+2025-12-05 07:08:59,914 - workflow_automation.mole_submitter - INFO - 步骤3: 点击 '3. View Summary' 标签
+2025-12-05 07:08:59,914 - workflow_automation.mole_submitter - INFO - 点击 '3. View Summary' 标签页（使用相对定位）...
+2025-12-05 07:09:00,124 - workflow_automation.mole_submitter - INFO - 窗口位置: left=-12, top=-12, width=3864, height=2112
+2025-12-05 07:09:00,147 - workflow_automation.mole_submitter - INFO - 找到参考标签 '1. Transfer Type' 中心: (223, 108)
+2025-12-05 07:09:00,153 - workflow_automation.mole_submitter - INFO - 参考标签相对位置: X=6.08%, Y=5.68%
+2025-12-05 07:09:00,153 - workflow_automation.mole_submitter - INFO - 基于参考标签计算: 目标位置=(253, 160)
+2025-12-05 07:09:00,153 - workflow_automation.mole_submitter - INFO -   相对偏移: X=0.80%窗口宽度, Y=2.50%窗口高度
+2025-12-05 07:09:00,153 - workflow_automation.mole_submitter - INFO - 最终点击位置: (253, 160)
+2025-12-05 07:09:01,247 - workflow_automation.mole_submitter - INFO - ✅ 已点击 '3. View Summary' 标签页 at (253, 160)
+2025-12-05 07:09:02,249 - workflow_automation.mole_submitter - INFO - 步骤4: 填写 'Requestor Comments'
+2025-12-05 07:09:02,249 - workflow_automation.mole_submitter - INFO - 填写Requestor Comments...
+2025-12-05 07:09:02,550 - workflow_automation.mole_submitter - INFO - 读取MIR Comments文件: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Auto VPO\MIR Comments.txt
+2025-12-05 07:09:02,550 - workflow_automation.mole_submitter - INFO - MIR Comments内容: This MIR for submit validation please direct close...
+2025-12-05 07:09:02,570 - workflow_automation.mole_submitter - INFO - 已复制内容到剪贴板
+2025-12-05 07:09:02,571 - workflow_automation.mole_submitter - INFO - 窗口位置: left=-12, top=-12, width=3864, height=2112
+2025-12-05 07:09:02,571 - workflow_automation.mole_submitter - INFO - 查找'Requestor Comments'标签...
+2025-12-05 07:09:02,589 - workflow_automation.mole_submitter - INFO - 找到'Requestor Comments'标签: 位置=(1665, 698), 文本='Requestor Comments:'
+2025-12-05 07:09:02,589 - workflow_automation.mole_submitter - INFO - 标签位置: left=1665, top=698, right=1832, bottom=718
+2025-12-05 07:09:02,736 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1665, 732), 面积=58395, 距离标签=167.6
+2025-12-05 07:09:02,739 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1665, 792), 面积=123660, 距离标签=182.7
+2025-12-05 07:09:02,744 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1215, 801), 面积=5670, 距离标签=622.6
+2025-12-05 07:09:02,748 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1413, 801), 面积=7020, 距离标签=427.1
+2025-12-05 07:09:02,751 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1215, 866), 面积=12960, 距离标签=634.5
+2025-12-05 07:09:02,765 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1206, 996), 面积=5130, 距离标签=685.0
+2025-12-05 07:09:02,767 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1386, 996), 面积=6480, 距离标签=525.5
+2025-12-05 07:09:02,770 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1764, 996), 面积=5730, 距离标签=286.2
+2025-12-05 07:09:02,772 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1964, 996), 面积=7650, 距离标签=307.7
+2025-12-05 07:09:02,776 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(2228, 996), 面积=7650, 距离标签=483.8
+2025-12-05 07:09:02,784 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1217, 957), 面积=62172, 距离标签=659.8
+2025-12-05 07:09:02,798 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1265, 909), 面积=6360, 距离标签=598.3
+2025-12-05 07:09:02,806 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1265, 867), 面积=13230, 距离标签=586.3
+2025-12-05 07:09:02,814 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1722, 743), 面积=213840, 距离标签=112.8
+2025-12-05 07:09:02,822 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1217, 782), 面积=5310, 距离标签=618.3
+2025-12-05 07:09:02,824 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1403, 782), 面积=9090, 距离标签=433.7
+2025-12-05 07:09:02,827 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1217, 822), 面积=11490, 距离标签=623.7
+2025-12-05 07:09:02,873 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1665, 732), 面积=58395, 距离标签=167.6
+2025-12-05 07:09:02,875 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1665, 792), 面积=123660, 距离标签=182.7
+2025-12-05 07:09:02,881 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1215, 801), 面积=5670, 距离标签=622.6
+2025-12-05 07:09:02,883 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1413, 801), 面积=7020, 距离标签=427.1
+2025-12-05 07:09:02,885 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1215, 866), 面积=12960, 距离标签=634.5
+2025-12-05 07:09:02,898 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1206, 996), 面积=5130, 距离标签=685.0
+2025-12-05 07:09:02,900 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1386, 996), 面积=6480, 距离标签=525.5
+2025-12-05 07:09:02,903 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1764, 996), 面积=5730, 距离标签=286.2
+2025-12-05 07:09:02,906 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1964, 996), 面积=7650, 距离标签=307.7
+2025-12-05 07:09:02,914 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(2228, 996), 面积=7650, 距离标签=483.8
+2025-12-05 07:09:02,920 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1217, 957), 面积=62172, 距离标签=659.8
+2025-12-05 07:09:02,931 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1265, 909), 面积=6360, 距离标签=598.3
+2025-12-05 07:09:02,938 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1265, 867), 面积=13230, 距离标签=586.3
+2025-12-05 07:09:02,948 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1722, 743), 面积=213840, 距离标签=112.8
+2025-12-05 07:09:02,956 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1217, 782), 面积=5310, 距离标签=618.3
+2025-12-05 07:09:02,958 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1403, 782), 面积=9090, 距离标签=433.7
+2025-12-05 07:09:02,961 - workflow_automation.mole_submitter - INFO -   找到候选文本区域: 类型=System.Windows.Forms.TextBox, 位置=(1217, 822), 面积=11490, 距离标签=623.7
+2025-12-05 07:09:02,986 - workflow_automation.mole_submitter - INFO - 选择最近的文本区域: 位置=(1722, 743)
+2025-12-05 07:09:02,986 - workflow_automation.mole_submitter - INFO - 点击文本区域中心位置: (2262, 842)
+2025-12-05 07:09:04,106 - workflow_automation.mole_submitter - INFO - ✅ 已填写Requestor Comments（使用剪贴板粘贴）
+2025-12-05 07:09:04,607 - workflow_automation.mole_submitter - INFO - ✅ 已完成选择和添加操作，并切换到Summary标签，已填写Comments
+2025-12-05 07:09:04,616 - workflow_automation.workflow_main - INFO - 点击Submit按钮...
+2025-12-05 07:09:04,617 - workflow_automation.mole_submitter - INFO - 点击'Submit'按钮...
+2025-12-05 07:09:05,438 - workflow_automation.mole_submitter - INFO - 找到 0 个按钮
+2025-12-05 07:09:05,743 - workflow_automation.mole_submitter - INFO - 使用Windows API查找'Submit'按钮...
+2025-12-05 07:09:05,744 - workflow_automation.mole_submitter - INFO - 通过Windows API找到按钮: 'Submit' (类名: WindowsForms10.BUTTON.app.0.2ac7198_r9_ad1)
+2025-12-05 07:09:06,246 - workflow_automation.mole_submitter - INFO - ✅ 已通过Windows API点击'Submit'按钮
+2025-12-05 07:09:09,247 - workflow_automation.mole_submitter - INFO - 发现Warning对话框: 'Warning' (类名: #32770)
+2025-12-05 07:09:09,248 - workflow_automation.mole_submitter - INFO - 检测到 1 个对话框
+2025-12-05 07:09:09,248 - workflow_automation.mole_submitter - INFO - ✅ 检测到Warning对话框: 'Warning' - Submit按钮点击成功！
+2025-12-05 07:09:09,248 - workflow_automation.mole_submitter - INFO - 检查并处理Submit后的确认对话框...
+2025-12-05 07:09:09,248 - workflow_automation.mole_submitter - INFO - 等待 2.0 秒，让对话框 #1 弹出...
+2025-12-05 07:09:11,249 - workflow_automation.mole_submitter - INFO - 当前所有可见窗口（共7个）：
+2025-12-05 07:09:11,250 - workflow_automation.mole_submitter - INFO -     窗口: 'Warning' (类名: #32770)
+2025-12-05 07:09:11,250 - workflow_automation.mole_submitter - INFO -     窗口: 'MOLE v4.9.12.20  [Chen, Qibai (PNG-CPU - Convergence Site)] - 202549 - [Submit MIR Request]' (类名: WindowsForms10.Window.8.app.0.2ac7198_r9_ad1)
+2025-12-05 07:09:11,250 - workflow_automation.mole_submitter - INFO -     窗口: 'C:\WINDOWS\system32\cmd.exe' (类名: CASCADIA_HOSTING_WINDOW_CLASS)
+2025-12-05 07:09:11,251 - workflow_automation.mole_submitter - INFO -     窗口: 'Auto VPO - File Explorer' (类名: CabinetWClass)
+2025-12-05 07:09:11,251 - workflow_automation.mole_submitter - INFO -     窗口: 'AI_Code - Cursor [Administrator]' (类名: Chrome_WidgetWin_1)
+2025-12-05 07:09:11,251 - workflow_automation.mole_submitter - INFO -     窗口: 'Windows Input Experience' (类名: Windows.UI.Core.CoreWindow)
+2025-12-05 07:09:11,251 - workflow_automation.mole_submitter - INFO -     窗口: 'Program Manager' (类名: Progman)
+2025-12-05 07:09:11,252 - workflow_automation.mole_submitter - INFO -     潜在对话框: 'Warning', 类名=#32770
+2025-12-05 07:09:11,255 - workflow_automation.mole_submitter - INFO -     ✅ 确认为对话框: 'Warning', 类名=#32770
+2025-12-05 07:09:11,255 - workflow_automation.mole_submitter - INFO -     潜在对话框: 'MOLE v4.9.12.20  [Chen, Qibai (PNG-CPU - Convergence Site)] - 202549 - [Submit MIR Request]', 类名=WindowsForms10.Window.8.app.0.2ac7198_r9_ad1
+2025-12-05 07:09:11,257 - workflow_automation.mole_submitter - INFO - 扫描到 1 个对话框，已处理: 0 个
+2025-12-05 07:09:11,257 - workflow_automation.mole_submitter - INFO - 找到确认对话框 #1: 'Warning' (尝试 1/3)
+2025-12-05 07:09:11,258 - workflow_automation.mole_submitter - INFO - 准备处理对话框 #1: 'Warning' (句柄: 461468)
+2025-12-05 07:09:11,258 - workflow_automation.mole_submitter - INFO - 对话框可见性: 1
+2025-12-05 07:09:11,258 - workflow_automation.mole_submitter - INFO - 开始点击对话框 #1 的Yes按钮...
+2025-12-05 07:09:11,258 - workflow_automation.mole_submitter - INFO - 点击尝试 1/3...
+2025-12-05 07:09:11,259 - workflow_automation.mole_submitter - INFO - 正在处理独立窗口: 'Warning' (Handle: 461468)
+2025-12-05 07:09:11,760 - workflow_automation.mole_submitter - INFO -   扫描到按钮: '&Yes' (类名: Button)
+2025-12-05 07:09:11,761 - workflow_automation.mole_submitter - INFO -   ✅ 匹配到Yes按钮！原始文本: '&Yes'
+2025-12-05 07:09:11,761 - workflow_automation.mole_submitter - INFO - ✅ 找到Yes按钮! 屏幕坐标: (1910, 1166)
+2025-12-05 07:09:12,233 - workflow_automation.mole_submitter - INFO - 🖱️ 已执行鼠标点击
+2025-12-05 07:09:12,541 - workflow_automation.mole_submitter - INFO - ✅ 已成功处理对话框 #1: 'Warning'
+2025-12-05 07:09:12,545 - workflow_automation.mole_submitter - INFO - 等待下一个对话框弹出...
+2025-12-05 07:09:12,552 - workflow_automation.mole_submitter - INFO - 等待 4.0 秒，让对话框 #2 弹出...
+2025-12-05 07:09:16,564 - workflow_automation.mole_submitter - INFO - 当前所有可见窗口（共6个）：
+2025-12-05 07:09:16,564 - workflow_automation.mole_submitter - INFO -     窗口: 'MOLE v4.9.12.20  [Chen, Qibai (PNG-CPU - Convergence Site)] - 202549 - [Submit MIR Request]' (类名: WindowsForms10.Window.8.app.0.2ac7198_r9_ad1)
+2025-12-05 07:09:16,565 - workflow_automation.mole_submitter - INFO -     窗口: 'C:\WINDOWS\system32\cmd.exe' (类名: CASCADIA_HOSTING_WINDOW_CLASS)
+2025-12-05 07:09:16,565 - workflow_automation.mole_submitter - INFO -     窗口: 'Auto VPO - File Explorer' (类名: CabinetWClass)
+2025-12-05 07:09:16,565 - workflow_automation.mole_submitter - INFO -     窗口: 'AI_Code - Cursor [Administrator]' (类名: Chrome_WidgetWin_1)
+2025-12-05 07:09:16,566 - workflow_automation.mole_submitter - INFO -     窗口: 'Windows Input Experience' (类名: Windows.UI.Core.CoreWindow)
+2025-12-05 07:09:16,566 - workflow_automation.mole_submitter - INFO -     窗口: 'Program Manager' (类名: Progman)
+2025-12-05 07:09:16,570 - workflow_automation.mole_submitter - INFO -     潜在对话框: 'MOLE v4.9.12.20  [Chen, Qibai (PNG-CPU - Convergence Site)] - 202549 - [Submit MIR Request]', 类名=WindowsForms10.Window.8.app.0.2ac7198_r9_ad1
+2025-12-05 07:09:16,572 - workflow_automation.mole_submitter - INFO - 扫描到 0 个对话框，已处理: 1 个
+2025-12-05 07:09:16,573 - workflow_automation.mole_submitter - INFO - 暂未找到新对话框，等待1.5秒后重试... (尝试 1/3)
+2025-12-05 07:09:18,074 - workflow_automation.mole_submitter - INFO -     潜在对话框: 'MOLE v4.9.12.20  [Chen, Qibai (PNG-CPU - Convergence Site)] - 202549 - [Submit MIR Request]', 类名=WindowsForms10.Window.8.app.0.2ac7198_r9_ad1
+2025-12-05 07:09:18,075 - workflow_automation.mole_submitter - INFO - 扫描到 0 个对话框，已处理: 1 个
+2025-12-05 07:09:18,076 - workflow_automation.mole_submitter - INFO - 暂未找到新对话框，等待1.5秒后重试... (尝试 2/3)
+2025-12-05 07:09:19,577 - workflow_automation.mole_submitter - INFO -     潜在对话框: 'MOLE v4.9.12.20  [Chen, Qibai (PNG-CPU - Convergence Site)] - 202549 - [Submit MIR Request]', 类名=WindowsForms10.Window.8.app.0.2ac7198_r9_ad1
+2025-12-05 07:09:19,585 - workflow_automation.mole_submitter - INFO - 扫描到 0 个对话框，已处理: 1 个
+2025-12-05 07:09:19,592 - workflow_automation.mole_submitter - INFO - ✅ 已处理所有确认对话框（共1个）
+2025-12-05 07:09:19,599 - workflow_automation.mole_submitter - INFO - ✅ 已成功点击'Submit'按钮（验证通过：检测到Warning对话框）
+2025-12-05 07:09:19,602 - workflow_automation.workflow_main - INFO - 处理最终成功对话框并获取MIR号码...
+2025-12-05 07:09:19,603 - workflow_automation.mole_submitter - INFO - 等待最终成功对话框出现...
+2025-12-05 07:09:21,633 - workflow_automation.mole_submitter - INFO - 未找到成功对话框，等待1秒后重试... (尝试 1/5)
+2025-12-05 07:09:22,704 - workflow_automation.mole_submitter - INFO - 未找到成功对话框，等待1秒后重试... (尝试 2/5)
+2025-12-05 07:09:23,706 - workflow_automation.mole_submitter - INFO - 未找到成功对话框，等待1秒后重试... (尝试 3/5)
+2025-12-05 07:09:24,707 - workflow_automation.mole_submitter - INFO - 未找到成功对话框，等待1秒后重试... (尝试 4/5)
+2025-12-05 07:09:25,708 - workflow_automation.mole_submitter - WARNING - 未找到成功对话框
+2025-12-05 07:09:25,709 - workflow_automation.mole_submitter - WARNING - 无法处理最终成功对话框，请手动点击Copy MIR & Close
+2025-12-05 07:09:25,709 - workflow_automation.workflow_main - ERROR - ❌ 第 4 行未能获取MIR号码
+2025-12-05 07:09:25,709 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-05 07:09:25,710 - workflow_automation.workflow_main - INFO - 所有行处理完成，保存结果...
+2025-12-05 07:09:25,719 - workflow_automation.workflow_main - INFO - ✅ 所有MIR结果已保存到: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Auto VPO\MIR_Results_20251205_070925.csv
+2025-12-05 07:09:25,723 - workflow_automation.workflow_main - INFO -    共 2 行数据
+2025-12-05 07:09:25,723 - workflow_automation.workflow_main - INFO -    第 1 行: SourceLot=PTPB0DOE400, MIR=2558284
+2025-12-05 07:09:25,723 - workflow_automation.workflow_main - INFO -    第 2 行: SourceLot=PTPB0TPI400, MIR=2558287
+2025-12-05 07:09:25,723 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-05 07:09:25,724 - workflow_automation.workflow_main - INFO - 处理汇总:
+2025-12-05 07:09:25,724 - workflow_automation.workflow_main - INFO -   总行数: 4
+2025-12-05 07:09:25,724 - workflow_automation.workflow_main - INFO -   成功: 2
+2025-12-05 07:09:25,724 - workflow_automation.workflow_main - INFO -   失败: 2
+2025-12-05 07:09:25,724 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-05 07:09:25,725 - workflow_automation.workflow_main - INFO - 
+================================================================================
+2025-12-05 07:09:25,725 - workflow_automation.workflow_main - INFO - ✅ 工作流执行成功（已处理所有Source Lot行）
+2025-12-05 07:09:25,726 - workflow_automation.workflow_main - INFO - 执行时间: 206.23 秒
+2025-12-05 07:09:25,726 - workflow_automation.workflow_main - INFO - 注意: MIR结果已保存为CSV文件
+2025-12-05 07:09:25,726 - workflow_automation.workflow_main - INFO - ================================================================================

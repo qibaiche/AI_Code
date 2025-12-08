@@ -1,0 +1,2 @@
+pin_to_excel.py
+这个脚本是为了把Pindef 文件转换为excel 文件，只保留Pin gruop下面对应的Pin

@@ -1,0 +1,1648 @@
+2025-11-17 23:25:21,282 | INFO | root | PRD LOT 自动化开始
+2025-11-17 23:25:21,284 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-17 23:25:21,285 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-17 23:25:21,287 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-17 23:25:21,287 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-17 23:25:23,861 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口
+2025-11-18 03:29:41,083 | INFO | root | PRD LOT 自动化开始
+2025-11-18 03:29:41,092 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-18 03:29:41,103 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-18 03:29:41,105 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-18 03:29:41,105 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-18 03:35:19,627 | INFO | root | PRD LOT 自动化开始
+2025-11-18 03:35:19,628 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-18 03:35:19,635 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-18 03:35:19,641 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-18 03:35:19,641 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-18 03:35:21,966 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口
+2025-11-18 03:43:20,493 | INFO | root | PRD LOT 自动化开始
+2025-11-18 03:43:20,494 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-18 03:43:20,502 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-18 03:43:20,505 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-18 03:43:20,514 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-18 03:43:22,850 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口
+2025-11-18 03:43:22,852 | INFO | prd_lot_automation.spf_runner | 尝试通过图像识别找到 Run 按钮...
+2025-11-18 03:43:23,833 | WARNING | prd_lot_automation.spf_runner | 图像识别失败，尝试通过控件查找...
+2025-11-18 03:43:23,834 | INFO | prd_lot_automation.spf_runner | 尝试查找工具栏中的 Run 按钮...
+2025-11-18 03:43:24,604 | INFO | prd_lot_automation.spf_runner | 通过控件点击了第4个工具栏按钮（可能是 Run 按钮）
+2025-11-18 03:46:12,337 | INFO | root | PRD LOT 自动化开始
+2025-11-18 03:46:12,338 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-18 03:46:12,342 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-18 03:46:12,343 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-18 03:46:12,343 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-18 03:46:14,707 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口
+2025-11-18 03:46:14,707 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-18 03:46:16,095 | INFO | prd_lot_automation.spf_runner | 已按下 F8 快捷键
+2025-11-18 03:51:41,631 | INFO | root | PRD LOT 自动化开始
+2025-11-18 03:51:41,633 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-18 03:51:41,636 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-18 03:51:41,637 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-18 03:51:41,639 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-18 03:51:42,153 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口
+2025-11-18 03:51:42,168 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-18 03:51:44,492 | WARNING | prd_lot_automation.spf_runner | F8 快捷键失败，尝试其他方法：
+2025-11-18 03:51:44,493 | INFO | prd_lot_automation.spf_runner | 尝试通过图像识别找到 Run 按钮...
+2025-11-18 03:51:45,468 | WARNING | prd_lot_automation.spf_runner | 图像识别失败，尝试通过控件查找...
+2025-11-18 03:51:45,469 | INFO | prd_lot_automation.spf_runner | 尝试查找工具栏中的 Run 按钮...
+2025-11-18 03:51:48,051 | INFO | prd_lot_automation.spf_runner | 通过控件点击了第4个工具栏按钮（可能是 Run 按钮）
+2025-11-18 03:51:49,058 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-18 03:54:18,777 | INFO | root | PRD LOT 自动化开始
+2025-11-18 03:54:18,778 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-18 03:54:18,782 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-18 03:54:18,783 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-18 03:54:18,783 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-18 03:54:21,069 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口
+2025-11-18 03:54:21,070 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-18 03:54:22,446 | INFO | prd_lot_automation.spf_runner | 已按下 F8 快捷键
+2025-11-18 03:54:23,449 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-18 03:58:32,298 | INFO | root | PRD LOT 自动化开始
+2025-11-18 03:58:32,300 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-18 03:58:32,318 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-18 03:58:32,319 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-18 03:58:32,319 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-18 03:58:34,627 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口
+2025-11-18 03:58:34,628 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-18 03:58:36,016 | INFO | prd_lot_automation.spf_runner | 已按下 F8 快捷键
+2025-11-18 03:58:37,045 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗...
+2025-11-18 03:59:08,720 | ERROR | prd_lot_automation.spf_runner | 无法找到 LOT 输入弹窗
+2025-11-18 03:59:08,721 | ERROR | prd_lot_automation.spf_runner | 请运行 '调试窗口查找.py' 工具来诊断问题
+2025-11-18 04:01:10,027 | INFO | root | PRD LOT 自动化开始
+2025-11-18 04:01:10,028 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-18 04:01:10,037 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-18 04:01:10,042 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-18 04:01:10,043 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-18 04:01:12,321 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口
+2025-11-18 04:01:12,321 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-18 04:01:13,668 | INFO | prd_lot_automation.spf_runner | 已按下 F8 快捷键
+2025-11-18 04:01:14,682 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-18 04:01:45,976 | ERROR | prd_lot_automation.spf_runner | ❌ 无法找到 LOT 输入弹窗
+2025-11-18 04:01:45,977 | ERROR | prd_lot_automation.spf_runner | 请检查：
+2025-11-18 04:01:45,978 | ERROR | prd_lot_automation.spf_runner |   1. F8 是否成功触发了弹窗
+2025-11-18 04:01:45,978 | ERROR | prd_lot_automation.spf_runner |   2. 弹窗是否被其他窗口遮挡
+2025-11-18 04:37:10,226 | INFO | root | PRD LOT 自动化开始
+2025-11-18 04:37:10,226 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-18 04:37:10,242 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-18 04:37:10,242 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-18 04:37:10,242 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-18 04:37:12,586 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口
+2025-11-18 04:37:12,586 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-18 04:37:14,340 | INFO | prd_lot_automation.spf_runner | 已通过 type_keys 发送 F8
+2025-11-18 04:37:14,347 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送
+2025-11-18 04:37:14,351 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-18 04:37:19,381 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-18 04:37:19,381 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-18 04:37:24,475 | INFO | prd_lot_automation.spf_runner | 尝试通过按钮查找弹窗...
+2025-11-18 04:37:26,789 | INFO | prd_lot_automation.spf_runner | ✅ 通过按钮找到弹窗：SQLPathFinder 3 (Main - 27296) - [Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2 (L0)]
+2025-11-18 04:42:07,730 | INFO | root | PRD LOT 自动化开始
+2025-11-18 04:42:07,732 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-18 04:42:07,744 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-18 04:42:07,745 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-18 04:42:07,745 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-18 04:42:10,066 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口
+2025-11-18 04:42:10,067 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-18 04:42:15,496 | INFO | prd_lot_automation.spf_runner | 已通过 type_keys 发送 F8
+2025-11-18 04:42:15,505 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送
+2025-11-18 04:42:15,505 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-18 04:42:20,507 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-18 04:42:20,507 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-18 04:42:25,613 | INFO | prd_lot_automation.spf_runner | 尝试通过按钮查找弹窗...
+2025-11-18 04:42:27,784 | INFO | prd_lot_automation.spf_runner | 尝试通过按钮查找弹窗...
+2025-11-18 04:42:29,927 | INFO | prd_lot_automation.spf_runner | 尝试通过按钮查找弹窗...
+2025-11-18 04:42:32,069 | INFO | prd_lot_automation.spf_runner | 尝试通过按钮查找弹窗...
+2025-11-18 04:42:34,210 | INFO | prd_lot_automation.spf_runner | 尝试通过按钮查找弹窗...
+2025-11-18 04:42:36,354 | INFO | prd_lot_automation.spf_runner | 尝试通过按钮查找弹窗...
+2025-11-18 04:42:38,497 | INFO | prd_lot_automation.spf_runner | 尝试通过按钮查找弹窗...
+2025-11-18 04:42:40,645 | INFO | prd_lot_automation.spf_runner | 尝试通过按钮查找弹窗...
+2025-11-18 04:42:42,798 | INFO | prd_lot_automation.spf_runner | 尝试通过按钮查找弹窗...
+2025-11-18 04:42:44,956 | INFO | prd_lot_automation.spf_runner | 尝试通过按钮查找弹窗...
+2025-11-18 04:42:47,106 | INFO | prd_lot_automation.spf_runner | 尝试通过按钮查找弹窗...
+2025-11-18 04:42:49,245 | INFO | prd_lot_automation.spf_runner | 尝试通过按钮查找弹窗...
+2025-11-18 04:42:51,294 | ERROR | prd_lot_automation.spf_runner | ❌ 无法找到 LOT 输入弹窗
+2025-11-18 04:42:51,296 | ERROR | prd_lot_automation.spf_runner | 
+2025-11-18 04:42:51,299 | ERROR | prd_lot_automation.spf_runner | 诊断信息：
+2025-11-18 04:42:51,299 | ERROR | prd_lot_automation.spf_runner |   1. 请手动按 F8，确认弹窗是否出现
+2025-11-18 04:42:51,299 | ERROR | prd_lot_automation.spf_runner |   2. 如果弹窗出现，运行 '查找弹窗真实信息.py' 查看窗口信息
+2025-11-18 04:42:51,299 | ERROR | prd_lot_automation.spf_runner |   3. 检查弹窗是否被其他窗口遮挡
+2025-11-18 04:42:51,300 | ERROR | prd_lot_automation.spf_runner | 
+2025-11-18 04:56:09,544 | INFO | root | PRD LOT 自动化开始
+2025-11-18 04:56:09,547 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-18 04:56:09,550 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-18 04:56:09,552 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-18 04:56:09,553 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-18 04:56:11,459 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-18 04:56:11,487 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-18 04:56:12,247 | INFO | prd_lot_automation.spf_runner | 已通过 type_keys 发送 F8
+2025-11-18 04:56:12,249 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送
+2025-11-18 04:56:12,250 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-18 04:56:17,251 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-18 04:56:17,251 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-18 04:56:22,277 | INFO | prd_lot_automation.spf_runner | ✅ 成功连接到弹窗: Prompt For Values (in)
+2025-11-18 04:56:22,280 | INFO | prd_lot_automation.spf_runner | LOT 输入弹窗已准备就绪
+2025-11-18 04:56:22,289 | INFO | prd_lot_automation.spf_runner | LOT 列表已复制到剪贴板
+2025-11-18 04:56:27,309 | WARNING | prd_lot_automation.spf_runner | 通过 auto_id 点击 Paste 失败: {'auto_id': 'cmdPaste', 'control_type': 'Button', 'top_level_only': False, 'parent': <win32_element_info.HwndElementInfo - 'Prompt For Values (in)', WindowsForms10.Window.8.app.0.bb8560_r8_ad1, 1508618>, 'backend': 'win32'}
+2025-11-18 04:56:32,329 | WARNING | prd_lot_automation.spf_runner | 点击 Paste 按钮失败: {'title': 'Paste', 'control_type': 'Button', 'top_level_only': False, 'parent': <win32_element_info.HwndElementInfo - 'Prompt For Values (in)', WindowsForms10.Window.8.app.0.bb8560_r8_ad1, 1508618>, 'backend': 'win32'}
+2025-11-18 04:56:37,352 | ERROR | prd_lot_automation.spf_runner | 输入 LOT 失败: {'auto_id': 'TxtBox1', 'top_level_only': False, 'parent': <win32_element_info.HwndElementInfo - 'Prompt For Values (in)', WindowsForms10.Window.8.app.0.bb8560_r8_ad1, 1508618>, 'backend': 'win32'}
+2025-11-18 05:03:35,988 | INFO | root | PRD LOT 自动化开始
+2025-11-18 05:03:35,990 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-18 05:03:35,995 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-18 05:03:35,997 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-18 05:03:35,998 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-18 05:03:36,279 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-18 05:03:36,304 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-18 05:03:37,335 | INFO | prd_lot_automation.spf_runner | 已通过 send_keystrokes 发送 F8
+2025-11-18 05:03:37,352 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送
+2025-11-18 05:03:37,372 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-18 05:03:42,374 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-18 05:03:42,374 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-18 05:04:17,615 | ERROR | prd_lot_automation.spf_runner | ❌ 无法找到 LOT 输入弹窗
+2025-11-18 05:04:17,621 | ERROR | prd_lot_automation.spf_runner | 
+2025-11-18 05:04:17,623 | ERROR | prd_lot_automation.spf_runner | 诊断信息：
+2025-11-18 05:04:17,623 | ERROR | prd_lot_automation.spf_runner |   1. 请手动按 F8，确认弹窗是否出现
+2025-11-18 05:04:17,623 | ERROR | prd_lot_automation.spf_runner |   2. 如果弹窗出现，运行 '查找弹窗真实信息.py' 查看窗口信息
+2025-11-18 05:04:17,623 | ERROR | prd_lot_automation.spf_runner |   3. 检查弹窗是否被其他窗口遮挡
+2025-11-18 05:04:17,624 | ERROR | prd_lot_automation.spf_runner | 
+2025-11-18 05:06:05,488 | INFO | root | PRD LOT 自动化开始
+2025-11-18 05:06:05,489 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-18 05:06:05,493 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-18 05:06:05,501 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-18 05:06:05,503 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-18 05:06:38,300 | INFO | root | PRD LOT 自动化开始
+2025-11-18 05:06:38,300 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-18 05:06:38,300 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-18 05:06:38,300 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-18 05:06:38,300 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-18 05:06:40,201 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-18 05:06:40,264 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-18 05:06:40,843 | INFO | prd_lot_automation.spf_runner | 已通过 type_keys 发送 F8
+2025-11-18 05:06:40,843 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送
+2025-11-18 05:06:40,843 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-18 05:06:45,847 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-18 05:06:45,847 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-18 05:06:50,864 | INFO | prd_lot_automation.spf_runner | ✅ 成功连接到弹窗: Prompt For Values (in)
+2025-11-18 05:06:50,864 | INFO | prd_lot_automation.spf_runner | LOT 输入弹窗已准备就绪
+2025-11-18 05:06:50,879 | INFO | prd_lot_automation.spf_runner | LOT 列表已复制到剪贴板
+2025-11-18 05:06:51,036 | INFO | prd_lot_automation.spf_runner | ✅ 已点击 Paste 按钮 (通过 auto_id)
+2025-11-18 05:06:51,863 | INFO | prd_lot_automation.spf_runner | ✅ 已点击 OK 按钮 (通过 auto_id)
+2025-11-18 05:06:52,969 | INFO | prd_lot_automation.spf_runner | ✅ LOT 已提交：8 个
+2025-11-18 05:06:52,969 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-11-18 05:07:00,973 | INFO | prd_lot_automation.spf_runner | 检测到 CSV 文件稳定：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-18 05:07:00,973 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-18 05:11:08,384 | INFO | root | PRD LOT 自动化开始
+2025-11-18 05:11:08,386 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-18 05:11:08,392 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-18 05:11:08,393 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-18 05:11:08,394 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-18 05:11:10,535 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-18 05:11:10,614 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-18 05:11:11,200 | INFO | prd_lot_automation.spf_runner | 已通过 type_keys 发送 F8
+2025-11-18 05:11:11,261 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送
+2025-11-18 05:11:11,261 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-18 05:11:16,263 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-18 05:11:16,268 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-18 05:11:21,271 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-18 05:11:21,297 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-11-18 05:11:21,308 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板
+2025-11-18 05:11:21,450 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮
+2025-11-18 05:11:22,443 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-11-18 05:11:23,513 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交
+2025-11-18 05:11:23,513 | INFO | prd_lot_automation.spf_runner | 检查是否有第二个参数弹窗...
+2025-11-18 05:11:25,537 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-11-18 05:11:25,548 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板
+2025-11-18 05:11:25,704 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮
+2025-11-18 05:11:26,560 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-11-18 05:11:27,568 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交
+2025-11-18 05:11:27,582 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-11-18 05:11:27,588 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-11-18 05:11:59,803 | INFO | prd_lot_automation.spf_runner | 没有第三个参数弹窗
+2025-11-18 05:11:59,803 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-11-18 05:11:59,803 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-11-18 05:12:07,807 | INFO | prd_lot_automation.spf_runner | 检测到 CSV 文件稳定：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-18 05:12:07,807 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-18 05:42:20,173 | INFO | root | PRD LOT 自动化开始
+2025-11-18 05:42:20,180 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-18 05:42:20,182 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-18 05:42:20,182 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-18 05:42:20,183 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-18 05:42:22,729 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-18 05:42:22,734 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-18 05:42:23,260 | INFO | prd_lot_automation.spf_runner | 已通过 type_keys 发送 F8
+2025-11-18 05:42:23,263 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送
+2025-11-18 05:42:23,263 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-18 05:42:28,264 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-18 05:42:28,264 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-18 05:42:33,266 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-18 05:42:33,291 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-11-18 05:42:33,301 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个)
+2025-11-18 05:42:33,439 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮 (auto_id)
+2025-11-18 05:42:35,145 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-11-18 05:42:36,258 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交
+2025-11-18 05:42:36,258 | INFO | prd_lot_automation.spf_runner | 检查是否有第二个参数弹窗...
+2025-11-18 05:42:38,283 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-11-18 05:42:38,290 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个)
+2025-11-18 05:42:38,444 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮 (auto_id)
+2025-11-18 05:42:39,272 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-11-18 05:42:40,355 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交
+2025-11-18 05:42:40,369 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-11-18 05:42:40,387 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-11-18 05:42:54,671 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #3: Prompt For Values (in)
+2025-11-18 05:42:54,810 | INFO | prd_lot_automation.spf_runner | 弹窗 #3: LOT 列表已复制到剪贴板 (8 个)
+2025-11-18 05:42:56,047 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #3: 已点击 Paste 按钮 (auto_id)
+2025-11-18 05:42:57,130 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #3: 已点击 OK 按钮
+2025-11-18 05:42:58,175 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #3: LOT 已提交
+2025-11-18 05:42:58,175 | INFO | prd_lot_automation.spf_runner | ✅ 第三个参数弹窗已处理
+2025-11-18 05:42:58,175 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-11-18 05:42:58,176 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-11-18 05:43:14,305 | INFO | prd_lot_automation.spf_runner | 检测到 CSV 文件稳定：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-18 05:43:14,305 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-18 05:49:10,364 | INFO | root | PRD LOT 自动化开始
+2025-11-18 05:49:10,367 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-18 05:49:10,371 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-18 05:49:10,373 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-18 05:49:10,374 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-18 05:49:10,658 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-18 05:49:10,687 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-18 05:49:11,684 | INFO | prd_lot_automation.spf_runner | 已通过 send_keystrokes 发送 F8
+2025-11-18 05:49:11,710 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送
+2025-11-18 05:49:11,710 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-18 05:49:16,712 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-18 05:49:16,712 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-18 05:49:21,713 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-18 05:49:51,950 | ERROR | prd_lot_automation.spf_runner | ❌ 无法找到第一个 LOT 输入弹窗
+2025-11-18 05:49:51,950 | ERROR | prd_lot_automation.spf_runner | 
+2025-11-18 05:49:51,950 | ERROR | prd_lot_automation.spf_runner | 诊断信息：
+2025-11-18 05:49:51,951 | ERROR | prd_lot_automation.spf_runner |   1. 请手动按 F8，确认弹窗是否出现
+2025-11-18 05:49:51,951 | ERROR | prd_lot_automation.spf_runner |   2. 检查弹窗是否被其他窗口遮挡
+2025-11-18 05:49:51,952 | ERROR | prd_lot_automation.spf_runner | 
+2025-11-18 05:55:34,896 | INFO | root | PRD LOT 自动化开始
+2025-11-18 05:55:34,898 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-18 05:55:34,906 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-18 05:55:34,911 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-18 05:55:34,912 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-18 05:55:58,066 | INFO | root | PRD LOT 自动化开始
+2025-11-18 05:55:58,067 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-18 05:55:58,071 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-18 05:55:58,077 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-18 05:55:58,079 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-18 05:55:59,898 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-18 05:55:59,945 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-18 05:56:00,531 | INFO | prd_lot_automation.spf_runner | 已通过 type_keys 发送 F8
+2025-11-18 05:56:00,545 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送
+2025-11-18 05:56:00,545 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-18 05:56:05,547 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-18 05:56:05,547 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-18 05:56:10,548 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-18 05:56:10,549 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-11-18 05:56:10,578 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-11-18 05:56:10,578 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-18 05:56:10,588 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个)
+2025-11-18 05:56:10,731 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮 (auto_id)
+2025-11-18 05:56:11,523 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-11-18 05:56:12,629 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交
+2025-11-18 05:56:12,629 | INFO | prd_lot_automation.spf_runner | 检查是否有第二个参数弹窗...
+2025-11-18 05:56:14,631 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #2...
+2025-11-18 05:56:14,657 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-11-18 05:56:14,658 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-18 05:56:14,665 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个)
+2025-11-18 05:56:14,794 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮 (auto_id)
+2025-11-18 05:56:15,629 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-11-18 05:56:16,722 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交
+2025-11-18 05:56:16,743 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-11-18 05:56:16,755 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-11-18 05:56:18,780 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #3...
+2025-11-18 05:56:24,839 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #3...
+2025-11-18 05:56:31,224 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #3...
+2025-11-18 05:56:38,414 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #3...
+2025-11-18 05:56:44,476 | INFO | prd_lot_automation.spf_runner | 第 5 次尝试查找弹窗 #3...
+2025-11-18 05:56:48,554 | WARNING | prd_lot_automation.spf_runner | ❌ 超时后仍未找到弹窗 #3
+2025-11-18 05:56:48,555 | INFO | prd_lot_automation.spf_runner | 没有第三个参数弹窗
+2025-11-18 05:56:48,555 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-11-18 05:56:48,556 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-11-18 05:56:56,559 | INFO | prd_lot_automation.spf_runner | 检测到 CSV 文件稳定：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-18 05:56:56,560 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-18 06:00:54,516 | INFO | root | PRD LOT 自动化开始
+2025-11-18 06:00:54,517 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-18 06:00:54,523 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-18 06:00:54,524 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-18 06:00:54,525 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-18 06:00:56,651 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-18 06:00:56,652 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-18 06:00:57,179 | INFO | prd_lot_automation.spf_runner | 已通过 type_keys 发送 F8
+2025-11-18 06:00:57,302 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送
+2025-11-18 06:00:57,330 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-18 06:01:02,333 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-18 06:01:02,333 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-18 06:01:07,334 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-18 06:01:07,335 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-11-18 06:01:07,359 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-11-18 06:01:07,360 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-18 06:01:07,373 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个)
+2025-11-18 06:01:07,516 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: 已点击 Clear 按钮清空输入框
+2025-11-18 06:01:08,552 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮 (auto_id)
+2025-11-18 06:01:08,554 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: 等待 Paste 处理完成...
+2025-11-18 06:01:14,704 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-11-18 06:01:15,711 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交
+2025-11-18 06:01:15,712 | INFO | prd_lot_automation.spf_runner | 检查是否有第二个参数弹窗...
+2025-11-18 06:01:17,713 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #2...
+2025-11-18 06:01:17,739 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-11-18 06:01:17,744 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-18 06:01:17,949 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个)
+2025-11-18 06:01:18,925 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: 已点击 Clear 按钮清空输入框
+2025-11-18 06:01:20,138 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮 (auto_id)
+2025-11-18 06:01:20,139 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: 等待 Paste 处理完成...
+2025-11-18 06:01:26,295 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-11-18 06:01:27,300 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交
+2025-11-18 06:01:27,301 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-11-18 06:01:27,301 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-11-18 06:01:29,303 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #3...
+2025-11-18 06:01:29,327 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #3: Prompt For Values (in)
+2025-11-18 06:01:29,331 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-18 06:01:29,527 | INFO | prd_lot_automation.spf_runner | 弹窗 #3: LOT 列表已复制到剪贴板 (8 个)
+2025-11-18 06:01:30,487 | INFO | prd_lot_automation.spf_runner | 弹窗 #3: 已点击 Clear 按钮清空输入框
+2025-11-18 06:01:31,668 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #3: 已点击 Paste 按钮 (auto_id)
+2025-11-18 06:01:31,668 | INFO | prd_lot_automation.spf_runner | 弹窗 #3: 等待 Paste 处理完成...
+2025-11-18 06:01:37,827 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #3: 已点击 OK 按钮
+2025-11-18 06:01:38,832 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #3: LOT 已提交
+2025-11-18 06:01:38,832 | INFO | prd_lot_automation.spf_runner | ✅ 第三个参数弹窗已处理
+2025-11-18 06:01:38,832 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-11-18 06:01:38,832 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-11-18 06:01:46,836 | INFO | prd_lot_automation.spf_runner | 检测到 CSV 文件稳定：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-18 06:01:46,839 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-18 06:02:05,150 | INFO | root | PRD LOT 自动化开始
+2025-11-18 06:02:05,152 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-18 06:02:05,157 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-18 06:02:05,160 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-18 06:02:05,161 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-18 06:02:07,025 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-18 06:02:07,061 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-18 06:02:07,669 | INFO | prd_lot_automation.spf_runner | 已通过 type_keys 发送 F8
+2025-11-18 06:02:07,675 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送
+2025-11-18 06:02:07,675 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-18 06:02:12,677 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-18 06:02:12,677 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-18 06:02:17,678 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-18 06:02:17,679 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-11-18 06:02:17,705 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-11-18 06:02:17,708 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-18 06:02:17,723 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个)
+2025-11-18 06:02:17,861 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: 已点击 Clear 按钮清空输入框
+2025-11-18 06:02:19,081 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮 (auto_id)
+2025-11-18 06:02:19,081 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: 等待 Paste 处理完成...
+2025-11-18 06:02:25,868 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-11-18 06:02:26,873 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交
+2025-11-18 06:02:26,874 | INFO | prd_lot_automation.spf_runner | 检查是否有第二个参数弹窗...
+2025-11-18 06:02:28,875 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #2...
+2025-11-18 06:02:28,901 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-11-18 06:02:28,905 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-18 06:02:29,098 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个)
+2025-11-18 06:02:29,337 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: 已点击 Clear 按钮清空输入框
+2025-11-18 06:02:31,194 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮 (auto_id)
+2025-11-18 06:02:31,223 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: 等待 Paste 处理完成...
+2025-11-18 06:02:38,035 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-11-18 06:02:39,036 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交
+2025-11-18 06:02:39,036 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-11-18 06:02:39,036 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-11-18 06:02:41,037 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #3...
+2025-11-18 06:02:41,060 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #3: Prompt For Values (in)
+2025-11-18 06:02:41,061 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-18 06:02:41,260 | INFO | prd_lot_automation.spf_runner | 弹窗 #3: LOT 列表已复制到剪贴板 (8 个)
+2025-11-18 06:02:41,973 | INFO | prd_lot_automation.spf_runner | 弹窗 #3: 已点击 Clear 按钮清空输入框
+2025-11-18 06:02:42,984 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #3: 已点击 Paste 按钮 (auto_id)
+2025-11-18 06:02:42,984 | INFO | prd_lot_automation.spf_runner | 弹窗 #3: 等待 Paste 处理完成...
+2025-11-18 06:02:49,230 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #3: 已点击 OK 按钮
+2025-11-18 06:02:50,365 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #3: LOT 已提交
+2025-11-18 06:02:50,435 | INFO | prd_lot_automation.spf_runner | ✅ 第三个参数弹窗已处理
+2025-11-18 06:02:50,489 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-11-18 06:02:50,495 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-11-18 06:02:58,498 | INFO | prd_lot_automation.spf_runner | 检测到 CSV 文件稳定：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-18 06:02:58,498 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-18 06:13:16,873 | INFO | root | PRD LOT 自动化开始
+2025-11-18 06:13:16,875 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-18 06:13:16,880 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-18 06:13:16,881 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-18 06:13:16,882 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-18 06:13:19,103 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-18 06:13:19,104 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-18 06:13:19,630 | INFO | prd_lot_automation.spf_runner | 已通过 type_keys 发送 F8
+2025-11-18 06:13:19,632 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送
+2025-11-18 06:13:19,633 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-18 06:13:24,634 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-18 06:13:24,635 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-18 06:13:29,635 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-18 06:13:29,635 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-11-18 06:13:29,660 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-11-18 06:13:29,661 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-18 06:13:29,673 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个)
+2025-11-18 06:13:30,084 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-18 06:13:35,397 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: 等待 Paste 处理完成...
+2025-11-18 06:13:41,642 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-11-18 06:13:42,720 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交
+2025-11-18 06:13:42,720 | INFO | prd_lot_automation.spf_runner | 检查是否有第二个参数弹窗...
+2025-11-18 06:13:44,721 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #2...
+2025-11-18 06:13:44,744 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-11-18 06:13:44,746 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-18 06:13:44,752 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个)
+2025-11-18 06:13:45,148 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-18 06:13:50,457 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: 等待 Paste 处理完成...
+2025-11-18 06:13:56,648 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-11-18 06:13:57,810 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交
+2025-11-18 06:13:57,827 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-11-18 06:13:57,830 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-11-18 06:13:59,834 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #3...
+2025-11-18 06:14:05,893 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #3...
+2025-11-18 06:14:11,949 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #3...
+2025-11-18 06:14:18,011 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #3...
+2025-11-18 06:14:24,068 | INFO | prd_lot_automation.spf_runner | 第 5 次尝试查找弹窗 #3...
+2025-11-18 06:14:30,122 | WARNING | prd_lot_automation.spf_runner | ❌ 超时后仍未找到弹窗 #3
+2025-11-18 06:14:30,122 | INFO | prd_lot_automation.spf_runner | 没有第三个参数弹窗
+2025-11-18 06:14:30,122 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-11-18 06:14:30,122 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-11-18 06:14:38,125 | INFO | prd_lot_automation.spf_runner | 检测到 CSV 文件稳定：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-18 06:14:38,125 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-18 06:16:46,149 | INFO | root | PRD LOT 自动化开始
+2025-11-18 06:16:46,149 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-18 06:16:46,164 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-18 06:16:46,164 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-18 06:16:46,164 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-18 06:16:48,086 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-18 06:16:48,086 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-18 06:16:48,625 | INFO | prd_lot_automation.spf_runner | 已通过 type_keys 发送 F8
+2025-11-18 06:16:48,625 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送
+2025-11-18 06:16:48,625 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-18 06:16:53,629 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-18 06:16:53,629 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-18 06:16:58,631 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-18 06:16:58,631 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-11-18 06:16:58,649 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-11-18 06:16:58,649 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-18 06:16:58,665 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个)
+2025-11-18 06:16:59,086 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-18 06:17:04,401 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: 等待 Paste 处理完成...
+2025-11-18 06:17:10,655 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-11-18 06:17:11,693 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交
+2025-11-18 06:17:11,696 | INFO | prd_lot_automation.spf_runner | 检查是否有第二个参数弹窗...
+2025-11-18 06:17:13,699 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #2...
+2025-11-18 06:17:13,721 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-11-18 06:17:13,721 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-18 06:17:13,721 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个)
+2025-11-18 06:17:14,961 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-18 06:17:20,270 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: 等待 Paste 处理完成...
+2025-11-18 06:17:26,442 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-11-18 06:17:27,523 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交
+2025-11-18 06:17:27,523 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-11-18 06:17:27,523 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-11-18 06:17:29,524 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #3...
+2025-11-18 06:17:29,537 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #3: Prompt For Values (in)
+2025-11-18 06:17:29,537 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-18 06:17:29,552 | INFO | prd_lot_automation.spf_runner | 弹窗 #3: LOT 列表已复制到剪贴板 (8 个)
+2025-11-18 06:17:29,964 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #3: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-18 06:17:35,276 | INFO | prd_lot_automation.spf_runner | 弹窗 #3: 等待 Paste 处理完成...
+2025-11-18 06:17:41,430 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #3: 已点击 OK 按钮
+2025-11-18 06:17:42,431 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #3: LOT 已提交
+2025-11-18 06:17:42,431 | INFO | prd_lot_automation.spf_runner | ✅ 第三个参数弹窗已处理
+2025-11-18 06:17:42,431 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-11-18 06:17:42,431 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-11-18 06:28:32,528 | INFO | root | PRD LOT 自动化开始
+2025-11-18 06:28:32,529 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-18 06:28:32,536 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-18 06:28:32,538 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-18 06:28:32,539 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-18 06:28:34,671 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-18 06:28:34,672 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-18 06:28:35,199 | INFO | prd_lot_automation.spf_runner | 已通过 type_keys 发送 F8
+2025-11-18 06:28:35,359 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送
+2025-11-18 06:28:35,365 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-18 06:28:40,368 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-18 06:28:40,369 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-18 06:28:45,371 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-18 06:28:45,372 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-11-18 06:28:45,396 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-11-18 06:28:45,396 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-18 06:28:45,403 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-18 06:28:45,812 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-18 06:28:51,129 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: 等待 Paste 处理完成...
+2025-11-18 06:28:57,322 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-11-18 06:28:58,386 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交
+2025-11-18 06:28:58,386 | INFO | prd_lot_automation.spf_runner | 检查是否有第二个参数弹窗...
+2025-11-18 06:29:00,388 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #2...
+2025-11-18 06:29:00,413 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-11-18 06:29:00,414 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-18 06:29:00,417 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-18 06:29:00,845 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-18 06:29:06,162 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: 等待 Paste 处理完成...
+2025-11-18 06:29:12,361 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-11-18 06:29:13,369 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交
+2025-11-18 06:29:13,371 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-11-18 06:29:13,373 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-11-18 06:29:15,390 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #3...
+2025-11-18 06:29:21,446 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #3...
+2025-11-18 06:29:27,501 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #3...
+2025-11-18 06:29:33,557 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #3...
+2025-11-18 06:29:39,607 | INFO | prd_lot_automation.spf_runner | 第 5 次尝试查找弹窗 #3...
+2025-11-18 06:29:45,664 | WARNING | prd_lot_automation.spf_runner | ❌ 超时后仍未找到弹窗 #3
+2025-11-18 06:29:45,665 | INFO | prd_lot_automation.spf_runner | 没有第三个参数弹窗
+2025-11-18 06:29:45,665 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-11-18 06:29:45,665 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-11-18 06:31:03,686 | INFO | prd_lot_automation.spf_runner | 检测到 CSV 文件稳定：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-18 06:31:03,686 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-18 06:43:14,551 | INFO | root | PRD LOT 自动化开始
+2025-11-18 06:43:14,561 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-18 06:43:14,574 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-18 06:43:14,578 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-18 06:43:14,580 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-18 06:43:17,420 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-18 06:43:17,430 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-18 06:43:17,966 | INFO | prd_lot_automation.spf_runner | 已通过 type_keys 发送 F8
+2025-11-18 06:43:18,015 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送
+2025-11-18 06:43:18,019 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-18 06:43:23,098 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-18 06:43:23,258 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-18 06:43:28,355 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-18 06:43:28,356 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-11-18 06:43:28,382 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-11-18 06:43:28,382 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-18 06:43:28,389 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-18 06:43:28,791 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-18 06:43:34,104 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: 等待 Paste 处理完成...
+2025-11-18 06:43:40,315 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-11-18 06:43:41,406 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交
+2025-11-18 06:43:41,407 | INFO | prd_lot_automation.spf_runner | 检查是否有第二个参数弹窗...
+2025-11-18 06:43:43,408 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #2...
+2025-11-18 06:43:43,430 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-11-18 06:43:43,431 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-18 06:43:43,434 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-18 06:43:43,858 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-18 06:43:49,173 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: 等待 Paste 处理完成...
+2025-11-18 06:43:55,333 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-11-18 06:43:56,345 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交
+2025-11-18 06:43:56,349 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-11-18 06:43:56,363 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-11-18 06:43:58,367 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #3...
+2025-11-18 06:44:04,426 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #3...
+2025-11-18 06:44:10,482 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #3...
+2025-11-18 06:44:16,536 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #3...
+2025-11-18 06:44:22,591 | INFO | prd_lot_automation.spf_runner | 第 5 次尝试查找弹窗 #3...
+2025-11-18 06:44:28,643 | WARNING | prd_lot_automation.spf_runner | ❌ 超时后仍未找到弹窗 #3
+2025-11-18 06:44:28,643 | INFO | prd_lot_automation.spf_runner | 没有第三个参数弹窗
+2025-11-18 06:44:28,643 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-11-18 06:44:28,644 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-11-18 06:46:06,670 | INFO | prd_lot_automation.spf_runner | 检测到 CSV 文件稳定：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-18 06:46:06,671 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-18 06:46:06,742 | WARNING | prd_lot_automation.data_processing | VISUAL_ID 存在非数值，使用去重计数
+2025-11-18 06:46:06,756 | INFO | prd_lot_automation.report_builder | 生成报表：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\reports\LOT_Report_2025-11-18.xlsx
+2025-11-18 06:49:42,656 | INFO | root | PRD LOT 自动化开始
+2025-11-18 06:49:42,657 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-18 06:49:42,659 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-18 06:49:42,661 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-18 06:49:42,663 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-18 06:49:44,676 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-18 06:49:44,677 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-18 06:49:45,204 | INFO | prd_lot_automation.spf_runner | 已通过 type_keys 发送 F8
+2025-11-18 06:49:45,317 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送
+2025-11-18 06:49:45,318 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-18 06:49:50,326 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-18 06:49:50,331 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-18 06:49:55,339 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-18 06:49:55,340 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-11-18 06:49:55,365 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-11-18 06:49:55,366 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-18 06:49:55,371 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-18 06:49:55,794 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-18 06:50:01,111 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: 等待 Paste 处理完成...
+2025-11-18 06:50:07,524 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-11-18 06:50:08,649 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交
+2025-11-18 06:50:08,649 | INFO | prd_lot_automation.spf_runner | 检查是否有第二个参数弹窗...
+2025-11-18 06:50:10,650 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #2...
+2025-11-18 06:50:10,673 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-11-18 06:50:10,676 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-18 06:50:10,679 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-18 06:50:11,119 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-18 06:50:16,436 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: 等待 Paste 处理完成...
+2025-11-18 06:50:22,598 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-11-18 06:50:23,809 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交
+2025-11-18 06:50:24,038 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-11-18 06:50:24,119 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-11-18 06:50:26,125 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #3...
+2025-11-18 06:50:32,194 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #3...
+2025-11-18 06:50:38,248 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #3...
+2025-11-18 06:50:44,304 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #3...
+2025-11-18 06:50:50,356 | INFO | prd_lot_automation.spf_runner | 第 5 次尝试查找弹窗 #3...
+2025-11-18 06:50:56,412 | WARNING | prd_lot_automation.spf_runner | ❌ 超时后仍未找到弹窗 #3
+2025-11-18 06:50:56,412 | INFO | prd_lot_automation.spf_runner | 没有第三个参数弹窗
+2025-11-18 06:50:56,412 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-11-18 06:50:56,412 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-11-18 06:52:14,443 | INFO | prd_lot_automation.spf_runner | 检测到 CSV 文件稳定：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-18 06:52:14,444 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-18 06:52:14,534 | WARNING | prd_lot_automation.data_processing | VISUAL_ID 存在非数值，使用去重计数
+2025-11-18 06:52:14,546 | INFO | prd_lot_automation.report_builder | 生成报表：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\reports\LOT_Report_2025-11-18.xlsx
+2025-11-18 06:52:31,497 | INFO | prd_lot_automation.mailer | Outlook 邮件已发送
+2025-11-18 06:52:31,570 | INFO | root | 流程完成：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\reports\LOT_Report_2025-11-18.xlsx
+2025-11-26 02:08:08,197 | INFO | root | PRD LOT 自动化开始
+2025-11-26 02:08:08,213 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-26 02:08:08,213 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-26 02:08:08,213 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-26 02:08:08,213 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-26 02:08:10,483 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-26 02:08:10,497 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-26 02:08:11,022 | INFO | prd_lot_automation.spf_runner | 已通过 type_keys 发送 F8
+2025-11-26 02:08:11,022 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送
+2025-11-26 02:08:11,022 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-26 02:08:16,027 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-26 02:08:16,027 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-26 02:08:21,029 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-26 02:08:21,029 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-11-26 02:08:21,046 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-11-26 02:08:21,046 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-26 02:08:21,046 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-26 02:08:21,483 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-26 02:08:26,773 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: 等待 Paste 处理完成...
+2025-11-26 02:08:33,016 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-11-26 02:08:34,040 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交
+2025-11-26 02:08:34,040 | INFO | prd_lot_automation.spf_runner | 检查是否有第二个参数弹窗...
+2025-11-26 02:08:36,041 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #2...
+2025-11-26 02:08:36,056 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-11-26 02:08:36,056 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-26 02:08:36,056 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-26 02:08:36,461 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-26 02:08:41,769 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: 等待 Paste 处理完成...
+2025-11-26 02:08:47,927 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-11-26 02:08:49,076 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交
+2025-11-26 02:08:49,080 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-11-26 02:08:49,095 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-11-26 02:08:51,113 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #3...
+2025-11-26 02:08:57,138 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #3...
+2025-11-26 02:09:03,155 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #3...
+2025-11-26 02:09:09,187 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #3...
+2025-11-26 02:09:15,209 | INFO | prd_lot_automation.spf_runner | 第 5 次尝试查找弹窗 #3...
+2025-11-26 02:09:21,241 | WARNING | prd_lot_automation.spf_runner | ❌ 超时后仍未找到弹窗 #3
+2025-11-26 02:09:21,241 | INFO | prd_lot_automation.spf_runner | 没有第三个参数弹窗
+2025-11-26 02:09:21,241 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-11-26 02:09:21,241 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-11-26 02:10:49,272 | INFO | prd_lot_automation.spf_runner | 检测到 CSV 文件稳定：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-26 02:10:49,272 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-26 02:10:49,363 | WARNING | prd_lot_automation.data_processing | VISUAL_ID 存在非数值，使用去重计数
+2025-11-26 02:10:49,378 | INFO | prd_lot_automation.report_builder | 生成报表：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\reports\LOT_Report_2025-11-26.xlsx
+2025-11-26 02:11:02,719 | INFO | prd_lot_automation.mailer | Outlook 邮件已发送
+2025-11-26 02:11:02,906 | INFO | root | 流程完成：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\reports\LOT_Report_2025-11-26.xlsx
+2025-11-27 22:00:31,250 | INFO | root | PRD LOT 自动化开始
+2025-11-27 22:00:31,250 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-27 22:00:31,250 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-27 22:00:31,250 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-27 22:00:31,250 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-27 22:00:31,891 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-27 22:00:31,906 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-27 22:00:32,734 | INFO | prd_lot_automation.spf_runner | 已通过 type_keys 发送 F8
+2025-11-27 22:00:32,744 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送
+2025-11-27 22:00:32,744 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-27 22:00:37,758 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-27 22:00:37,758 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-27 22:00:42,761 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-27 22:00:42,761 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-11-27 22:00:48,816 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #1...
+2025-11-27 22:00:55,065 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #1...
+2025-11-27 22:01:01,114 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #1...
+2025-11-27 22:01:25,625 | INFO | root | PRD LOT 自动化开始
+2025-11-27 22:01:25,625 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-27 22:01:25,625 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-27 22:01:25,625 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-27 22:01:25,625 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-27 22:01:25,891 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-27 22:01:25,938 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-27 22:01:26,794 | INFO | prd_lot_automation.spf_runner | 已通过 type_keys 发送 F8
+2025-11-27 22:01:26,797 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送
+2025-11-27 22:01:26,797 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-27 22:01:31,800 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-27 22:01:31,800 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-27 22:01:36,802 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-27 22:01:36,804 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-11-27 22:01:42,851 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #1...
+2025-11-27 22:01:48,900 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #1...
+2025-11-27 22:01:54,948 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #1...
+2025-11-27 22:02:00,999 | INFO | prd_lot_automation.spf_runner | 第 5 次尝试查找弹窗 #1...
+2025-11-27 22:02:07,050 | WARNING | prd_lot_automation.spf_runner | ❌ 超时后仍未找到弹窗 #1
+2025-11-27 22:02:07,050 | ERROR | prd_lot_automation.spf_runner | ❌ 无法找到第一个 LOT 输入弹窗
+2025-11-27 22:02:07,050 | ERROR | prd_lot_automation.spf_runner | 
+2025-11-27 22:02:07,050 | ERROR | prd_lot_automation.spf_runner | 诊断信息：
+2025-11-27 22:02:07,052 | ERROR | prd_lot_automation.spf_runner |   1. 请手动按 F8，确认弹窗是否出现
+2025-11-27 22:02:07,052 | ERROR | prd_lot_automation.spf_runner |   2. 检查弹窗是否被其他窗口遮挡
+2025-11-27 22:02:07,052 | ERROR | prd_lot_automation.spf_runner | 
+2025-11-27 22:02:24,594 | INFO | root | PRD LOT 自动化开始
+2025-11-27 22:02:24,594 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-27 22:02:24,594 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-27 22:02:24,594 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-27 22:02:24,594 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-27 22:02:24,860 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-27 22:02:24,892 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-27 22:02:25,681 | INFO | prd_lot_automation.spf_runner | 已通过 type_keys 发送 F8
+2025-11-27 22:02:25,681 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送
+2025-11-27 22:02:25,685 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-27 22:02:30,689 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-27 22:02:30,689 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-27 22:02:35,693 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-27 22:02:35,693 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-11-27 22:02:41,738 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #1...
+2025-11-27 22:02:47,786 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #1...
+2025-11-27 22:02:53,831 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #1...
+2025-11-27 22:02:56,062 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-11-27 22:02:56,062 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*
+2025-11-27 22:02:56,079 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-27 22:02:56,517 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-27 22:03:01,834 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: 等待 Paste 处理完成...
+2025-11-27 22:03:12,843 | WARNING | prd_lot_automation.spf_runner | 通过 auto_id 点击 OK 失败: {'title_re': '.*Prompt.*', 'backend': 'win32', 'enabled_only': False, 'visible_only': False, 'process': 17280}
+2025-11-27 22:03:36,658 | INFO | root | PRD LOT 自动化开始
+2025-11-27 22:03:36,658 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-27 22:03:36,658 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-27 22:03:36,658 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-27 22:03:36,658 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-27 22:03:36,923 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-27 22:03:36,970 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-27 22:03:37,753 | INFO | prd_lot_automation.spf_runner | 已通过 type_keys 发送 F8
+2025-11-27 22:03:37,753 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送
+2025-11-27 22:03:37,753 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-27 22:03:42,758 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-27 22:03:42,758 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-27 22:03:48,017 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-27 22:03:48,236 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-11-27 22:03:54,435 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #1...
+2025-11-27 22:04:00,503 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #1...
+2025-11-27 22:04:06,623 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #1...
+2025-11-27 22:04:12,664 | INFO | prd_lot_automation.spf_runner | 第 5 次尝试查找弹窗 #1...
+2025-11-27 22:04:17,344 | WARNING | prd_lot_automation.spf_runner | ❌ 超时后仍未找到弹窗 #1
+2025-11-27 22:04:17,402 | ERROR | prd_lot_automation.spf_runner | ❌ 无法找到第一个 LOT 输入弹窗
+2025-11-27 22:04:17,402 | ERROR | prd_lot_automation.spf_runner | 
+2025-11-27 22:04:17,402 | ERROR | prd_lot_automation.spf_runner | 诊断信息：
+2025-11-27 22:04:17,402 | ERROR | prd_lot_automation.spf_runner |   1. 请手动按 F8，确认弹窗是否出现
+2025-11-27 22:04:17,402 | ERROR | prd_lot_automation.spf_runner |   2. 检查弹窗是否被其他窗口遮挡
+2025-11-27 22:04:17,402 | ERROR | prd_lot_automation.spf_runner | 
+2025-11-27 22:05:06,299 | INFO | root | PRD LOT 自动化开始
+2025-11-27 22:05:06,299 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-27 22:05:06,314 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-27 22:05:06,314 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-27 22:05:06,314 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-27 22:05:06,611 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-27 22:05:06,658 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-27 22:05:07,455 | INFO | prd_lot_automation.spf_runner | 等待1秒后发送 F8...
+2025-11-27 22:05:08,807 | INFO | prd_lot_automation.spf_runner | 已通过 type_keys 发送 F8
+2025-11-27 22:05:08,807 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送
+2025-11-27 22:05:08,807 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-27 22:05:13,812 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-27 22:05:13,812 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-27 22:05:18,816 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-27 22:05:18,816 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-11-27 22:05:24,870 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #1...
+2025-11-27 22:05:31,080 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #1...
+2025-11-27 22:05:37,232 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #1...
+2025-11-27 22:05:43,468 | INFO | prd_lot_automation.spf_runner | 第 5 次尝试查找弹窗 #1...
+2025-11-27 22:05:49,627 | WARNING | prd_lot_automation.spf_runner | ❌ 超时后仍未找到弹窗 #1
+2025-11-27 22:05:49,646 | ERROR | prd_lot_automation.spf_runner | ❌ 无法找到第一个 LOT 输入弹窗
+2025-11-27 22:05:49,646 | ERROR | prd_lot_automation.spf_runner | 
+2025-11-27 22:05:49,646 | ERROR | prd_lot_automation.spf_runner | 诊断信息：
+2025-11-27 22:05:49,646 | ERROR | prd_lot_automation.spf_runner |   1. 请手动按 F8，确认弹窗是否出现
+2025-11-27 22:05:49,646 | ERROR | prd_lot_automation.spf_runner |   2. 检查弹窗是否被其他窗口遮挡
+2025-11-27 22:05:49,646 | ERROR | prd_lot_automation.spf_runner | 
+2025-11-27 22:10:01,488 | INFO | root | PRD LOT 自动化开始
+2025-11-27 22:10:01,493 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-27 22:10:01,494 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-27 22:10:01,495 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-27 22:10:01,495 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-27 22:10:01,767 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-27 22:10:01,798 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-27 22:10:01,814 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已置于最顶层（HWND_TOPMOST）
+2025-11-27 22:10:02,047 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已保持在前台
+2025-11-27 22:10:02,701 | INFO | prd_lot_automation.spf_runner | 窗口已激活（尝试 1/3）
+2025-11-27 22:10:02,790 | INFO | prd_lot_automation.spf_runner | 等待1秒后发送 F8...
+2025-11-27 22:10:04,249 | INFO | prd_lot_automation.spf_runner | ✅ 已通过 type_keys 发送 F8
+2025-11-27 22:10:04,253 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送，等待弹窗出现...
+2025-11-27 22:10:04,758 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-27 22:10:09,762 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-27 22:10:09,762 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-27 22:10:14,764 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-27 22:10:14,766 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-11-27 22:10:20,933 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #1...
+2025-11-27 22:10:29,737 | INFO | root | PRD LOT 自动化开始
+2025-11-27 22:10:29,737 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-27 22:10:29,746 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-27 22:10:29,748 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-27 22:10:29,748 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-27 22:10:31,705 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-27 22:10:31,717 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-27 22:10:31,725 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已置于最顶层（HWND_TOPMOST）
+2025-11-27 22:10:31,933 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已保持在前台
+2025-11-27 22:10:32,251 | INFO | prd_lot_automation.spf_runner | 窗口已激活（尝试 1/3）
+2025-11-27 22:10:32,251 | INFO | prd_lot_automation.spf_runner | 等待1秒后发送 F8...
+2025-11-27 22:10:33,473 | INFO | prd_lot_automation.spf_runner | ✅ 已通过 type_keys 发送 F8
+2025-11-27 22:10:33,475 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送，等待弹窗出现...
+2025-11-27 22:10:33,978 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-27 22:10:38,981 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-27 22:10:38,983 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-27 22:10:43,986 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-27 22:10:43,986 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-11-27 22:10:44,009 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-11-27 22:10:44,009 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-27 22:10:44,015 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-27 22:10:44,427 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-27 22:10:49,738 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: 等待 Paste 处理完成...
+2025-11-27 22:10:55,928 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-11-27 22:10:57,089 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交
+2025-11-27 22:10:57,092 | INFO | prd_lot_automation.spf_runner | 检查是否有第二个参数弹窗...
+2025-11-27 22:10:59,096 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #2...
+2025-11-27 22:10:59,117 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-11-27 22:10:59,122 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-27 22:10:59,125 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-27 22:10:59,523 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-27 22:11:04,843 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: 等待 Paste 处理完成...
+2025-11-27 22:11:11,005 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-11-27 22:11:12,043 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交
+2025-11-27 22:11:12,047 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-11-27 22:11:12,068 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-11-27 22:11:14,073 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #3...
+2025-11-27 22:11:20,127 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #3...
+2025-11-27 22:11:26,176 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #3...
+2025-11-27 22:11:32,229 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #3...
+2025-11-27 22:11:38,279 | INFO | prd_lot_automation.spf_runner | 第 5 次尝试查找弹窗 #3...
+2025-11-27 22:11:44,334 | WARNING | prd_lot_automation.spf_runner | ❌ 超时后仍未找到弹窗 #3
+2025-11-27 22:11:44,334 | INFO | prd_lot_automation.spf_runner | 没有第三个参数弹窗
+2025-11-27 22:11:44,334 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-11-27 22:11:44,335 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-11-27 22:13:22,466 | INFO | prd_lot_automation.spf_runner | 检测到 CSV 文件稳定：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-27 22:13:22,467 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-27 22:13:22,528 | INFO | prd_lot_automation.data_processing | 应用过滤条件: mut_within_subflow_latest_flag = Y，从 6696 行过滤到 4824 行
+2025-11-27 22:13:22,530 | INFO | prd_lot_automation.data_processing | 应用过滤条件: SUBSTRUCTURE_ID = U1.U1，从 4824 行过滤到 1206 行
+2025-11-27 22:13:22,531 | INFO | prd_lot_automation.data_processing | 过滤完成：从原始 6696 行过滤到 1206 行
+2025-11-27 22:13:22,538 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-11-27 22:13:22,555 | WARNING | prd_lot_automation.data_processing | INTERFACE_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-11-27 22:13:22,563 | INFO | prd_lot_automation.report_builder | 生成报表：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\reports\LOT_Report_2025-11-27.xlsx
+2025-11-27 22:31:17,086 | INFO | root | PRD LOT 自动化开始
+2025-11-27 22:31:17,090 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-27 22:31:17,090 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-27 22:31:17,098 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-27 22:31:17,099 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-27 22:31:19,395 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-27 22:31:19,438 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-27 22:31:19,445 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已置于最顶层（HWND_TOPMOST）
+2025-11-27 22:31:19,652 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已保持在前台
+2025-11-27 22:31:19,967 | INFO | prd_lot_automation.spf_runner | 窗口已激活（尝试 1/3）
+2025-11-27 22:31:19,968 | INFO | prd_lot_automation.spf_runner | 等待1秒后发送 F8...
+2025-11-27 22:31:21,189 | INFO | prd_lot_automation.spf_runner | ✅ 已通过 type_keys 发送 F8
+2025-11-27 22:31:21,221 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送，等待弹窗出现...
+2025-11-27 22:31:21,723 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-27 22:31:26,729 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-27 22:31:26,730 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-27 22:31:31,731 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-27 22:31:31,732 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-11-27 22:31:31,757 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-11-27 22:31:31,758 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-27 22:31:31,763 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-27 22:31:32,192 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-27 22:31:37,512 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: 等待 Paste 处理完成...
+2025-11-27 22:31:43,745 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-11-27 22:31:44,846 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交
+2025-11-27 22:31:44,847 | INFO | prd_lot_automation.spf_runner | 检查是否有第二个参数弹窗...
+2025-11-27 22:31:46,848 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #2...
+2025-11-27 22:31:46,871 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-11-27 22:31:46,881 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-27 22:31:46,881 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-27 22:31:47,318 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-27 22:31:52,635 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: 等待 Paste 处理完成...
+2025-11-27 22:31:58,824 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-11-27 22:31:59,867 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交
+2025-11-27 22:31:59,873 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-11-27 22:31:59,893 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-11-27 22:32:01,918 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #3...
+2025-11-27 22:32:08,010 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #3...
+2025-11-27 22:32:14,058 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #3...
+2025-11-27 22:32:20,109 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #3...
+2025-11-27 22:32:26,159 | INFO | prd_lot_automation.spf_runner | 第 5 次尝试查找弹窗 #3...
+2025-11-27 22:32:32,212 | WARNING | prd_lot_automation.spf_runner | ❌ 超时后仍未找到弹窗 #3
+2025-11-27 22:32:32,212 | INFO | prd_lot_automation.spf_runner | 没有第三个参数弹窗
+2025-11-27 22:32:32,212 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-11-27 22:32:32,213 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-11-27 22:34:00,250 | INFO | prd_lot_automation.spf_runner | 检测到 CSV 文件稳定：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-27 22:34:00,250 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-27 22:34:00,318 | INFO | prd_lot_automation.data_processing | 应用过滤条件: mut_within_subflow_latest_flag = Y，从 6696 行过滤到 4824 行
+2025-11-27 22:34:00,325 | INFO | prd_lot_automation.data_processing | 应用过滤条件: SUBSTRUCTURE_ID = U1.U1，从 4824 行过滤到 1206 行
+2025-11-27 22:34:00,325 | INFO | prd_lot_automation.data_processing | 过滤完成：从原始 6696 行过滤到 1206 行
+2025-11-27 22:34:00,330 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-11-27 22:34:00,339 | WARNING | prd_lot_automation.data_processing | INTERFACE_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-11-27 22:34:00,351 | INFO | prd_lot_automation.report_builder | 生成报表：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\reports\LOT_Report_2025-11-27.xlsx
+2025-11-27 22:34:05,224 | INFO | prd_lot_automation.mailer | Outlook 邮件已发送
+2025-11-27 22:34:05,254 | INFO | root | 流程完成：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\reports\LOT_Report_2025-11-27.xlsx
+2025-11-27 22:49:52,459 | INFO | root | PRD LOT 自动化开始
+2025-11-27 22:49:52,465 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-27 22:49:52,466 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-27 22:49:52,468 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-27 22:49:52,468 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-27 22:49:54,359 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-27 22:49:54,463 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-27 22:49:54,470 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已置于最顶层（HWND_TOPMOST）
+2025-11-27 22:49:54,690 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已保持在前台
+2025-11-27 22:49:55,005 | INFO | prd_lot_automation.spf_runner | 窗口已激活（尝试 1/3）
+2025-11-27 22:49:55,005 | INFO | prd_lot_automation.spf_runner | 等待1秒后发送 F8...
+2025-11-27 22:49:56,228 | INFO | prd_lot_automation.spf_runner | ✅ 已通过 type_keys 发送 F8
+2025-11-27 22:49:56,235 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送，等待弹窗出现...
+2025-11-27 22:49:56,737 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-27 22:50:01,800 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-27 22:50:01,800 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-27 22:50:06,801 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-27 22:50:06,810 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-11-27 22:50:06,831 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-11-27 22:50:06,831 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-27 22:50:06,838 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-27 22:50:07,260 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-27 22:50:12,563 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: 等待 Paste 处理完成...
+2025-11-27 22:50:18,750 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-11-27 22:50:19,874 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交
+2025-11-27 22:50:19,874 | INFO | prd_lot_automation.spf_runner | 检查是否有第二个参数弹窗...
+2025-11-27 22:50:21,875 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #2...
+2025-11-27 22:50:21,896 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-11-27 22:50:21,897 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-27 22:50:21,899 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-27 22:50:22,319 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-27 22:50:27,621 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: 等待 Paste 处理完成...
+2025-11-27 22:50:33,830 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-11-27 22:50:34,922 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交
+2025-11-27 22:50:34,923 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-11-27 22:50:34,938 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-11-27 22:50:36,944 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #3...
+2025-11-27 22:50:42,997 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #3...
+2025-11-27 22:50:49,048 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #3...
+2025-11-27 22:50:55,098 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #3...
+2025-11-27 22:51:01,150 | INFO | prd_lot_automation.spf_runner | 第 5 次尝试查找弹窗 #3...
+2025-11-27 22:51:07,202 | WARNING | prd_lot_automation.spf_runner | ❌ 超时后仍未找到弹窗 #3
+2025-11-27 22:51:07,202 | INFO | prd_lot_automation.spf_runner | 没有第三个参数弹窗
+2025-11-27 22:51:07,202 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-11-27 22:51:07,203 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-11-27 22:52:35,231 | INFO | prd_lot_automation.spf_runner | 检测到 CSV 文件稳定：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-27 22:52:35,235 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-27 22:52:35,296 | INFO | prd_lot_automation.data_processing | 应用过滤条件: mut_within_subflow_latest_flag = Y，从 6696 行过滤到 4824 行
+2025-11-27 22:52:35,298 | INFO | prd_lot_automation.data_processing | 应用过滤条件: SUBSTRUCTURE_ID = U1.U1，从 4824 行过滤到 1206 行
+2025-11-27 22:52:35,299 | INFO | prd_lot_automation.data_processing | 过滤完成：从原始 6696 行过滤到 1206 行
+2025-11-27 22:52:35,303 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-11-27 22:52:35,316 | WARNING | prd_lot_automation.data_processing | INTERFACE_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-11-27 22:52:35,328 | INFO | prd_lot_automation.report_builder | 生成报表：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\reports\LOT_Report_2025-11-27.xlsx
+2025-11-27 22:56:26,520 | INFO | root | PRD LOT 自动化开始
+2025-11-27 22:56:26,522 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-27 22:56:26,527 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-27 22:56:26,529 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-27 22:56:26,530 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-27 22:56:28,529 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-27 22:56:28,538 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-27 22:56:28,796 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已置于最顶层（HWND_TOPMOST）
+2025-11-27 22:56:28,999 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已保持在前台
+2025-11-27 22:56:29,326 | INFO | prd_lot_automation.spf_runner | 窗口已激活（尝试 1/3）
+2025-11-27 22:56:29,334 | INFO | prd_lot_automation.spf_runner | 等待1秒后发送 F8...
+2025-11-27 22:56:30,557 | INFO | prd_lot_automation.spf_runner | ✅ 已通过 type_keys 发送 F8
+2025-11-27 22:56:30,560 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送，等待弹窗出现...
+2025-11-27 22:56:31,064 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-27 22:56:36,068 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-27 22:56:36,068 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-27 22:56:41,070 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-27 22:56:41,071 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-11-27 22:56:41,097 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-11-27 22:56:41,098 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-27 22:56:41,104 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-27 22:56:41,542 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-27 22:56:46,861 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: 等待 Paste 处理完成...
+2025-11-27 22:56:53,064 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-11-27 22:56:54,128 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交
+2025-11-27 22:56:54,144 | INFO | prd_lot_automation.spf_runner | 检查是否有第二个参数弹窗...
+2025-11-27 22:56:56,146 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #2...
+2025-11-27 22:56:56,169 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-11-27 22:56:56,172 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-27 22:56:56,175 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-27 22:56:56,572 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-27 22:57:01,880 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: 等待 Paste 处理完成...
+2025-11-27 22:57:08,101 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-11-27 22:57:09,272 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交
+2025-11-27 22:57:09,292 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-11-27 22:57:09,301 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-11-27 22:57:11,311 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #3...
+2025-11-27 22:57:17,369 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #3...
+2025-11-27 22:57:23,419 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #3...
+2025-11-27 22:57:29,470 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #3...
+2025-11-27 22:57:35,540 | INFO | prd_lot_automation.spf_runner | 第 5 次尝试查找弹窗 #3...
+2025-11-27 22:57:41,589 | WARNING | prd_lot_automation.spf_runner | ❌ 超时后仍未找到弹窗 #3
+2025-11-27 22:57:41,590 | INFO | prd_lot_automation.spf_runner | 没有第三个参数弹窗
+2025-11-27 22:57:41,590 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-11-27 22:57:41,591 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-11-27 22:58:59,612 | INFO | prd_lot_automation.spf_runner | 检测到 CSV 文件稳定：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-27 22:58:59,613 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-27 22:58:59,683 | INFO | prd_lot_automation.data_processing | 应用过滤条件: mut_within_subflow_latest_flag = Y，从 6696 行过滤到 4824 行
+2025-11-27 22:58:59,689 | INFO | prd_lot_automation.data_processing | 应用过滤条件: SUBSTRUCTURE_ID = U1.U1，从 4824 行过滤到 1206 行
+2025-11-27 22:58:59,690 | INFO | prd_lot_automation.data_processing | 过滤完成：从原始 6696 行过滤到 1206 行
+2025-11-27 22:58:59,699 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-11-27 22:58:59,715 | WARNING | prd_lot_automation.data_processing | INTERFACE_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-11-27 22:58:59,726 | INFO | prd_lot_automation.report_builder | 生成报表：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\reports\LOT_Report_2025-11-27.xlsx
+2025-11-27 23:02:20,368 | INFO | root | PRD LOT 自动化开始
+2025-11-27 23:02:20,373 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-27 23:02:20,376 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-27 23:02:20,377 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-27 23:02:20,378 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-27 23:02:22,527 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-27 23:02:22,530 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-27 23:02:22,787 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已置于最顶层（HWND_TOPMOST）
+2025-11-27 23:02:23,008 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已保持在前台
+2025-11-27 23:02:23,380 | INFO | prd_lot_automation.spf_runner | 窗口已激活（尝试 1/3）
+2025-11-27 23:02:23,380 | INFO | prd_lot_automation.spf_runner | 等待1秒后发送 F8...
+2025-11-27 23:02:24,602 | INFO | prd_lot_automation.spf_runner | ✅ 已通过 type_keys 发送 F8
+2025-11-27 23:02:24,606 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送，等待弹窗出现...
+2025-11-27 23:02:25,109 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-27 23:02:30,114 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-27 23:02:30,114 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-27 23:02:35,115 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-27 23:02:35,119 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-11-27 23:02:35,140 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-11-27 23:02:35,143 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-27 23:02:35,149 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-27 23:02:35,548 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-27 23:02:40,861 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: 等待 Paste 处理完成...
+2025-11-27 23:02:47,130 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-11-27 23:02:48,157 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交
+2025-11-27 23:02:48,157 | INFO | prd_lot_automation.spf_runner | 检查是否有第二个参数弹窗...
+2025-11-27 23:02:50,159 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #2...
+2025-11-27 23:02:50,180 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-11-27 23:02:50,183 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-27 23:02:50,186 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-27 23:02:50,607 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-27 23:02:55,912 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: 等待 Paste 处理完成...
+2025-11-27 23:03:02,128 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-11-27 23:03:03,283 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交
+2025-11-27 23:03:03,285 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-11-27 23:03:03,319 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-11-27 23:03:05,331 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #3...
+2025-11-27 23:03:11,388 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #3...
+2025-11-27 23:03:17,438 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #3...
+2025-11-27 23:03:23,488 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #3...
+2025-11-27 23:03:29,572 | INFO | prd_lot_automation.spf_runner | 第 5 次尝试查找弹窗 #3...
+2025-11-27 23:03:35,764 | WARNING | prd_lot_automation.spf_runner | ❌ 超时后仍未找到弹窗 #3
+2025-11-27 23:03:35,765 | INFO | prd_lot_automation.spf_runner | 没有第三个参数弹窗
+2025-11-27 23:03:35,766 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-11-27 23:03:35,766 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-11-27 23:04:57,789 | INFO | prd_lot_automation.spf_runner | 检测到 CSV 文件稳定：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-27 23:04:57,789 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-27 23:04:57,851 | INFO | prd_lot_automation.data_processing | 应用过滤条件: mut_within_subflow_latest_flag = Y，从 6696 行过滤到 4824 行
+2025-11-27 23:04:57,854 | INFO | prd_lot_automation.data_processing | 应用过滤条件: SUBSTRUCTURE_ID = U1.U1，从 4824 行过滤到 1206 行
+2025-11-27 23:04:57,860 | INFO | prd_lot_automation.data_processing | 过滤完成：从原始 6696 行过滤到 1206 行
+2025-11-27 23:04:57,866 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-11-27 23:04:57,876 | WARNING | prd_lot_automation.data_processing | INTERFACE_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-11-27 23:04:57,886 | INFO | prd_lot_automation.report_builder | 生成报表：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\reports\LOT_Report_2025-11-27.xlsx
+2025-11-27 23:16:13,298 | INFO | root | PRD LOT 自动化开始
+2025-11-27 23:16:13,300 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-27 23:16:13,300 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-27 23:16:13,300 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-27 23:16:13,300 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-27 23:16:15,813 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-27 23:16:15,907 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-27 23:16:15,923 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已置于最顶层（HWND_TOPMOST）
+2025-11-27 23:16:16,138 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已保持在前台
+2025-11-27 23:16:16,457 | INFO | prd_lot_automation.spf_runner | 窗口已激活（尝试 1/3）
+2025-11-27 23:16:16,457 | INFO | prd_lot_automation.spf_runner | 等待1秒后发送 F8...
+2025-11-27 23:16:17,689 | INFO | prd_lot_automation.spf_runner | ✅ 已通过 type_keys 发送 F8
+2025-11-27 23:16:17,706 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送，等待弹窗出现...
+2025-11-27 23:16:18,210 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-27 23:16:23,229 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-27 23:16:23,231 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-27 23:16:28,232 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-27 23:16:28,232 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-11-27 23:16:28,252 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-11-27 23:16:28,252 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-27 23:16:28,252 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-27 23:16:28,673 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-27 23:16:33,983 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: 等待 Paste 处理完成...
+2025-11-27 23:16:40,177 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-11-27 23:16:41,266 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交
+2025-11-27 23:16:41,266 | INFO | prd_lot_automation.spf_runner | 检查是否有第二个参数弹窗...
+2025-11-27 23:16:43,268 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #2...
+2025-11-27 23:16:43,283 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-11-27 23:16:43,283 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-27 23:16:43,283 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-27 23:16:43,706 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-27 23:16:49,017 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: 等待 Paste 处理完成...
+2025-11-27 23:16:55,261 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-11-27 23:16:56,377 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交
+2025-11-27 23:16:56,377 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-11-27 23:16:56,392 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-11-27 23:16:58,407 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #3...
+2025-11-27 23:17:04,464 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #3...
+2025-11-27 23:17:10,507 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #3...
+2025-11-27 23:17:16,558 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #3...
+2025-11-27 23:17:22,609 | INFO | prd_lot_automation.spf_runner | 第 5 次尝试查找弹窗 #3...
+2025-11-27 23:17:28,658 | WARNING | prd_lot_automation.spf_runner | ❌ 超时后仍未找到弹窗 #3
+2025-11-27 23:17:28,658 | INFO | prd_lot_automation.spf_runner | 没有第三个参数弹窗
+2025-11-27 23:17:28,658 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-11-27 23:17:28,658 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-11-27 23:18:46,701 | INFO | prd_lot_automation.spf_runner | 检测到 CSV 文件稳定：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-27 23:18:46,701 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-27 23:18:46,750 | INFO | prd_lot_automation.data_processing | 应用过滤条件: mut_within_subflow_latest_flag = Y，从 6696 行过滤到 4824 行
+2025-11-27 23:18:46,766 | INFO | prd_lot_automation.data_processing | 应用过滤条件: SUBSTRUCTURE_ID = U1.U1，从 4824 行过滤到 1206 行
+2025-11-27 23:18:46,766 | INFO | prd_lot_automation.data_processing | 过滤完成：从原始 6696 行过滤到 1206 行
+2025-11-27 23:18:46,768 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-11-27 23:18:46,782 | WARNING | prd_lot_automation.data_processing | INTERFACE_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-11-27 23:18:46,782 | INFO | prd_lot_automation.report_builder | 生成报表：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\reports\LOT_Report_2025-11-27.xlsx
+2025-11-27 23:21:42,575 | INFO | root | PRD LOT 自动化开始
+2025-11-27 23:21:42,577 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-27 23:21:42,587 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-27 23:21:42,590 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-27 23:21:42,591 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-27 23:21:44,815 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-27 23:21:44,818 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-27 23:21:45,086 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已置于最顶层（HWND_TOPMOST）
+2025-11-27 23:21:45,294 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已保持在前台
+2025-11-27 23:21:45,611 | INFO | prd_lot_automation.spf_runner | 窗口已激活（尝试 1/3）
+2025-11-27 23:21:45,613 | INFO | prd_lot_automation.spf_runner | 等待1秒后发送 F8...
+2025-11-27 23:21:46,835 | INFO | prd_lot_automation.spf_runner | ✅ 已通过 type_keys 发送 F8
+2025-11-27 23:21:46,837 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送，等待弹窗出现...
+2025-11-27 23:21:47,341 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-27 23:21:52,344 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-27 23:21:52,352 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-27 23:21:57,354 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-27 23:21:57,355 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-11-27 23:21:57,379 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-11-27 23:21:57,379 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-27 23:21:57,386 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-27 23:21:57,801 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-27 23:22:03,103 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: 等待 Paste 处理完成...
+2025-11-27 23:22:09,354 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-11-27 23:22:10,411 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交
+2025-11-27 23:22:10,411 | INFO | prd_lot_automation.spf_runner | 检查是否有第二个参数弹窗...
+2025-11-27 23:22:12,413 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #2...
+2025-11-27 23:22:12,434 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-11-27 23:22:12,437 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-27 23:22:12,440 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-27 23:22:12,865 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-27 23:22:18,182 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: 等待 Paste 处理完成...
+2025-11-27 23:22:24,361 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-11-27 23:22:25,423 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交
+2025-11-27 23:22:25,430 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-11-27 23:22:25,445 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-11-27 23:22:27,481 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #3...
+2025-11-27 23:22:33,573 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #3...
+2025-11-27 23:22:39,628 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #3...
+2025-11-27 23:22:45,677 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #3...
+2025-11-27 23:22:51,724 | INFO | prd_lot_automation.spf_runner | 第 5 次尝试查找弹窗 #3...
+2025-11-27 23:22:57,774 | WARNING | prd_lot_automation.spf_runner | ❌ 超时后仍未找到弹窗 #3
+2025-11-27 23:22:57,775 | INFO | prd_lot_automation.spf_runner | 没有第三个参数弹窗
+2025-11-27 23:22:57,775 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-11-27 23:22:57,775 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-11-27 23:24:15,801 | INFO | prd_lot_automation.spf_runner | 检测到 CSV 文件稳定：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-27 23:24:15,801 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-27 23:24:15,863 | INFO | prd_lot_automation.data_processing | 应用过滤条件: mut_within_subflow_latest_flag = Y，从 6696 行过滤到 4824 行
+2025-11-27 23:24:15,868 | INFO | prd_lot_automation.data_processing | 应用过滤条件: SUBSTRUCTURE_ID = U1.U1，从 4824 行过滤到 1206 行
+2025-11-27 23:24:15,869 | INFO | prd_lot_automation.data_processing | 过滤完成：从原始 6696 行过滤到 1206 行
+2025-11-27 23:24:15,874 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-11-27 23:24:15,886 | WARNING | prd_lot_automation.data_processing | INTERFACE_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-11-27 23:24:15,893 | INFO | prd_lot_automation.report_builder | 生成报表：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\reports\LOT_Report_2025-11-27.xlsx
+2025-11-27 23:24:20,487 | INFO | prd_lot_automation.mailer | Outlook 邮件已发送
+2025-11-27 23:24:20,563 | INFO | root | 流程完成：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\reports\LOT_Report_2025-11-27.xlsx
+2025-11-27 23:27:58,757 | INFO | root | PRD LOT 自动化开始
+2025-11-27 23:27:58,759 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-27 23:27:58,763 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-27 23:27:58,765 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-27 23:27:58,766 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-27 23:28:01,100 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-27 23:28:01,102 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-27 23:28:01,108 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已置于最顶层（HWND_TOPMOST）
+2025-11-27 23:28:01,312 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已保持在前台
+2025-11-27 23:28:01,626 | INFO | prd_lot_automation.spf_runner | 窗口已激活（尝试 1/3）
+2025-11-27 23:28:01,627 | INFO | prd_lot_automation.spf_runner | 等待1秒后发送 F8...
+2025-11-27 23:28:02,848 | INFO | prd_lot_automation.spf_runner | ✅ 已通过 type_keys 发送 F8
+2025-11-27 23:28:02,967 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送，等待弹窗出现...
+2025-11-27 23:28:03,472 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-27 23:28:08,476 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-27 23:28:08,476 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-27 23:28:13,480 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-27 23:28:13,484 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-11-27 23:28:13,509 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-11-27 23:28:13,510 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-27 23:28:13,515 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-27 23:28:13,926 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-27 23:28:19,258 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: 等待 Paste 处理完成...
+2025-11-27 23:28:25,542 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-11-27 23:28:26,576 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交
+2025-11-27 23:28:26,576 | INFO | prd_lot_automation.spf_runner | 检查是否有第二个参数弹窗...
+2025-11-27 23:28:28,578 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #2...
+2025-11-27 23:28:28,599 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-11-27 23:28:28,599 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-27 23:28:28,602 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-27 23:28:29,024 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-27 23:28:34,342 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: 等待 Paste 处理完成...
+2025-11-27 23:28:40,501 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-11-27 23:28:41,669 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交
+2025-11-27 23:28:41,673 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-11-27 23:28:41,692 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-11-27 23:28:43,702 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #3...
+2025-11-27 23:28:49,754 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #3...
+2025-11-27 23:28:55,802 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #3...
+2025-11-27 23:29:01,851 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #3...
+2025-11-27 23:29:07,888 | INFO | prd_lot_automation.spf_runner | 第 5 次尝试查找弹窗 #3...
+2025-11-27 23:29:13,924 | WARNING | prd_lot_automation.spf_runner | ❌ 超时后仍未找到弹窗 #3
+2025-11-27 23:29:13,929 | INFO | prd_lot_automation.spf_runner | 没有第三个参数弹窗
+2025-11-27 23:29:13,930 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-11-27 23:29:13,930 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-11-27 23:30:41,962 | INFO | prd_lot_automation.spf_runner | 检测到 CSV 文件稳定：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-27 23:30:41,963 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-27 23:30:42,024 | INFO | prd_lot_automation.data_processing | 应用过滤条件: mut_within_subflow_latest_flag = Y，从 6696 行过滤到 4824 行
+2025-11-27 23:30:42,028 | INFO | prd_lot_automation.data_processing | 应用过滤条件: SUBSTRUCTURE_ID = U1.U1，从 4824 行过滤到 1206 行
+2025-11-27 23:30:42,030 | INFO | prd_lot_automation.data_processing | 过滤完成：从原始 6696 行过滤到 1206 行
+2025-11-27 23:30:42,035 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-11-27 23:30:42,047 | WARNING | prd_lot_automation.data_processing | INTERFACE_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-11-27 23:30:42,059 | INFO | prd_lot_automation.report_builder | 生成报表：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\reports\LOT_Report_2025-11-27.xlsx
+2025-11-27 23:30:46,444 | INFO | prd_lot_automation.mailer | Outlook 邮件已发送
+2025-11-27 23:30:46,485 | INFO | root | 流程完成：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\reports\LOT_Report_2025-11-27.xlsx
+2025-11-27 23:36:07,027 | INFO | root | PRD LOT 自动化开始
+2025-11-27 23:36:07,028 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-27 23:36:07,033 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-27 23:36:07,033 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-27 23:36:07,035 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-27 23:36:09,301 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-27 23:36:09,314 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-27 23:36:09,326 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已置于最顶层（HWND_TOPMOST）
+2025-11-27 23:36:09,531 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已保持在前台
+2025-11-27 23:36:09,847 | INFO | prd_lot_automation.spf_runner | 窗口已激活（尝试 1/3）
+2025-11-27 23:36:09,848 | INFO | prd_lot_automation.spf_runner | 等待1秒后发送 F8...
+2025-11-27 23:36:11,069 | INFO | prd_lot_automation.spf_runner | ✅ 已通过 type_keys 发送 F8
+2025-11-27 23:36:11,091 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送，等待弹窗出现...
+2025-11-27 23:36:11,593 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-27 23:36:16,596 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-27 23:36:16,596 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-27 23:36:21,598 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-27 23:36:21,599 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-11-27 23:36:21,621 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-11-27 23:36:21,627 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-27 23:36:21,634 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-27 23:36:22,075 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-27 23:36:27,391 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: 等待 Paste 处理完成...
+2025-11-27 23:36:33,696 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-11-27 23:36:34,721 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交
+2025-11-27 23:36:34,721 | INFO | prd_lot_automation.spf_runner | 检查是否有第二个参数弹窗...
+2025-11-27 23:36:36,723 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #2...
+2025-11-27 23:36:36,744 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-11-27 23:36:36,747 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-27 23:36:36,751 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-27 23:36:37,152 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-27 23:36:42,468 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: 等待 Paste 处理完成...
+2025-11-27 23:36:48,649 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-11-27 23:36:49,708 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交
+2025-11-27 23:36:49,724 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-11-27 23:36:49,730 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-11-27 23:36:51,742 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #3...
+2025-11-27 23:36:57,795 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #3...
+2025-11-27 23:37:03,844 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #3...
+2025-11-27 23:37:09,893 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #3...
+2025-11-27 23:37:15,941 | INFO | prd_lot_automation.spf_runner | 第 5 次尝试查找弹窗 #3...
+2025-11-27 23:37:21,990 | WARNING | prd_lot_automation.spf_runner | ❌ 超时后仍未找到弹窗 #3
+2025-11-27 23:37:21,990 | INFO | prd_lot_automation.spf_runner | 没有第三个参数弹窗
+2025-11-27 23:37:21,993 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-11-27 23:37:21,993 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-11-27 23:38:50,031 | INFO | prd_lot_automation.spf_runner | 检测到 CSV 文件稳定：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-27 23:38:50,031 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-27 23:38:50,091 | INFO | prd_lot_automation.data_processing | 应用过滤条件: mut_within_subflow_latest_flag = Y，从 6696 行过滤到 4824 行
+2025-11-27 23:38:50,096 | INFO | prd_lot_automation.data_processing | 应用过滤条件: SUBSTRUCTURE_ID = U1.U1，从 4824 行过滤到 1206 行
+2025-11-27 23:38:50,104 | INFO | prd_lot_automation.data_processing | 过滤完成：从原始 6696 行过滤到 1206 行
+2025-11-27 23:38:50,109 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-11-27 23:38:50,123 | WARNING | prd_lot_automation.data_processing | INTERFACE_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-11-27 23:38:50,132 | INFO | prd_lot_automation.report_builder | 生成报表：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\reports\LOT_Report_2025-11-27.xlsx
+2025-11-27 23:38:54,807 | INFO | prd_lot_automation.mailer | Outlook 邮件已发送
+2025-11-27 23:38:54,817 | INFO | root | 流程完成：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\reports\LOT_Report_2025-11-27.xlsx
+2025-11-28 00:00:27,468 | INFO | root | PRD LOT 自动化开始
+2025-11-28 00:00:27,474 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-28 00:00:27,477 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-28 00:00:27,483 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-28 00:00:27,483 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-28 00:00:29,928 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-28 00:00:29,933 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-28 00:00:30,187 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已置于最顶层（HWND_TOPMOST）
+2025-11-28 00:00:30,391 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已保持在前台
+2025-11-28 00:00:30,705 | INFO | prd_lot_automation.spf_runner | 窗口已激活（尝试 1/3）
+2025-11-28 00:00:30,706 | INFO | prd_lot_automation.spf_runner | 等待1秒后发送 F8...
+2025-11-28 00:00:31,927 | INFO | prd_lot_automation.spf_runner | ✅ 已通过 type_keys 发送 F8
+2025-11-28 00:00:31,930 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送，等待弹窗出现...
+2025-11-28 00:00:32,432 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-28 00:00:37,488 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-28 00:00:37,489 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-28 00:00:42,491 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-28 00:00:42,491 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-11-28 00:00:42,513 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-11-28 00:00:42,513 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-28 00:00:42,520 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-28 00:00:42,957 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-28 00:00:48,278 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: 等待 Paste 处理完成...
+2025-11-28 00:00:54,436 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-11-28 00:00:55,522 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交
+2025-11-28 00:00:55,523 | INFO | prd_lot_automation.spf_runner | 检查是否有第二个参数弹窗...
+2025-11-28 00:00:57,523 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #2...
+2025-11-28 00:00:57,545 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-11-28 00:00:57,547 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-28 00:00:57,551 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-28 00:00:57,971 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-28 00:01:03,288 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: 等待 Paste 处理完成...
+2025-11-28 00:01:09,461 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-11-28 00:01:10,633 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交
+2025-11-28 00:01:10,637 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-11-28 00:01:10,653 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-11-28 00:01:12,659 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #3...
+2025-11-28 00:01:18,705 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #3...
+2025-11-28 00:01:24,749 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #3...
+2025-11-28 00:01:30,797 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #3...
+2025-11-28 00:01:36,844 | INFO | prd_lot_automation.spf_runner | 第 5 次尝试查找弹窗 #3...
+2025-11-28 00:01:42,895 | WARNING | prd_lot_automation.spf_runner | ❌ 超时后仍未找到弹窗 #3
+2025-11-28 00:01:42,895 | INFO | prd_lot_automation.spf_runner | 没有第三个参数弹窗
+2025-11-28 00:01:42,895 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-11-28 00:01:42,895 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-11-28 00:03:01,032 | INFO | prd_lot_automation.spf_runner | 检测到 CSV 文件稳定：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-28 00:03:01,033 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-28 00:03:01,102 | INFO | prd_lot_automation.data_processing | 应用过滤条件: mut_within_subflow_latest_flag = Y，从 6696 行过滤到 4824 行
+2025-11-28 00:03:01,108 | INFO | prd_lot_automation.data_processing | 应用过滤条件: SUBSTRUCTURE_ID = U1.U1，从 4824 行过滤到 1206 行
+2025-11-28 00:03:01,109 | INFO | prd_lot_automation.data_processing | 过滤完成：从原始 6696 行过滤到 1206 行
+2025-11-28 00:03:01,116 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-11-28 00:03:01,132 | WARNING | prd_lot_automation.data_processing | INTERFACE_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-11-28 00:03:01,142 | INFO | root | 开始生成 Retest Bin Pareto（mut_within_subflow_latest_flag = N）
+2025-11-28 00:03:01,153 | INFO | prd_lot_automation.data_processing | 应用过滤条件: mut_within_subflow_latest_flag = N，从 6696 行过滤到 1872 行
+2025-11-28 00:03:01,156 | INFO | prd_lot_automation.data_processing | 应用过滤条件: SUBSTRUCTURE_ID = U1.U1，从 1872 行过滤到 468 行
+2025-11-28 00:03:01,157 | INFO | prd_lot_automation.data_processing | 过滤完成：从原始 6696 行过滤到 468 行
+2025-11-28 00:03:01,167 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-11-28 00:03:01,174 | INFO | root | Retest Bin Pareto 生成完成
+2025-11-28 00:03:01,176 | INFO | prd_lot_automation.report_builder | 生成报表：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\reports\LOT_Report_2025-11-28.xlsx
+2025-11-28 00:03:05,939 | INFO | prd_lot_automation.mailer | Outlook 邮件已发送
+2025-11-28 00:03:05,961 | INFO | root | 流程完成：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\reports\LOT_Report_2025-11-28.xlsx
+2025-11-28 00:03:05,993 | INFO | root | 关闭 SQLPathFinder...
+2025-11-28 00:03:06,175 | ERROR | prd_lot_automation.close_sqlpathfinder | 关闭 SQLPathFinder 失败: There are 2 elements that match the criteria {'title_re': 'SQLPathFinder', 'backend': 'win32', 'visible_only': False}
+2025-11-29 21:30:42,813 | INFO | root | PRD LOT 自动化开始
+2025-11-29 21:30:42,813 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-11-29 21:30:42,813 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-11-29 21:30:42,813 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-11-29 21:30:42,813 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-11-29 21:30:44,907 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-11-29 21:30:44,923 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-11-29 21:30:44,985 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已置于最顶层（HWND_TOPMOST）
+2025-11-29 21:30:45,197 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已保持在前台
+2025-11-29 21:30:45,503 | INFO | prd_lot_automation.spf_runner | 窗口已激活（尝试 1/3）
+2025-11-29 21:30:45,503 | INFO | prd_lot_automation.spf_runner | 等待1秒后发送 F8...
+2025-11-29 21:30:46,731 | INFO | prd_lot_automation.spf_runner | ✅ 已通过 type_keys 发送 F8
+2025-11-29 21:30:46,731 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送，等待弹窗出现...
+2025-11-29 21:30:47,237 | INFO | prd_lot_automation.spf_runner | 等待弹窗响应（5秒）...
+2025-11-29 21:30:52,241 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-11-29 21:30:52,241 | INFO | prd_lot_automation.spf_runner | 等待 5 秒让弹窗出现...
+2025-11-29 21:30:57,243 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-11-29 21:30:57,243 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-11-29 21:30:57,249 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-11-29 21:30:57,249 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-29 21:30:57,267 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-29 21:30:57,673 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-29 21:31:02,979 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: 等待 Paste 处理完成...
+2025-11-29 21:31:09,262 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-11-29 21:31:10,274 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交
+2025-11-29 21:31:10,274 | INFO | prd_lot_automation.spf_runner | 检查是否有第二个参数弹窗...
+2025-11-29 21:31:12,276 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #2...
+2025-11-29 21:31:12,299 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-11-29 21:31:12,299 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-11-29 21:31:12,312 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-11-29 21:31:12,727 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-11-29 21:31:18,037 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: 等待 Paste 处理完成...
+2025-11-29 21:31:24,384 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-11-29 21:31:25,456 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交
+2025-11-29 21:31:25,471 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-11-29 21:31:25,487 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-11-29 21:31:27,499 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #3...
+2025-11-29 21:31:33,542 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #3...
+2025-11-29 21:31:39,579 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #3...
+2025-11-29 21:31:45,618 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #3...
+2025-11-29 21:31:51,645 | INFO | prd_lot_automation.spf_runner | 第 5 次尝试查找弹窗 #3...
+2025-11-29 21:31:57,682 | WARNING | prd_lot_automation.spf_runner | ❌ 超时后仍未找到弹窗 #3
+2025-11-29 21:31:57,682 | INFO | prd_lot_automation.spf_runner | 没有第三个参数弹窗
+2025-11-29 21:31:57,682 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-11-29 21:31:57,682 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-11-29 21:33:15,713 | INFO | prd_lot_automation.spf_runner | 检测到 CSV 文件稳定：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-29 21:33:15,716 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-11-29 21:33:15,779 | INFO | prd_lot_automation.data_processing | 应用过滤条件: mut_within_subflow_latest_flag = Y，从 7752 行过滤到 5300 行
+2025-11-29 21:33:15,779 | INFO | prd_lot_automation.data_processing | 应用过滤条件: SUBSTRUCTURE_ID = U1.U1，从 5300 行过滤到 1325 行
+2025-11-29 21:33:15,779 | INFO | prd_lot_automation.data_processing | 过滤完成：从原始 7752 行过滤到 1325 行
+2025-11-29 21:33:15,795 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-11-29 21:33:15,811 | WARNING | prd_lot_automation.data_processing | INTERFACE_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-11-29 21:33:15,811 | INFO | root | 开始生成 Retest Bin Pareto（mut_within_subflow_latest_flag = N）
+2025-11-29 21:33:15,811 | INFO | prd_lot_automation.data_processing | 应用过滤条件: mut_within_subflow_latest_flag = N，从 7752 行过滤到 2452 行
+2025-11-29 21:33:15,827 | INFO | prd_lot_automation.data_processing | 应用过滤条件: SUBSTRUCTURE_ID = U1.U1，从 2452 行过滤到 613 行
+2025-11-29 21:33:15,827 | INFO | prd_lot_automation.data_processing | 过滤完成：从原始 7752 行过滤到 613 行
+2025-11-29 21:33:15,827 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-11-29 21:33:15,833 | INFO | root | Retest Bin Pareto 生成完成
+2025-11-29 21:33:15,843 | INFO | prd_lot_automation.report_builder | 生成报表：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\reports\LOT_Report_2025-11-29.xlsx
+2025-11-29 21:33:21,287 | INFO | prd_lot_automation.mailer | Outlook 邮件已发送
+2025-11-29 21:33:21,474 | INFO | root | 流程完成：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\reports\LOT_Report_2025-11-29.xlsx
+2025-11-29 21:33:21,505 | INFO | root | 关闭 SQLPathFinder...
+2025-11-29 21:33:21,615 | ERROR | prd_lot_automation.close_sqlpathfinder | 关闭 SQLPathFinder 失败: There are 2 elements that match the criteria {'title_re': 'SQLPathFinder', 'backend': 'win32', 'visible_only': False}
+2025-12-01 01:15:27,762 | INFO | root | PRD LOT 自动化开始
+2025-12-01 01:15:27,764 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-12-01 01:15:27,765 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-12-01 01:15:27,769 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-12-01 01:15:27,772 | INFO | prd_lot_automation.spf_runner | 检查并关闭现有的 SQLPathFinder 窗口...
+2025-12-01 01:15:27,773 | INFO | prd_lot_automation.close_sqlpathfinder | 使用 win32gui 查找并关闭 SQLPathFinder 窗口...
+2025-12-01 01:15:27,774 | INFO | prd_lot_automation.close_sqlpathfinder | 找到 0 个 SQLPathFinder 窗口
+2025-12-01 01:15:27,774 | INFO | prd_lot_automation.close_sqlpathfinder | 尝试强制终止 SQLPathFinder 进程...
+2025-12-01 01:15:27,813 | INFO | prd_lot_automation.close_sqlpathfinder | 未找到需要关闭的 SQLPathFinder 窗口
+2025-12-01 01:15:28,814 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-12-01 01:15:31,020 | INFO | prd_lot_automation.spf_runner | 找到 14 个 SQLPathFinder 窗口
+2025-12-01 01:15:31,044 | INFO | prd_lot_automation.spf_runner | ✅ 找到匹配的窗口: SQLPathFinder 3 (Main - 6005) - [Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2 (L0)]
+2025-12-01 01:15:31,046 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-12-01 01:15:31,046 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-12-01 01:15:31,055 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已置于最顶层（HWND_TOPMOST）
+2025-12-01 01:15:31,258 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已保持在前台
+2025-12-01 01:15:31,579 | INFO | prd_lot_automation.spf_runner | 窗口已激活（尝试 1/3）
+2025-12-01 01:15:31,581 | INFO | prd_lot_automation.spf_runner | 等待1秒后发送 F8...
+2025-12-01 01:15:32,796 | INFO | prd_lot_automation.spf_runner | ✅ 已通过 type_keys 发送 F8
+2025-12-01 01:15:32,803 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送，等待弹窗出现...
+2025-12-01 01:15:33,559 | INFO | prd_lot_automation.spf_runner | ✅ 检测到弹窗已出现: Prompt For Values (in)
+2025-12-01 01:15:33,583 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-12-01 01:15:33,587 | INFO | prd_lot_automation.spf_runner | 等待弹窗出现...
+2025-12-01 01:15:35,588 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-12-01 01:15:35,588 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-12-01 01:15:35,613 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-12-01 01:15:35,621 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-12-01 01:15:35,627 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-12-01 01:15:36,046 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-12-01 01:15:41,363 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: 等待 Paste 处理完成...
+2025-12-01 01:15:47,705 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-12-01 01:15:48,856 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交
+2025-12-01 01:15:48,874 | INFO | prd_lot_automation.spf_runner | 检查是否有第二个参数弹窗...
+2025-12-01 01:22:16,504 | INFO | root | PRD LOT 自动化开始
+2025-12-01 01:22:16,506 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-12-01 01:22:16,507 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-12-01 01:22:16,508 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-12-01 01:22:16,508 | INFO | prd_lot_automation.spf_runner | 检查并关闭现有的 SQLPathFinder 窗口...
+2025-12-01 01:22:16,508 | INFO | prd_lot_automation.close_sqlpathfinder | 使用 win32gui 查找并关闭 SQLPathFinder 窗口...
+2025-12-01 01:22:16,510 | INFO | prd_lot_automation.close_sqlpathfinder | 找到 0 个 SQLPathFinder 窗口
+2025-12-01 01:22:16,511 | INFO | prd_lot_automation.close_sqlpathfinder | 尝试强制终止 SQLPathFinder 进程...
+2025-12-01 01:22:16,560 | INFO | prd_lot_automation.close_sqlpathfinder | 未找到需要关闭的 SQLPathFinder 窗口
+2025-12-01 01:22:17,577 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-12-01 01:22:19,804 | INFO | prd_lot_automation.spf_runner | 找到 14 个 SQLPathFinder 窗口
+2025-12-01 01:22:19,808 | INFO | prd_lot_automation.spf_runner | ✅ 找到匹配的窗口: SQLPathFinder 3 (Main - 26075) - [Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2 (L0)]
+2025-12-01 01:22:19,808 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-12-01 01:22:19,808 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-12-01 01:22:19,810 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已置于最顶层（HWND_TOPMOST）
+2025-12-01 01:22:20,017 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已保持在前台
+2025-12-01 01:22:20,403 | INFO | prd_lot_automation.spf_runner | 窗口已激活（尝试 1/3）
+2025-12-01 01:22:20,618 | INFO | prd_lot_automation.spf_runner | 等待1秒后发送 F8...
+2025-12-01 01:22:22,045 | INFO | prd_lot_automation.spf_runner | ✅ 已通过 type_keys 发送 F8
+2025-12-01 01:22:22,065 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送，等待弹窗出现...
+2025-12-01 01:22:22,599 | INFO | prd_lot_automation.spf_runner | ✅ 检测到弹窗已出现: Prompt For Values (in)
+2025-12-01 01:22:22,611 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-12-01 01:22:22,646 | INFO | prd_lot_automation.spf_runner | 等待弹窗出现...
+2025-12-01 01:22:24,653 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-12-01 01:22:24,653 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-12-01 01:22:24,683 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-12-01 01:22:24,686 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-12-01 01:22:24,692 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-12-01 01:22:25,113 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-12-01 01:22:30,475 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: 等待 Paste 处理完成...
+2025-12-01 01:22:36,664 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已按 Enter 键（最快方法）
+2025-12-01 01:22:36,965 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交，SQLPathFinder 开始执行查询...
+2025-12-01 01:22:36,968 | INFO | prd_lot_automation.spf_runner | 检查是否有第二个参数弹窗...
+2025-12-01 01:22:38,969 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #2...
+2025-12-01 01:22:39,002 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-12-01 01:22:39,010 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-12-01 01:22:39,014 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-12-01 01:22:39,430 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-12-01 01:22:44,767 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: 等待 Paste 处理完成...
+2025-12-01 01:22:51,094 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已按 Enter 键（最快方法）
+2025-12-01 01:22:51,395 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交，SQLPathFinder 开始执行查询...
+2025-12-01 01:22:51,398 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-12-01 01:22:51,398 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-12-01 01:22:53,399 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #3...
+2025-12-01 01:22:53,490 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #3: Prompt For Values (in)
+2025-12-01 01:22:53,493 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-12-01 01:22:53,496 | INFO | prd_lot_automation.spf_runner | 弹窗 #3: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-12-01 01:22:53,965 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #3: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-12-01 01:22:59,289 | INFO | prd_lot_automation.spf_runner | 弹窗 #3: 等待 Paste 处理完成...
+2025-12-01 01:23:05,631 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #3: 已按 Enter 键（最快方法）
+2025-12-01 01:23:05,932 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #3: LOT 已提交，SQLPathFinder 开始执行查询...
+2025-12-01 01:23:05,932 | INFO | prd_lot_automation.spf_runner | ✅ 第三个参数弹窗已处理
+2025-12-01 01:23:05,935 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-12-01 01:23:05,935 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-12-01 01:23:05,935 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-01 01:23:05,935 | INFO | prd_lot_automation.spf_runner | 开始等待 SQLPathFinder 查询完成...
+2025-12-01 01:23:05,935 | INFO | prd_lot_automation.spf_runner | 输出文件路径: C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-12-01 01:23:05,935 | INFO | prd_lot_automation.spf_runner | 超时时间: 900 秒
+2025-12-01 01:23:05,935 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-01 01:23:05,935 | INFO | prd_lot_automation.spf_runner | ✅ 检测到 CSV 文件已创建 (大小: 2,329,444 字节，已等待 0 秒)
+2025-12-01 01:23:07,980 | INFO | prd_lot_automation.spf_runner | ⏳ 文件正在更新中... (已等待 2 秒，稳定检查: 1/4)
+2025-12-01 01:23:11,998 | INFO | prd_lot_automation.spf_runner | ⏳ 文件正在更新中... (已等待 6 秒，稳定检查: 3/4)
+2025-12-01 01:23:14,005 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-01 01:23:14,011 | INFO | prd_lot_automation.spf_runner | ✅ CSV 文件已生成并稳定: C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-12-01 01:23:14,011 | INFO | prd_lot_automation.spf_runner |    文件大小: 2,329,444 字节
+2025-12-01 01:23:14,011 | INFO | prd_lot_automation.spf_runner |    等待时间: 8 秒
+2025-12-01 01:23:14,011 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-01 01:23:14,012 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-12-01 01:23:14,095 | INFO | prd_lot_automation.data_processing | 应用过滤条件: mut_within_subflow_latest_flag = Y，从 7752 行过滤到 5300 行
+2025-12-01 01:23:14,097 | INFO | prd_lot_automation.data_processing | 应用过滤条件: SUBSTRUCTURE_ID = U1.U1，从 5300 行过滤到 1325 行
+2025-12-01 01:23:14,097 | INFO | prd_lot_automation.data_processing | 过滤完成：从原始 7752 行过滤到 1325 行
+2025-12-01 01:23:14,104 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-01 01:23:14,117 | WARNING | prd_lot_automation.data_processing | INTERFACE_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-01 01:23:14,122 | INFO | root | 开始生成 Retest Bin Pareto（mut_within_subflow_latest_flag = N）
+2025-12-01 01:23:14,127 | INFO | prd_lot_automation.data_processing | 应用过滤条件: mut_within_subflow_latest_flag = N，从 7752 行过滤到 2452 行
+2025-12-01 01:23:14,128 | INFO | prd_lot_automation.data_processing | 应用过滤条件: SUBSTRUCTURE_ID = U1.U1，从 2452 行过滤到 613 行
+2025-12-01 01:23:14,128 | INFO | prd_lot_automation.data_processing | 过滤完成：从原始 7752 行过滤到 613 行
+2025-12-01 01:23:14,131 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-01 01:23:14,137 | INFO | root | Retest Bin Pareto 生成完成
+2025-12-01 01:23:14,139 | INFO | prd_lot_automation.report_builder | 生成报表：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\reports\LOT_Report_2025-12-01.xlsx
+2025-12-01 01:23:16,020 | INFO | prd_lot_automation.mailer | Outlook 邮件已发送
+2025-12-01 01:23:16,049 | INFO | root | 流程完成：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\reports\LOT_Report_2025-12-01.xlsx
+2025-12-01 01:23:16,061 | INFO | root | 关闭 SQLPathFinder...
+2025-12-01 01:23:16,061 | INFO | prd_lot_automation.close_sqlpathfinder | 使用 win32gui 查找并关闭 SQLPathFinder 窗口...
+2025-12-01 01:23:16,062 | INFO | prd_lot_automation.close_sqlpathfinder | 找到 1 个 SQLPathFinder 窗口
+2025-12-01 01:23:16,062 | INFO | prd_lot_automation.close_sqlpathfinder | 关闭窗口: SQLPathFinder 3 (Main - 26075) - [Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2 (L0)]
+2025-12-01 01:23:16,592 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 已发送 Alt+F4
+2025-12-01 01:23:17,098 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 成功关闭 1 个 SQLPathFinder 窗口/进程
+2025-12-01 01:36:25,521 | INFO | root | PRD LOT 自动化开始
+2025-12-01 01:36:25,522 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Lot info.txt）
+2025-12-01 01:36:25,532 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-12-01 01:36:25,534 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-12-01 01:36:25,534 | INFO | prd_lot_automation.spf_runner | 检查并关闭现有的 SQLPathFinder 窗口...
+2025-12-01 01:36:25,535 | INFO | prd_lot_automation.close_sqlpathfinder | 使用 win32gui 查找并关闭 SQLPathFinder 窗口...
+2025-12-01 01:36:25,536 | INFO | prd_lot_automation.close_sqlpathfinder | 找到 0 个 SQLPathFinder 窗口
+2025-12-01 01:36:25,536 | INFO | prd_lot_automation.close_sqlpathfinder | 尝试强制终止 SQLPathFinder 进程...
+2025-12-01 01:36:25,571 | INFO | prd_lot_automation.close_sqlpathfinder | 未找到需要关闭的 SQLPathFinder 窗口
+2025-12-01 01:36:26,574 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-12-01 01:36:29,450 | INFO | prd_lot_automation.spf_runner | 找到 14 个 SQLPathFinder 窗口
+2025-12-01 01:36:29,537 | INFO | prd_lot_automation.spf_runner | ✅ 找到匹配的窗口: SQLPathFinder 3 (Main - 9992) - [Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2 (L0)]
+2025-12-01 01:36:29,549 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-12-01 01:36:29,550 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-12-01 01:36:29,551 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已置于最顶层（HWND_TOPMOST）
+2025-12-01 01:36:29,754 | INFO | prd_lot_automation.spf_runner | ✅ 窗口已保持在前台
+2025-12-01 01:36:30,188 | INFO | prd_lot_automation.spf_runner | 窗口已激活（尝试 1/3）
+2025-12-01 01:36:30,278 | INFO | prd_lot_automation.spf_runner | 等待1秒后发送 F8...
+2025-12-01 01:36:31,521 | INFO | prd_lot_automation.spf_runner | ✅ 已通过 type_keys 发送 F8
+2025-12-01 01:36:31,537 | INFO | prd_lot_automation.spf_runner | F8 快捷键已发送，等待弹窗出现...
+2025-12-01 01:36:32,198 | INFO | prd_lot_automation.spf_runner | ✅ 检测到弹窗已出现: Prompt For Values (in)
+2025-12-01 01:36:32,213 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-12-01 01:36:32,233 | INFO | prd_lot_automation.spf_runner | 等待弹窗出现...
+2025-12-01 01:36:34,234 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-12-01 01:36:34,234 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-12-01 01:36:34,264 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-12-01 01:36:34,265 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-12-01 01:36:34,271 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-12-01 01:36:34,717 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-12-01 01:36:40,034 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: 等待 Paste 处理完成...
+2025-12-01 01:36:46,295 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-12-01 01:36:46,877 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交，SQLPathFinder 开始执行查询...
+2025-12-01 01:36:46,877 | INFO | prd_lot_automation.spf_runner | 检查是否有第二个参数弹窗...
+2025-12-01 01:36:48,878 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #2...
+2025-12-01 01:36:48,903 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-12-01 01:36:48,909 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-12-01 01:36:48,912 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-12-01 01:36:49,342 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮 (auto_id='cmdPaste')
+2025-12-01 01:36:54,658 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: 等待 Paste 处理完成...
+2025-12-01 01:37:00,854 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-12-01 01:37:01,551 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交，SQLPathFinder 开始执行查询...
+2025-12-01 01:37:01,578 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-12-01 01:37:01,584 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-12-01 01:37:03,604 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #3...
+2025-12-01 01:37:08,666 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #3...
+2025-12-01 01:37:13,726 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #3...
+2025-12-01 01:37:18,827 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #3...
+2025-12-01 01:37:23,886 | INFO | prd_lot_automation.spf_runner | 第 5 次尝试查找弹窗 #3...
+2025-12-01 01:37:28,948 | INFO | prd_lot_automation.spf_runner | 第 6 次尝试查找弹窗 #3...
+2025-12-01 01:37:33,011 | WARNING | prd_lot_automation.spf_runner | ❌ 超时后仍未找到弹窗 #3
+2025-12-01 01:37:33,011 | INFO | prd_lot_automation.spf_runner | 没有第三个参数弹窗
+2025-12-01 01:37:33,012 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-12-01 01:37:33,012 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-12-01 01:37:33,012 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-01 01:37:33,012 | INFO | prd_lot_automation.spf_runner | 开始等待 SQLPathFinder 查询完成...
+2025-12-01 01:37:33,013 | INFO | prd_lot_automation.spf_runner | 输出文件路径: C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-12-01 01:37:33,013 | INFO | prd_lot_automation.spf_runner | 超时时间: 900 秒
+2025-12-01 01:37:33,013 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-01 01:37:41,016 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 8 秒)
+2025-12-01 01:37:51,019 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 18 秒)
+2025-12-01 01:38:01,023 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 28 秒)
+2025-12-01 01:38:11,026 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 38 秒)
+2025-12-01 01:38:21,032 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 48 秒)
+2025-12-01 01:38:31,035 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 58 秒)
+2025-12-01 01:38:41,038 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 68 秒)
+2025-12-01 01:38:45,060 | INFO | prd_lot_automation.spf_runner | ✅ 检测到 CSV 文件已创建 (大小: 2,329,444 字节，已等待 72 秒)
+2025-12-01 01:38:47,069 | INFO | prd_lot_automation.spf_runner | ⏳ 文件正在更新中... (已等待 74 秒，稳定检查: 1/4)
+2025-12-01 01:38:51,072 | INFO | prd_lot_automation.spf_runner | ⏳ 文件正在更新中... (已等待 78 秒，稳定检查: 3/4)
+2025-12-01 01:38:53,074 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-01 01:38:53,074 | INFO | prd_lot_automation.spf_runner | ✅ CSV 文件已生成并稳定: C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-12-01 01:38:53,074 | INFO | prd_lot_automation.spf_runner |    文件大小: 2,329,444 字节
+2025-12-01 01:38:53,075 | INFO | prd_lot_automation.spf_runner |    等待时间: 80 秒
+2025-12-01 01:38:53,075 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-01 01:38:53,075 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-12-01 01:38:53,155 | INFO | prd_lot_automation.data_processing | 应用过滤条件: mut_within_subflow_latest_flag = Y，从 7752 行过滤到 5300 行
+2025-12-01 01:38:53,158 | INFO | prd_lot_automation.data_processing | 应用过滤条件: SUBSTRUCTURE_ID = U1.U1，从 5300 行过滤到 1325 行
+2025-12-01 01:38:53,158 | INFO | prd_lot_automation.data_processing | 过滤完成：从原始 7752 行过滤到 1325 行
+2025-12-01 01:38:53,165 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-01 01:38:53,176 | WARNING | prd_lot_automation.data_processing | INTERFACE_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-01 01:38:53,187 | INFO | root | 开始生成 Retest Bin Pareto（mut_within_subflow_latest_flag = N）
+2025-12-01 01:38:53,198 | INFO | prd_lot_automation.data_processing | 应用过滤条件: mut_within_subflow_latest_flag = N，从 7752 行过滤到 2452 行
+2025-12-01 01:38:53,201 | INFO | prd_lot_automation.data_processing | 应用过滤条件: SUBSTRUCTURE_ID = U1.U1，从 2452 行过滤到 613 行
+2025-12-01 01:38:53,202 | INFO | prd_lot_automation.data_processing | 过滤完成：从原始 7752 行过滤到 613 行
+2025-12-01 01:38:53,205 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-01 01:38:53,225 | INFO | root | Retest Bin Pareto 生成完成
+2025-12-01 01:38:53,231 | INFO | prd_lot_automation.report_builder | 生成报表：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\reports\LOT_Report_2025-12-01.xlsx
+2025-12-01 01:38:54,876 | INFO | prd_lot_automation.mailer | Outlook 邮件已发送
+2025-12-01 01:38:54,907 | INFO | root | 流程完成：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\Test Data Auto analysis\reports\LOT_Report_2025-12-01.xlsx
+2025-12-01 01:38:54,912 | INFO | root | 关闭 SQLPathFinder...
+2025-12-01 01:38:54,913 | INFO | prd_lot_automation.close_sqlpathfinder | 使用 win32gui 查找并关闭 SQLPathFinder 窗口...
+2025-12-01 01:38:54,914 | INFO | prd_lot_automation.close_sqlpathfinder | 找到 2 个 SQLPathFinder 窗口
+2025-12-01 01:38:54,914 | INFO | prd_lot_automation.close_sqlpathfinder | 关闭窗口: SQLPathFinder Query Log (9992)
+2025-12-01 01:38:55,319 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 已发送 Alt+F4
+2025-12-01 01:38:55,824 | INFO | prd_lot_automation.close_sqlpathfinder | 关闭窗口: SQLPathFinder 3 (Main - 9992) - [Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2 (L0)]
+2025-12-01 01:38:56,264 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 已发送 Alt+F4
+2025-12-01 01:38:56,900 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 成功关闭 2 个 SQLPathFinder 窗口/进程

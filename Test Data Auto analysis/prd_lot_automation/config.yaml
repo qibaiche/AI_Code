@@ -1,0 +1,55 @@
+paths:
+  lots_file: "../Lot info.txt"
+  vg2_file: "../Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2"
+  spf_executable: null  # 通过 VG2 文件关联自动打开 SQLPathFinder
+  output_csv: "C:/Users/qibaiche/AppData/Local/Temp/SQLPathFinder_Temp/by_lot.csv"
+  report_dir: "../reports"
+  log_dir: "../logs"
+
+fields:
+  lot: "lot"  # 实际列名是小写
+  functional_bin: "functional_bin"  # 实际列名是小写
+  interface_bin: "interface_bin"  # 实际列名是小写
+  devrevstep: "devrevstep"  # 实际列名是小写
+  visual_id: "VISUAL_ID"  # 实际列名是大写
+
+timeouts:
+  spf_launch: 60
+  ui_action: 30  # 增加 UI 操作超时时间到 30 秒
+  execution_poll_interval: 5
+  file_stabilize_checks: 4
+  file_stabilize_interval: 2
+  overall_timeout: 900
+
+ui:
+  main_window_title: "SQLPathFinder"
+  run_button_automation_id: null
+  lot_popup_title: "Prompt For Values"  # 弹窗标题（部分匹配）
+  lot_input_automation_id: null
+  ok_button_automation_id: null
+  run_button_image: "../assets/run_button.png"
+
+processing:
+  percentage_thresholds:
+    red: 0.05
+    yellow: 0.02
+  max_lots_per_batch: null
+  filters:
+    mut_within_subflow_latest_flag: "Y"  # 只统计最新的subflow数据
+    SUBSTRUCTURE_ID: "U1.U1"  # 只统计U1.U1的substructure
+
+email:
+  mode: "outlook"  # or smtp
+  to:
+    - "qibai.chen@intel.com"  # 修改为你的实际邮箱
+  cc: []
+  subject_template: "[LOT日报] {date}（共{lot_count}个 LOT）"
+  use_outlook_body_template: true
+  outlook_account: null
+  smtp:
+    host: null
+    port: 587
+    username: null
+    password: null
+    use_tls: true
+
