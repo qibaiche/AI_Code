@@ -1533,7 +1533,9 @@ class SparkSubmitter:
             all_elements = self._driver.find_elements(By.XPATH, "//*[.//div[contains(@class,'mat-select-arrow')]]")
             LOGGER.info(f"🔍 找到 {len(all_elements)} 个包含mat-select-arrow的元素，开始过滤...")
             
-            operation_headers = []
+            # 按照垂直位置去重并排序，避免同一区块被祖先元素重复命中
+            candidates = []
+
             for idx, elem in enumerate(all_elements):
                 try:
                     # 检查这个元素是否包含正好2个mat-select-arrow（Operation和EngID）
@@ -1633,16 +1635,33 @@ class SparkSubmitter:
                     except:
                         pass
                     
-                    operation_headers.append(elem)
-                    icon_info = ""
-                    if has_instructions or has_delete:
-                        icon_info = f"（有{'Instructions' if has_instructions else ''}{'和' if has_instructions and has_delete else ''}{'Delete' if has_delete else ''}图标）"
-                    LOGGER.info(f"✅ 找到Operation抬头行 #{len(operation_headers)}: {elem_text[:80] if elem_text else '(无文本)'}{icon_info}")
+                    # 记录候选元素及其位置，用于后续去重和排序
+                    location = elem.location or {}
+                    size = elem.size or {}
+                    y_pos = int(location.get("y", 0))
+                    area = int(size.get("width", 0) * size.get("height", 0))
+                    candidates.append((y_pos, area, elem, elem_text, has_instructions, has_delete))
                 except Exception as e:
                     LOGGER.debug(f"检查元素 #{idx+1} 时出错: {e}")
                     continue
-            
-            LOGGER.info(f"✅ 总共找到 {len(operation_headers)} 个Operation抬头行")
+
+            # 根据垂直位置分组（5px 为一档），同一档取面积更小的元素，避免祖先元素重复
+            deduped = {}
+            for y_pos, area, elem, elem_text, has_instructions, has_delete in candidates:
+                key = y_pos // 5
+                if key not in deduped or area < deduped[key][0]:
+                    deduped[key] = (area, elem, elem_text, has_instructions, has_delete)
+
+            # 按照垂直位置从上到下排序，确保condition_index稳定
+            operation_headers = []
+            for _, (_, elem, elem_text, has_instructions, has_delete) in sorted(deduped.items(), key=lambda kv: kv[0]):
+                operation_headers.append(elem)
+                icon_info = ""
+                if has_instructions or has_delete:
+                    icon_info = f"（有{'Instructions' if has_instructions else ''}{'和' if has_instructions and has_delete else ''}{'Delete' if has_delete else ''}图标）"
+                LOGGER.info(f"✅ 找到Operation抬头行 #{len(operation_headers)}: {elem_text[:80] if elem_text else '(无文本)'}{icon_info} 位置Y={elem.location.get('y', '未知')}")
+
+            LOGGER.info(f"✅ 总共找到 {len(operation_headers)} 个Operation抬头行（去重后）")
             return operation_headers
         except Exception as e:
             LOGGER.error(f"查找Operation抬头行失败: {e}")
