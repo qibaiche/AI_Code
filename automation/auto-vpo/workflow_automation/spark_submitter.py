@@ -280,7 +280,11 @@ class SparkSubmitter:
             apply_button.click()
             LOGGER.info("✅ 已点击'Apply'按钮")
             
-            # 立即等待加载并点击Continue（Apply后的验证由Continue处理）
+            # 等待Apply操作完成（增加等待时间）
+            LOGGER.info("等待Apply操作完成...")
+            time.sleep(3.0)  # 从0秒增加到3秒
+            
+            # 等待加载并点击Continue（Apply后的验证由Continue处理）
             LOGGER.info("等待Continue按钮出现并点击...")
             if self._wait_and_click_continue():
                 LOGGER.info("✅ 已成功填写TP路径并完成页面跳转")
@@ -359,8 +363,8 @@ class SparkSubmitter:
             time.sleep(0.3)
             
             # 点击Continue按钮（可能需要多次点击）
-            # 用户反馈：即使出现红色错误消息，也要坚持重试，因为这是偶发的加载失败
-            max_continue_clicks = 15  # 增加到15次重试（每次等待45秒 = 最多11分钟）
+            # 优化：减少重试次数，但增加每次等待时间
+            max_continue_clicks = 6  # 减少到6次重试（从15次）
             
             for click_attempt in range(1, max_continue_clicks + 1):
                 LOGGER.info(f"🔄 准备点击'Continue'按钮（第 {click_attempt}/{max_continue_clicks} 次）...")
@@ -368,12 +372,12 @@ class SparkSubmitter:
                 # 重新查找Continue按钮（可能在重试过程中DOM更新了）
                 continue_button = None
                 try:
-                    continue_button = WebDriverWait(self._driver, 15).until(  # 增加到15秒
+                    continue_button = WebDriverWait(self._driver, 20).until(  # 增加到20秒（从15秒）
                         EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Continue')]"))
                     )
-                    LOGGER.info(f"找到Continue按钮（第 {click_attempt} 次尝试）")
+                    LOGGER.info(f"✅ 找到Continue按钮（第 {click_attempt} 次尝试）")
                 except TimeoutException:
-                    LOGGER.warning(f"⚠️ 15秒内未找到Continue按钮（第 {click_attempt} 次尝试）")
+                    LOGGER.warning(f"⚠️ 20秒内未找到Continue按钮（第 {click_attempt} 次尝试）")
                     
                     # 检查是否已经跳转成功
                     if self._check_target_page_loaded():
@@ -382,8 +386,8 @@ class SparkSubmitter:
                     
                     # 如果还没到最后一次尝试，继续循环等待Continue按钮重新出现
                     if click_attempt < max_continue_clicks:
-                        LOGGER.info(f"Continue按钮暂时消失，等待5秒后继续尝试...")
-                        time.sleep(5.0)
+                        LOGGER.info(f"Continue按钮暂时消失，等待10秒后继续尝试...")
+                        time.sleep(10.0)  # 从5秒增加到10秒
                         continue  # 继续下一次循环
                     else:
                         # 最后一次尝试也找不到
@@ -393,7 +397,7 @@ class SparkSubmitter:
                 if not continue_button:
                     # 理论上不应该到这里，但保险起见
                     LOGGER.warning("Continue按钮为空，跳过本次循环")
-                    time.sleep(2.0)
+                    time.sleep(3.0)
                     continue
                 
                 # 点击Continue按钮
@@ -401,29 +405,34 @@ class SparkSubmitter:
                     continue_button.click()
                     LOGGER.info(f"✅ 已点击'Continue'按钮（第 {click_attempt} 次）")
                 except Exception as e:
-                    LOGGER.warning(f"点击失败: {e}")
-                    time.sleep(2.0)
-                    continue
+                    LOGGER.warning(f"点击失败: {e}，尝试JavaScript点击")
+                    try:
+                        self._driver.execute_script("arguments[0].click();", continue_button)
+                        LOGGER.info(f"✅ 已通过JavaScript点击'Continue'按钮（第 {click_attempt} 次）")
+                    except Exception as e2:
+                        LOGGER.error(f"JavaScript点击也失败: {e2}")
+                        time.sleep(3.0)
+                        continue
                 
-                # 等待页面加载完成（最多45秒）
-                LOGGER.info("⏳ 等待页面加载完成...")
+                # 等待页面加载完成（最多90秒，由_wait_for_page_load_after_continue控制）
+                LOGGER.info("⏳ 等待页面加载完成（最多90秒）...")
                 load_success = self._wait_for_page_load_after_continue()
                 
                 if load_success:
-                    LOGGER.info(f"✅ 页面加载完成，跳转成功！（第 {click_attempt} 次点击后成功）")
+                    LOGGER.info(f"✅✅✅ 页面加载完成，跳转成功！（第 {click_attempt} 次点击后成功）")
                     return True
                 else:
                     # 加载未成功，继续重试
                     LOGGER.warning(f"⚠️ 第 {click_attempt} 次点击后页面未成功跳转")
                     
                     if click_attempt < max_continue_clicks:
-                        LOGGER.info(f"💪 即使有错误消息，也继续重试！准备第 {click_attempt + 1} 次点击...")
-                        # 短暂等待后继续
-                        time.sleep(2.0)
+                        LOGGER.info(f"💪 继续重试！准备第 {click_attempt + 1} 次点击...")
+                        # 等待更长时间后继续（从2秒增加到5秒）
+                        time.sleep(5.0)
                         continue  # 继续下一次循环
                     else:
                         # 已经是最后一次尝试了
-                        LOGGER.error(f"❌ 已重试{max_continue_clicks}次（约{max_continue_clicks * 0.75}分钟），仍未成功跳转")
+                        LOGGER.error(f"❌ 已重试{max_continue_clicks}次，仍未成功跳转")
                         # 最后再检查一次目标页面
                         if self._check_target_page_loaded():
                             LOGGER.info("✅ 最终检查：目标页面已加载！")
@@ -472,70 +481,114 @@ class SparkSubmitter:
         
         检测策略：
         1. 检查是否还在"Create New Experiments"对话框（说明未跳转）
-        2. 等待"Add New Experiment"按钮出现（说明跳转成功）
-        3. 检测页面是否崩溃
+        2. 检查mat-dialog元素是否还存在（更准确的检测）
+        3. 等待"Add New Experiment"按钮出现（说明跳转成功）
+        4. 检测页面是否崩溃
         
         Returns:
             True如果页面加载完成并成功跳转
             False如果仍在原对话框或加载失败
         """
         try:
-            max_wait_time = 60  # 最多等待60秒
-            LOGGER.info(f"等待页面跳转完成（最多{max_wait_time}秒）...")
+            max_wait_time = 90  # 增加到90秒（从60秒）
+            check_interval = 5  # 每5秒检查一次（从3秒增加，减少日志噪音）
+            max_checks = max_wait_time // check_interval  # 最多检查18次
+            
+            LOGGER.info(f"等待页面跳转完成（最多{max_wait_time}秒，每{check_interval}秒检查一次）...")
             
             # 等待一段时间让页面开始加载
-            time.sleep(3.0)
+            time.sleep(5.0)  # 从3秒增加到5秒
             
             # 检查是否还在"Create New Experiments"对话框
-            for check_attempt in range(max_wait_time // 3):  # 每3秒检查一次
+            for check_attempt in range(max_checks):
                 try:
-                    # 检查对话框标题是否还存在
-                    create_dialog = self._driver.find_elements(By.XPATH, "//*[contains(text(), 'Create New Experiments')]")
+                    # 方法1: 检查mat-dialog元素是否还存在（更准确）
+                    dialog_exists = False
+                    try:
+                        mat_dialogs = self._driver.find_elements(By.XPATH, "//mat-dialog-container | //div[contains(@class,'mat-dialog-container')]")
+                        if mat_dialogs:
+                            for dialog in mat_dialogs:
+                                if dialog.is_displayed():
+                                    dialog_exists = True
+                                    break
+                    except:
+                        pass
                     
-                    if create_dialog and any(elem.is_displayed() for elem in create_dialog):
-                        LOGGER.warning(f"⚠️ 仍在'Create New Experiments'对话框中（检查{check_attempt + 1}次）")
+                    # 方法2: 检查对话框标题文本是否还存在
+                    if not dialog_exists:
+                        create_dialog_text = self._driver.find_elements(By.XPATH, "//*[contains(text(), 'Create New Experiments')]")
+                        if create_dialog_text and any(elem.is_displayed() for elem in create_dialog_text):
+                            dialog_exists = True
+                    
+                    if dialog_exists:
+                        # 每5次检查才输出一次日志（减少日志噪音）
+                        if check_attempt % 5 == 0 or check_attempt < 3:
+                            LOGGER.warning(f"⚠️ 仍在'Create New Experiments'对话框中（检查{check_attempt + 1}/{max_checks}次，已等待{(check_attempt + 1) * check_interval}秒）")
                         
-                        # 检查是否有错误提示
-                        try:
-                            error_elements = self._driver.find_elements(By.XPATH, "//*[contains(text(), 'Failed') or contains(text(), 'error') or contains(@style, 'color: red')]")
-                            if error_elements:
-                                for elem in error_elements[:2]:
-                                    error_text = elem.text.strip()
-                                    if error_text and "Failed" in error_text:
-                                        LOGGER.warning(f"检测到错误: {error_text}")
-                        except:
-                            pass
+                        # 检查是否有错误提示（只在关键检查点输出）
+                        if check_attempt % 5 == 0:
+                            try:
+                                error_elements = self._driver.find_elements(By.XPATH, "//*[contains(text(), 'Failed') or contains(text(), 'error') or contains(@style, 'color: red')]")
+                                if error_elements:
+                                    for elem in error_elements[:2]:
+                                        error_text = elem.text.strip()
+                                        if error_text and "Failed" in error_text:
+                                            LOGGER.warning(f"检测到错误: {error_text}")
+                            except:
+                                pass
                         
-                        # 如果已经检查了很多次（超过45秒），认为这次Continue点击无效
+                        # 如果已经检查了很多次（超过60秒），认为这次Continue点击无效
                         # 但不直接认为失败，而是返回False让上层继续重试Continue
-                        if check_attempt >= 15:  # 15次 * 3秒 = 45秒
-                            LOGGER.warning("⚠️ 加载时间较长，仍在原对话框中，返回让上层重新点击Continue")
+                        if check_attempt >= 12:  # 12次 * 5秒 = 60秒
+                            LOGGER.warning(f"⚠️ 已等待{check_attempt * check_interval}秒，仍在原对话框中，返回让上层重新点击Continue")
                             return False
                         
                         # 继续等待
-                        time.sleep(3.0)
+                        time.sleep(check_interval)
                         continue
                     else:
                         # 对话框已消失，说明可能已经跳转
-                        LOGGER.info("✅ 'Create New Experiments'对话框已消失")
+                        LOGGER.info(f"✅ 'Create New Experiments'对话框已消失（检查{check_attempt + 1}次，等待{(check_attempt + 1) * check_interval}秒）")
                         break
                         
                 except Exception as e:
                     LOGGER.debug(f"检查对话框时出错: {e}")
+                    # 出错时也认为对话框可能已消失，继续验证
                     break
             
             # 验证是否成功跳转：查找"Add New Experiment"按钮
+            LOGGER.info("验证页面跳转：查找'Add New Experiment'按钮...")
             try:
-                LOGGER.info("验证页面跳转：查找'Add New Experiment'按钮...")
-                add_exp_button = WebDriverWait(self._driver, 10).until(
-                    EC.presence_of_element_located((By.XPATH, "//button[contains(text(), 'Add New Experiment')]"))
+                # 增加等待时间到20秒（从10秒）
+                add_exp_button = WebDriverWait(self._driver, 20).until(
+                    EC.presence_of_element_located((By.XPATH, "//button[contains(text(), 'Add New Experiment') or .//span[contains(text(), 'Add New Experiment')]]"))
                 )
-                LOGGER.info("✅ 'Add New Experiment'按钮已出现，页面跳转成功！")
-                time.sleep(1.5)  # 等待页面稳定
-                return True
+                if add_exp_button.is_displayed():
+                    LOGGER.info("✅ 'Add New Experiment'按钮已出现，页面跳转成功！")
+                    time.sleep(2.0)  # 等待页面稳定（从1.5秒增加到2秒）
+                    return True
+                else:
+                    LOGGER.warning("⚠️ 找到'Add New Experiment'按钮但不可见，继续等待...")
+                    # 再等待5秒
+                    time.sleep(5.0)
+                    if add_exp_button.is_displayed():
+                        LOGGER.info("✅ 'Add New Experiment'按钮现在可见，页面跳转成功！")
+                        return True
+                    else:
+                        LOGGER.error("❌ 'Add New Experiment'按钮仍不可见")
+                        return False
                 
             except TimeoutException:
                 LOGGER.error("❌ 未找到'Add New Experiment'按钮，页面跳转失败")
+                # 最后尝试：检查是否还有其他方式确认页面已跳转
+                try:
+                    # 检查是否有其他特征元素（如VPO类别选择器等）
+                    vpo_elements = self._driver.find_elements(By.XPATH, "//*[contains(text(), 'Correlation') or contains(text(), 'Engineering')]")
+                    if vpo_elements:
+                        LOGGER.info("✅ 检测到VPO类别选择器，页面可能已跳转")
+                        return True
+                except:
+                    pass
                 return False
             
         except Exception as e:
@@ -1441,446 +1494,577 @@ class SparkSubmitter:
             LOGGER.debug(f"_scroll_and_click 失败 ({desc}): {e}")
             return False
     
+    def _find_operation_headers(self, scroll_to_bottom: bool = True):
+        """
+        查找所有Operation区块的抬头行
+        
+        Args:
+            scroll_to_bottom: 是否先滚动到页面底部（确保所有区块都加载出来）
+        
+        返回抬头行元素列表，每个元素代表一个可编辑的Operation区块
+        排除：
+        - 灰色历史行（只读）
+        - "Continue with All Units"行
+        - Additional Attributes行
+        """
+        try:
+            time.sleep(0.5)
+            
+            # 如果需要，先滚动到页面底部，确保所有Operation区块都加载出来
+            if scroll_to_bottom:
+                try:
+                    # 查找Flow标签页的主容器（通常是mat-drawer-content或类似的）
+                    flow_container = self._driver.find_element(By.XPATH, "//mat-drawer-content | //div[contains(@class,'drawer-content')] | //div[contains(@class,'mat-tab-body-active')]")
+                    # 滚动到容器底部
+                    self._driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight;", flow_container)
+                    LOGGER.debug("已滚动到Flow页面底部")
+                    time.sleep(0.5)
+                except:
+                    # 如果找不到容器，尝试滚动整个页面
+                    try:
+                        self._driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                        LOGGER.debug("已滚动到页面底部")
+                        time.sleep(0.5)
+                    except:
+                        LOGGER.debug("滚动失败，继续查找")
+            
+            # 查找所有可能的抬头行：包含2个mat-select-arrow的行
+            # 先找到所有包含mat-select-arrow的元素
+            all_elements = self._driver.find_elements(By.XPATH, "//*[.//div[contains(@class,'mat-select-arrow')]]")
+            LOGGER.info(f"🔍 找到 {len(all_elements)} 个包含mat-select-arrow的元素，开始过滤...")
+            
+            operation_headers = []
+            for idx, elem in enumerate(all_elements):
+                try:
+                    # 检查这个元素是否包含正好2个mat-select-arrow（Operation和EngID）
+                    arrows = elem.find_elements(By.CSS_SELECTOR, "div.mat-select-arrow")
+                    if len(arrows) != 2:
+                        LOGGER.debug(f"元素 #{idx+1} 有 {len(arrows)} 个箭头，跳过")
+                        continue
+                    
+                    # 获取元素文本（用于排除）
+                    elem_text = ""
+                    try:
+                        elem_text = elem.text
+                    except:
+                        pass
+                    
+                    # 排除"Continue with"行
+                    if "Continue with" in elem_text or "All Units" in elem_text:
+                        LOGGER.debug(f"元素 #{idx+1} 包含'Continue with'或'All Units'，跳过")
+                        continue
+                    
+                    # 排除"Additional Attributes"行
+                    if "Additional Attributes" in elem_text:
+                        LOGGER.debug(f"元素 #{idx+1} 包含'Additional Attributes'，跳过")
+                        continue
+                    
+                    # 排除灰色只读行（检查是否有checkbox - 历史行通常有checkbox）
+                    try:
+                        checkboxes = elem.find_elements(By.XPATH, ".//input[@type='checkbox']")
+                        if checkboxes:
+                            # 检查checkbox是否被选中（历史行通常是选中的）
+                            for cb in checkboxes:
+                                try:
+                                    if cb.is_selected():
+                                        LOGGER.debug(f"元素 #{idx+1} 包含已选中的checkbox（可能是历史行），跳过")
+                                        # 不直接continue，继续检查其他条件
+                                        break
+                                except:
+                                    pass
+                            # 如果checkbox存在且被选中，很可能是历史行，跳过
+                            if checkboxes and any(cb.is_selected() for cb in checkboxes if cb.is_displayed()):
+                                LOGGER.debug(f"元素 #{idx+1} 包含已选中的checkbox（历史行），跳过")
+                                continue
+                    except:
+                        pass
+                    
+                    # 排除灰色只读行（检查是否有disabled属性或特定class）
+                    elem_classes = elem.get_attribute("class") or ""
+                    if "disabled" in elem_classes.lower() or "readonly" in elem_classes.lower():
+                        LOGGER.debug(f"元素 #{idx+1} 包含disabled/readonly class，跳过")
+                        continue
+                    
+                    # 检查是否有"Instructions"和"Delete"图标（可编辑行应该有这些）
+                    # 这是一个正向检查：如果找到这些图标，说明是可编辑的抬头行
+                    has_instructions = False
+                    has_delete = False
+                    try:
+                        # 检查是否有Instructions图标（document icon）
+                        instructions_icons = elem.find_elements(By.XPATH, ".//*[contains(@class,'instructions') or contains(text(),'Instructions') or contains(@aria-label,'Instructions')]")
+                        if instructions_icons:
+                            has_instructions = True
+                        
+                        # 检查是否有Delete图标（trash can icon）
+                        delete_icons = elem.find_elements(By.XPATH, ".//*[contains(@class,'delete') or contains(text(),'Delete') or contains(@aria-label,'Delete')]")
+                        if delete_icons:
+                            has_delete = True
+                    except:
+                        pass
+                    
+                    # 如果既没有Instructions也没有Delete，可能是历史行或其他不可编辑行
+                    # 但这不是必要条件，因为有些可编辑行可能没有这些图标
+                    # 所以这里只作为辅助判断，不强制要求
+                    
+                    # 确保这个元素是可见的
+                    if not elem.is_displayed():
+                        LOGGER.debug(f"元素 #{idx+1} 不可见，跳过")
+                        continue
+                    
+                    # 额外检查：确保箭头是可点击的（不是禁用的）
+                    try:
+                        arrow_clickable = True
+                        for arrow in arrows:
+                            try:
+                                arrow_classes = arrow.get_attribute("class") or ""
+                                arrow_parent = arrow.find_element(By.XPATH, "./ancestor::mat-form-field[1]")
+                                parent_classes = arrow_parent.get_attribute("class") or ""
+                                
+                                # 检查箭头或其父元素是否被禁用
+                                if "disabled" in arrow_classes.lower() or "disabled" in parent_classes.lower():
+                                    arrow_clickable = False
+                                    break
+                            except:
+                                pass
+                        
+                        if not arrow_clickable:
+                            LOGGER.debug(f"元素 #{idx+1} 的箭头被禁用，跳过")
+                            continue
+                    except:
+                        pass
+                    
+                    operation_headers.append(elem)
+                    icon_info = ""
+                    if has_instructions or has_delete:
+                        icon_info = f"（有{'Instructions' if has_instructions else ''}{'和' if has_instructions and has_delete else ''}{'Delete' if has_delete else ''}图标）"
+                    LOGGER.info(f"✅ 找到Operation抬头行 #{len(operation_headers)}: {elem_text[:80] if elem_text else '(无文本)'}{icon_info}")
+                except Exception as e:
+                    LOGGER.debug(f"检查元素 #{idx+1} 时出错: {e}")
+                    continue
+            
+            LOGGER.info(f"✅ 总共找到 {len(operation_headers)} 个Operation抬头行")
+            return operation_headers
+        except Exception as e:
+            LOGGER.error(f"查找Operation抬头行失败: {e}")
+            import traceback
+            LOGGER.error(traceback.format_exc())
+            return []
+    
+    def _select_mat_option_by_text(self, text: str, timeout: int = 10) -> bool:
+        """
+        在mat-select的下拉面板中选择指定文本的选项
+        
+        Args:
+            text: 要选择的选项文本
+            timeout: 超时时间（秒）
+        
+        Returns:
+            True如果选择成功
+        """
+        try:
+            wait = WebDriverWait(self._driver, timeout)
+            
+            # 等待mat-select面板出现
+            panel = wait.until(
+                EC.presence_of_element_located(
+                    (By.XPATH, "//div[contains(@class,'mat-select-panel')]")
+                )
+            )
+            LOGGER.info("✅ mat-select面板已打开")
+            
+            # 查找并点击匹配的选项
+            option = wait.until(
+                EC.element_to_be_clickable(
+                    (By.XPATH, f"//div[contains(@class,'mat-select-panel')]//mat-option//span[normalize-space()='{text}']")
+                )
+            )
+            option.click()
+            LOGGER.info(f"✅ 已选择选项: {text}")
+            time.sleep(0.3)
+            return True
+        except Exception as e:
+            LOGGER.error(f"选择选项失败 (text={text}): {e}")
+            # 尝试遍历所有选项查找包含匹配
+            try:
+                all_options = self._driver.find_elements(By.XPATH, "//div[contains(@class,'mat-select-panel')]//mat-option")
+                LOGGER.info(f"找到 {len(all_options)} 个选项，尝试包含匹配...")
+                for opt in all_options:
+                    opt_text = opt.text.strip()
+                    if text in opt_text or opt_text in text:
+                        opt.click()
+                        LOGGER.info(f"✅ 已选择选项（包含匹配）: {opt_text}")
+                        time.sleep(0.3)
+                        return True
+                LOGGER.error(f"❌ 未找到匹配的选项: {text}")
+                return False
+            except Exception as e2:
+                LOGGER.error(f"遍历选项也失败: {e2}")
+                return False
+    
     def _select_operation(self, operation: str, condition_index: int = 0) -> bool:
         """
-        在第 condition_index 个 condition 上选择 Operation
+        在第 condition_index 个 Operation 区块上选择 Operation
         
         Args:
             operation: Operation值（如"6248"）
-            condition_index: 0 表示第一个，1 表示第二个...
+            condition_index: 0 表示第一个区块，1 表示第二个区块...
         """
-        LOGGER.info(f"选择Operation: {operation} (condition_index={condition_index})")
-        timeout = self.config.explicit_wait
-        wait = WebDriverWait(self._driver, timeout)
-
+        LOGGER.info(f"=" * 60)
+        LOGGER.info(f"开始选择Operation: {operation} (第 {condition_index + 1} 个区块)")
+        LOGGER.info(f"=" * 60)
+        
         try:
-            time.sleep(0.5)
-
-            # 🔍 调试：先看看页面上有多少个condition容器
-            all_containers = self._driver.find_elements(By.XPATH, "//div[contains(@class,'condition-list-container')]")
-            LOGGER.info(f"🔍 调试：页面上共有 {len(all_containers)} 个 condition-list-container")
+            time.sleep(1.0)
             
-            # 1. 先定位到第 N 个 condition 容器
-            #    这里用DOM里的 class: "condition-list-container"
-            condition_xpath = f"(//div[contains(@class,'condition-list-container')])[{condition_index + 1}]"
-            LOGGER.debug(f"condition_xpath = {condition_xpath}")
+            # 1. 查找所有Operation抬头行（滚动到底部，确保都加载出来）
+            LOGGER.info(f"查找所有Operation抬头行...")
+            operation_headers = self._find_operation_headers(scroll_to_bottom=True)
             
-            # **关键：先等待这个容器在DOM中出现**
-            try:
-                LOGGER.info(f"等待第 {condition_index + 1} 个condition容器出现...")
-                wait.until(EC.presence_of_element_located((By.XPATH, condition_xpath)))
-                LOGGER.info(f"✅ 第 {condition_index + 1} 个condition容器已出现")
-                time.sleep(0.5)  # 再等一下让内部元素完全渲染
-            except TimeoutException:
-                LOGGER.error(f"❌ 超时：第 {condition_index + 1} 个condition容器未出现")
-                LOGGER.error(f"   实际只找到 {len(all_containers)} 个容器")
-                self._diagnose_flow_page(condition_index)
+            if not operation_headers:
+                LOGGER.error(f"❌ 未找到任何Operation抬头行")
                 return False
-
-            # 2. 在这个容器里，找第一个 mat-select 作为 Operation
-            #    （如果以后结构变，可以微调这个 XPath）
-            operation_trigger_xpath = (
-                condition_xpath
-                + "//mat-form-field[contains(@class,'mat-form-field-type-mat-select')][1]"
-                + "//div[contains(@class,'mat-select-trigger')]"
-            )
-
-            if not self._scroll_and_click(
-                By.XPATH,
-                operation_trigger_xpath,
-                f"第 {condition_index + 1} 个 condition 的 Operation 下拉",
-            ):
-                LOGGER.warning("⚠️ 方法1（容器内查找）失败，尝试备用方法：按全局箭头索引")
-                
-                # 备用方法：按mat-select-arrow-wrapper的全局索引查找
-                # Operation在每个condition中是第一个select，所以索引为 1 + 2*condition_index
-                arrow_index = 1 + 2 * condition_index
-                fallback_xpath = f"(//div[contains(@class,'mat-select-arrow-wrapper')])[{arrow_index}]"
-                LOGGER.info(f"🔄 尝试备用XPath: {fallback_xpath}")
-                
-                if not self._scroll_and_click(
-                    By.XPATH,
-                    fallback_xpath,
-                    f"Operation箭头[{arrow_index}]（备用方法）",
-                ):
-                    LOGGER.error("❌ 打开 Operation 下拉失败（所有方法均失败）")
-                    self._diagnose_flow_page(condition_index)
+            
+            if len(operation_headers) <= condition_index:
+                LOGGER.error(f"❌ 只找到 {len(operation_headers)} 个Operation抬头行，但需要访问第 {condition_index + 1} 个")
+                LOGGER.error(f"   可能原因：新区块还未完全渲染，或者DOM结构有变化")
+                # 尝试再等待一次
+                LOGGER.info("等待2秒后重试...")
+                time.sleep(2.0)
+                operation_headers = self._find_operation_headers(scroll_to_bottom=True)
+                if len(operation_headers) <= condition_index:
+                    LOGGER.error(f"❌ 重试后仍然只有 {len(operation_headers)} 个抬头行")
                     return False
-
-            # 3. 等下拉面板出来，在 overlay 里找对应的选项
-            #    Angular Material 的 option 会挂在 cdk-overlay-pane 下面
-            option_xpath = (
-                "//div[contains(@class,'cdk-overlay-pane')]"
-                "//mat-option//span[normalize-space()='%s']" % operation
-            )
-
-            option = wait.until(
-                EC.element_to_be_clickable((By.XPATH, option_xpath))
-            )
-            option.click()
-            LOGGER.info(f"✅ 已选择 Operation: {operation}")
-            time.sleep(0.3)
+                else:
+                    LOGGER.info(f"✅ 重试成功，现在有 {len(operation_headers)} 个抬头行")
+            
+            # 2. 获取目标抬头行
+            header = operation_headers[condition_index]
+            header_text = ""
+            try:
+                header_text = header.text[:100]
+            except:
+                pass
+            LOGGER.info(f"✅ 定位到第 {condition_index + 1} 个Operation抬头行")
+            LOGGER.info(f"   抬头行内容: {header_text}")
+            
+            # 3. 滚动到抬头行可见（在Flow容器内滚动）
+            try:
+                # 先找到Flow容器
+                flow_container = self._driver.find_element(By.XPATH, "//mat-drawer-content | //div[contains(@class,'drawer-content')] | //div[contains(@class,'mat-tab-body-active')]")
+                # 获取抬头行在容器中的位置
+                header_location = header.location
+                container_scroll_top = self._driver.execute_script("return arguments[0].scrollTop;", flow_container)
+                # 滚动到抬头行位置
+                target_scroll = header_location['y'] - 200  # 上方留200px余量
+                self._driver.execute_script(f"arguments[0].scrollTop = {target_scroll};", flow_container)
+                LOGGER.info(f"✅ 已在Flow容器内滚动到抬头行位置（scrollTop={target_scroll}）")
+            except:
+                # 如果容器滚动失败，使用元素自身的scrollIntoView
+                self._driver.execute_script(
+                    "arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});",
+                    header
+                )
+                LOGGER.info("✅ 已使用scrollIntoView滚动到抬头行")
+            
+            time.sleep(0.5)
+            
+            # 4. 在该抬头行内找第1个mat-select-arrow（Operation）
+            arrows = header.find_elements(By.CSS_SELECTOR, "div.mat-select-arrow")
+            LOGGER.info(f"在抬头行内找到 {len(arrows)} 个mat-select-arrow")
+            
+            if len(arrows) < 1:
+                LOGGER.error(f"❌ 抬头行内未找到Operation箭头")
+                return False
+            
+            operation_arrow = arrows[0]
+            LOGGER.info("✅ 找到Operation箭头（第1个），准备点击")
+            
+            # 5. 点击Operation箭头
+            try:
+                operation_arrow.click()
+                LOGGER.info("✅ 已点击Operation箭头（普通点击）")
+            except:
+                self._driver.execute_script("arguments[0].click();", operation_arrow)
+                LOGGER.info("✅ 已点击Operation箭头（JavaScript点击）")
+            
+            time.sleep(0.5)
+            
+            # 6. 在下拉面板中选择选项
+            if not self._select_mat_option_by_text(operation):
+                LOGGER.error(f"❌ 选择Operation选项失败: {operation}")
+                return False
+            
+            LOGGER.info(f"✅✅✅ 已成功选择Operation: {operation} (第 {condition_index + 1} 个区块)")
             return True
 
         except Exception as e:
-            LOGGER.error(f"选择Operation失败: {e}")
+            LOGGER.error(f"❌ 选择Operation失败: {e}")
             import traceback
             LOGGER.error(traceback.format_exc())
-            self._diagnose_flow_page(condition_index)
             return False
     
     def _select_eng_id(self, eng_id: str, condition_index: int = 0) -> bool:
         """
-        在Flow标签页选择Eng ID
+        在第 condition_index 个 Operation 区块上选择 Eng ID
         
         Args:
             eng_id: Eng ID值（如"CCG-24J-TEST"）
-            condition_index: 条件序号（0表示第一个condition）
+            condition_index: 0 表示第一个区块，1 表示第二个区块...
             
         Returns:
             True如果选择成功
         """
-        LOGGER.info(f"选择Eng ID: {eng_id} (condition_index={condition_index})")
-        timeout = self.config.explicit_wait
-        wait = WebDriverWait(self._driver, timeout)
+        LOGGER.info(f"=" * 60)
+        LOGGER.info(f"开始选择Eng ID: {eng_id} (第 {condition_index + 1} 个区块)")
+        LOGGER.info(f"=" * 60)
         
         try:
             # 等待Operation选择完成
             time.sleep(1.0)
             
-            # **1. 先确认对应的condition容器已存在**
-            condition_xpath = f"(//div[contains(@class,'condition-list-container')])[{condition_index + 1}]"
+            # **关键：在点击Eng ID之前，先关闭所有已打开的overlay**
             try:
-                LOGGER.info(f"确认第 {condition_index + 1} 个condition容器存在（Eng ID选择前）...")
-                wait.until(EC.presence_of_element_located((By.XPATH, condition_xpath)))
-                time.sleep(0.5)
-            except TimeoutException:
-                LOGGER.error(f"❌ 第 {condition_index + 1} 个condition容器不存在")
-                self._diagnose_flow_page(condition_index)
-                return False
-            
-            # **关键修复：在点击Eng ID之前，先关闭所有已打开的overlay（如"All Units"）**
-            try:
-                # 方法1: 按ESC键关闭所有打开的overlay
                 self._driver.find_element(By.TAG_NAME, "body").send_keys(Keys.ESCAPE)
                 time.sleep(0.3)
-                LOGGER.info("已按ESC关闭所有打开的overlay")
+                LOGGER.info("✅ 已按ESC关闭所有打开的overlay")
             except:
                 pass
             
-            # 方法2: 如果还有overlay，点击backdrop关闭
-            try:
-                backdrops = self._driver.find_elements(By.XPATH, "//div[contains(@class,'cdk-overlay-backdrop')]")
-                if backdrops:
-                    for backdrop in backdrops:
-                        try:
-                            if backdrop.is_displayed():
-                                backdrop.click()
-                                LOGGER.info("已点击backdrop关闭overlay")
-                                time.sleep(0.3)
-                                break
-                        except:
-                            pass
-            except:
-                pass
+            # 1. 查找所有Operation抬头行（滚动到底部，确保都加载出来）
+            LOGGER.info(f"查找所有Operation抬头行...")
+            operation_headers = self._find_operation_headers(scroll_to_bottom=True)
             
-            # **2. 在这个容器里，找第二个 mat-select 作为 Eng ID**
-            #    和Operation类似，但这次是[2]而不是[1]
-            eng_id_trigger_xpath = (
-                condition_xpath
-                + "//mat-form-field[contains(@class,'mat-form-field-type-mat-select')][2]"
-                + "//div[contains(@class,'mat-select-trigger')]"
-            )
+            if not operation_headers:
+                LOGGER.error(f"❌ 未找到任何Operation抬头行")
+                return False
             
-            LOGGER.info(f"尝试点击Eng ID下拉（容器内第2个mat-select）")
-            
-            # **关键：先验证trigger确实在condition容器内，并且不是"All Units"**
-            try:
-                trigger_element = self._driver.find_element(By.XPATH, eng_id_trigger_xpath)
-                # 验证：检查这个trigger的父级是否在condition容器内
-                parent_container = trigger_element.find_element(By.XPATH, "./ancestor::div[contains(@class,'condition-list-container')]")
-                if not parent_container:
-                    raise Exception("Trigger不在condition容器内")
-                LOGGER.info("✅ 已验证Eng ID trigger在正确的condition容器内")
-            except Exception as e:
-                LOGGER.warning(f"⚠️ 验证trigger位置失败: {e}")
-            
-            # 点击trigger
-            if not self._scroll_and_click(
-                By.XPATH,
-                eng_id_trigger_xpath,
-                f"第 {condition_index + 1} 个 condition 的 Eng ID 下拉",
-            ):
-                LOGGER.warning("⚠️ 方法1（容器内查找）失败，尝试备用方法：按全局索引")
-                
-                # 备用方法：按全局索引（可能受页面其他下拉框影响）
-                arrow_index = 2 + 2 * condition_index
-                fallback_xpath = f"(//div[contains(@class,'mat-select-arrow-wrapper')])[{arrow_index}]"
-                LOGGER.info(f"🔄 尝试备用XPath: {fallback_xpath}")
-                
-                if not self._scroll_and_click(
-                    By.XPATH,
-                    fallback_xpath,
-                    f"Eng ID箭头[{arrow_index}]（备用方法）",
-                ):
-                    LOGGER.error("❌ 未找到Eng ID下拉框（所有方法均失败）")
-                    self._diagnose_flow_page(condition_index)
+            if len(operation_headers) <= condition_index:
+                LOGGER.error(f"❌ 只找到 {len(operation_headers)} 个Operation抬头行，但需要访问第 {condition_index + 1} 个")
+                # 尝试再等待一次
+                LOGGER.info("等待2秒后重试...")
+                time.sleep(2.0)
+                operation_headers = self._find_operation_headers(scroll_to_bottom=True)
+                if len(operation_headers) <= condition_index:
+                    LOGGER.error(f"❌ 重试后仍然只有 {len(operation_headers)} 个抬头行")
                     return False
+                else:
+                    LOGGER.info(f"✅ 重试成功，现在有 {len(operation_headers)} 个抬头行")
             
-            # **关键验证：点击后检查打开的overlay是否是"All Units"**
-            time.sleep(0.5)  # 等待overlay打开
+            # 2. 获取目标抬头行
+            header = operation_headers[condition_index]
+            header_text = ""
             try:
-                # 检查是否有"All Units"的overlay打开了
+                header_text = header.text[:100]
+            except:
+                pass
+            LOGGER.info(f"✅ 定位到第 {condition_index + 1} 个Operation抬头行")
+            LOGGER.info(f"   抬头行内容: {header_text}")
+            
+            # 3. 滚动到抬头行可见（在Flow容器内滚动）
+            try:
+                # 先找到Flow容器
+                flow_container = self._driver.find_element(By.XPATH, "//mat-drawer-content | //div[contains(@class,'drawer-content')] | //div[contains(@class,'mat-tab-body-active')]")
+                # 获取抬头行在容器中的位置
+                header_location = header.location
+                # 滚动到抬头行位置
+                target_scroll = header_location['y'] - 200  # 上方留200px余量
+                self._driver.execute_script(f"arguments[0].scrollTop = {target_scroll};", flow_container)
+                LOGGER.info(f"✅ 已在Flow容器内滚动到抬头行位置（scrollTop={target_scroll}）")
+            except:
+                # 如果容器滚动失败，使用元素自身的scrollIntoView
+                self._driver.execute_script(
+                    "arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});",
+                    header
+                )
+                LOGGER.info("✅ 已使用scrollIntoView滚动到抬头行")
+            
+            time.sleep(0.5)
+            
+            # 4. 在该抬头行内找第2个mat-select-arrow（Eng ID）
+            arrows = header.find_elements(By.CSS_SELECTOR, "div.mat-select-arrow")
+            LOGGER.info(f"在抬头行内找到 {len(arrows)} 个mat-select-arrow")
+            
+            if len(arrows) < 2:
+                LOGGER.error(f"❌ 抬头行内只找到 {len(arrows)} 个箭头，需要至少2个")
+                return False
+            
+            eng_id_arrow = arrows[1]
+            LOGGER.info("✅ 找到Eng ID箭头（第2个），准备点击")
+            
+            # 5. 点击Eng ID箭头
+            try:
+                eng_id_arrow.click()
+                LOGGER.info("✅ 已点击Eng ID箭头（普通点击）")
+            except:
+                self._driver.execute_script("arguments[0].click();", eng_id_arrow)
+                LOGGER.info("✅ 已点击Eng ID箭头（JavaScript点击）")
+            
+            time.sleep(0.5)
+            
+            # 6. 检查是否误点了"All Units"
+            try:
                 all_units_overlays = self._driver.find_elements(
                     By.XPATH,
                     "//div[contains(@class,'cdk-overlay-pane')]//span[contains(text(),'All Units')]"
                 )
                 if all_units_overlays:
-                    LOGGER.warning("⚠️ 检测到误点击了'All Units'下拉框，正在关闭并重新点击正确的Eng ID...")
-                    # 关闭"All Units"的overlay
+                    LOGGER.warning("⚠️ 检测到误点击了'All Units'，关闭并重新点击Eng ID...")
                     self._driver.find_element(By.TAG_NAME, "body").send_keys(Keys.ESCAPE)
                     time.sleep(0.5)
-                    
-                    # 重新点击正确的Eng ID trigger（确保在condition容器内）
-                    LOGGER.info("重新点击正确的Eng ID trigger...")
-                    trigger_element = self._driver.find_element(By.XPATH, eng_id_trigger_xpath)
-                    self._driver.execute_script(
-                        "arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});",
-                        trigger_element
-                    )
-                    time.sleep(0.3)
-                    trigger_element.click()
-                    time.sleep(0.5)
-                    LOGGER.info("✅ 已重新点击正确的Eng ID trigger")
-            except:
-                pass  # 如果没有"All Units"的overlay，说明点击正确
-            
-            # **3. 等待下拉选项面板出现（确保不是"All Units"的overlay）**
-            LOGGER.info("等待Eng ID选项面板出现...")
-            time.sleep(1.0)
-            
-            # 确认overlay已打开，但排除"All Units"相关的overlay
-            max_retries = 3
-            overlay_found = False
-            for retry in range(max_retries):
-                try:
-                    # 检查是否有overlay出现
-                    all_overlays = self._driver.find_elements(By.XPATH, "//div[contains(@class,'cdk-overlay-pane')]//mat-option")
-                    if not all_overlays:
-                        time.sleep(0.5)
-                        continue
-                    
-                    # 检查是否有"All Units"的overlay
-                    has_all_units = False
-                    for overlay in self._driver.find_elements(By.XPATH, "//div[contains(@class,'cdk-overlay-pane')]"):
-                        if overlay.find_elements(By.XPATH, ".//span[contains(text(),'All Units')]"):
-                            has_all_units = True
-                            break
-                    
-                    if has_all_units:
-                        LOGGER.warning(f"⚠️ 第{retry+1}次检测：发现'All Units'的overlay，关闭并重新点击Eng ID...")
-                        self._driver.find_element(By.TAG_NAME, "body").send_keys(Keys.ESCAPE)
-                        time.sleep(0.5)
-                        # 重新点击Eng ID trigger
-                        trigger_element = self._driver.find_element(By.XPATH, eng_id_trigger_xpath)
-                        self._driver.execute_script(
-                            "arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});",
-                            trigger_element
-                        )
-                        time.sleep(0.3)
-                        trigger_element.click()
-                        time.sleep(0.5)
-                        continue
-                    
-                    # 找到了非"All Units"的overlay
-                    overlay_found = True
-                    LOGGER.info("✅ Eng ID选项面板已打开（非'All Units'）")
-                    break
-                except:
-                    time.sleep(0.5)
-                    continue
-            
-            if not overlay_found:
-                LOGGER.error("❌ Eng ID选项面板未出现（或始终是'All Units'）")
-                return False
-            
-            time.sleep(0.3)
-            
-            # **4. 查找并点击对应的Eng ID选项（排除"All Units"等干扰选项）**
-            option_clicked = False
-            
-            # 方法1: 通过overlay中的mat-option的span文本精确匹配
-            # 但排除"All Units"、"Good Units"、"Rejected Units"
-            excluded_texts = ["All Units", "Good Units", "Rejected Units"]
-            try:
-                # 先找到所有overlay pane
-                all_overlays = self._driver.find_elements(By.XPATH, "//div[contains(@class,'cdk-overlay-pane')]")
-                LOGGER.info(f"找到 {len(all_overlays)} 个overlay pane")
-                
-                # 查找目标选项，但排除"All Units"相关的overlay
-                for overlay in all_overlays:
+                    # 重新点击Eng ID箭头
                     try:
-                        # 检查这个overlay是否包含"All Units"等选项
-                        has_all_units = False
-                        for excluded in excluded_texts:
-                            if overlay.find_elements(By.XPATH, f".//span[contains(text(),'{excluded}')]"):
-                                has_all_units = True
-                                LOGGER.debug(f"跳过包含'{excluded}'的overlay")
-                                break
-                        
-                        if has_all_units:
-                            continue  # 跳过"All Units"的overlay
-                        
-                        # 在这个overlay中查找目标Eng ID
-                        option = overlay.find_element(
-                            By.XPATH,
-                            f".//mat-option//span[normalize-space()='{eng_id}']"
-                        )
-                        if option and option.is_displayed():
-                            option.click()
-                            option_clicked = True
-                            LOGGER.info(f"✅ 已选择Eng ID: {eng_id}（精确匹配）")
-                            break
+                        eng_id_arrow.click()
                     except:
-                        continue
-                
-                if not option_clicked:
-                    LOGGER.debug("方法1失败：在所有非'All Units'的overlay中未找到精确匹配")
+                        self._driver.execute_script("arguments[0].click();", eng_id_arrow)
+                    time.sleep(0.5)
+                    LOGGER.info("✅ 已重新点击Eng ID箭头")
             except Exception as e:
-                LOGGER.debug(f"方法1失败: {e}")
+                LOGGER.debug(f"检查'All Units'时出错（可能正常）: {e}")
+                pass
             
-            # 方法2: 遍历overlay中的所有mat-option查找匹配项（排除"All Units"相关）
-            if not option_clicked:
-                LOGGER.info("方法1失败，尝试遍历所有可见选项（排除'All Units'）...")
-                try:
-                    # 只查找overlay中的选项，但排除"All Units"相关的overlay
-                    excluded_texts = ["All Units", "Good Units", "Rejected Units"]
-                    all_overlays = self._driver.find_elements(By.XPATH, "//div[contains(@class,'cdk-overlay-pane')]")
-                    
-                    for overlay in all_overlays:
-                        try:
-                            # 检查这个overlay是否包含"All Units"等选项
-                            has_all_units = False
-                            for excluded in excluded_texts:
-                                if overlay.find_elements(By.XPATH, f".//span[contains(text(),'{excluded}')]"):
-                                    has_all_units = True
-                                    break
-                            
-                            if has_all_units:
-                                continue  # 跳过"All Units"的overlay
-                            
-                            # 在这个overlay中查找所有选项
-                            options = overlay.find_elements(By.XPATH, ".//mat-option")
-                            LOGGER.info(f"在非'All Units'的overlay中找到 {len(options)} 个选项")
-                            
-                            for idx, opt in enumerate(options):
-                                try:
-                                    opt_text = opt.text.strip()
-                                    if not opt_text:
-                                        continue
-                                    
-                                    # 排除"All Units"相关选项
-                                    if any(excluded in opt_text for excluded in excluded_texts):
-                                        continue
-                                    
-                                    # 只记录前5个选项避免日志过多
-                                    if idx < 5:
-                                        LOGGER.debug(f"  选项 {idx+1}: '{opt_text}'")
-                                    
-                                    # 精确匹配或包含匹配
-                                    if opt_text == eng_id or eng_id in opt_text:
-                                        if opt.is_displayed():
-                                            opt.click()
-                                            option_clicked = True
-                                            LOGGER.info(f"✅ 已选择Eng ID: {opt_text}（遍历匹配）")
-                                            break
-                                except Exception as e:
-                                    LOGGER.debug(f"处理选项{idx}时出错: {e}")
-                                    continue
-                            
-                            if option_clicked:
-                                break
-                        except:
-                            continue
-                except Exception as e:
-                    LOGGER.debug(f"方法2失败: {e}")
-            
-            if not option_clicked:
-                LOGGER.error(f"❌ 未找到Eng ID选项: {eng_id}")
-                self._diagnose_flow_page(condition_index)
+            # 7. 在下拉面板中选择选项（排除"All Units"）
+            if not self._select_mat_option_by_text(eng_id):
+                LOGGER.error(f"❌ 选择Eng ID选项失败: {eng_id}")
                 return False
             
-            # 等待选择生效并关闭下拉框
-            time.sleep(0.5)
-            LOGGER.info("✅ Eng ID选择完成")
+            LOGGER.info(f"✅✅✅ 已成功选择Eng ID: {eng_id} (第 {condition_index + 1} 个区块)")
             return True
             
         except Exception as e:
-            LOGGER.error(f"选择Eng ID失败: {e}")
+            LOGGER.error(f"❌ 选择Eng ID失败: {e}")
             import traceback
             LOGGER.error(traceback.format_exc())
-            self._diagnose_flow_page(condition_index)
             return False
 
     def _click_add_new_condition(self) -> bool:
         """
-        点击Flow页面中的“Add new condition”
+        点击最后一个Operation区块内的"Add new condition"按钮
         
         Returns:
             True如果点击成功
         """
-        LOGGER.info("查找并点击'Add new condition'...")
+        LOGGER.info("查找并点击最后一个Operation区块的'Add new condition'...")
         
         try:
             time.sleep(1.0)
             
-            # 方法1: 使用ID=addNewCondition（你提供的更稳定的写法）
+            # 1. 查找所有Operation抬头行（不滚动，使用当前状态）
+            operation_headers = self._find_operation_headers(scroll_to_bottom=False)
+            
+            if not operation_headers:
+                LOGGER.error("❌ 未找到任何Operation抬头行")
+                return False
+            
+            current_count = len(operation_headers)
+            LOGGER.info(f"✅ 当前有 {current_count} 个Operation抬头行")
+            
+            # 2. 获取最后一个Operation抬头行
+            last_header = operation_headers[-1]
+            LOGGER.info(f"✅ 定位到最后一个Operation抬头行（第 {current_count} 个）")
+            
+            # 3. 滚动到最后一个抬头行，确保其下方的按钮也可见
+            self._driver.execute_script(
+                "arguments[0].scrollIntoView({block: 'end', inline: 'nearest'});",
+                last_header
+            )
+            time.sleep(0.5)
+            
+            # 4. 查找"Add new condition"按钮（多种方法，优先全局最后一个）
+            add_btn = None
+            
+            # 方法1: 全局查找所有"Add new condition"，取最后一个可见的（最简单可靠）
             try:
-                add_btn = WebDriverWait(self._driver, 10).until(
-                    EC.presence_of_element_located((By.ID, "addNewCondition"))
+                all_add_btns = self._driver.find_elements(
+                    By.XPATH,
+                    "//span[contains(text(),'Add new condition') or contains(@class,'add-text')]"
                 )
-                LOGGER.info("方法1通过ID=addNewCondition找到'Add new condition'")
-                
-                # 滚动到可视区域中间（实际会滚动包含它的容器，如mat-drawer-content）
+                LOGGER.info(f"找到 {len(all_add_btns)} 个'Add new condition'按钮")
+                # 取最后一个可见的按钮
+                for btn in reversed(all_add_btns):
+                    try:
+                        if btn.is_displayed():
+                            add_btn = btn
+                            LOGGER.info("✅ 方法1找到'Add new condition'按钮（全局查找，取最后一个可见）")
+                            break
+                    except:
+                        continue
+            except Exception as e:
+                LOGGER.debug(f"方法1失败: {e}")
+            
+            # 方法2: 通过ID查找
+            if not add_btn:
                 try:
-                    self._driver.execute_script(
-                        "arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});",
-                        add_btn,
-                    )
-                    time.sleep(0.3)
-                except Exception as e:
-                    LOGGER.debug(f"scrollIntoView(addNewCondition) 失败: {e}")
-                
-                # 再等一次可点击并点击
-                add_btn = WebDriverWait(self._driver, 10).until(
-                    EC.element_to_be_clickable((By.ID, "addNewCondition"))
-                )
+                    add_btn = self._driver.find_element(By.ID, "addNewCondition")
+                    if add_btn.is_displayed():
+                        LOGGER.info("✅ 方法2找到'Add new condition'按钮（通过ID）")
+                except:
+                    LOGGER.debug("方法2失败：未找到ID=addNewCondition")
+            
+            if not add_btn:
+                LOGGER.error("❌ 所有方法都未找到'Add new condition'按钮")
+                return False
+            
+            # 5. 滚动到按钮可见
+            self._driver.execute_script(
+                "arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});",
+                add_btn
+            )
+            time.sleep(0.5)
+            
+            # 6. 点击按钮
+            try:
                 add_btn.click()
-                LOGGER.info("✅ 已点击'Add new condition'（通过ID）")
-                # 等待新的condition DOM完全渲染
-                time.sleep(2.0)
+                LOGGER.info("✅ 已点击'Add new condition'按钮（普通点击）")
+            except:
+                try:
+                    # 使用JavaScript点击
+                    self._driver.execute_script("arguments[0].click();", add_btn)
+                    LOGGER.info("✅ 已点击'Add new condition'按钮（JavaScript点击）")
+                except Exception as e:
+                    LOGGER.error(f"❌ 点击按钮失败: {e}")
+                    return False
+            
+            # 7. 等待新的Operation区块DOM完全渲染（增加等待时间）
+            LOGGER.info("等待新区块渲染...")
+            time.sleep(3.0)  # 增加到3秒
+            
+            # 8. 滚动到页面底部，确保新区块完全加载
+            try:
+                flow_container = self._driver.find_element(By.XPATH, "//mat-drawer-content | //div[contains(@class,'drawer-content')] | //div[contains(@class,'mat-tab-body-active')]")
+                self._driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight;", flow_container)
+                LOGGER.info("✅ 已滚动到Flow页面底部")
+            except:
+                try:
+                    self._driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                    LOGGER.info("✅ 已滚动到页面底部")
+                except:
+                    LOGGER.debug("滚动失败")
+            
+            time.sleep(1.0)
+            
+            # 9. 验证新区块是否已添加（使用滚动查找）
+            new_headers = self._find_operation_headers(scroll_to_bottom=True)
+            new_count = len(new_headers)
+            LOGGER.info(f"验证新区块：之前有 {current_count} 个，现在有 {new_count} 个")
+            
+            if new_count > current_count:
+                LOGGER.info(f"✅✅✅ 新的Operation区块已成功添加！（从 {current_count} 增加到 {new_count}）")
                 return True
-            except TimeoutException:
-                LOGGER.debug("方法1失败：ID=addNewCondition 未找到或不可点击")
-
-            # 方法2: 使用通用滚动点击逻辑（带class的精确XPath）
-            primary_xpath = "//span[contains(@class,'add-text') and contains(@class,'enabled') and normalize-space()='Add new condition']"
-            if self._scroll_and_click(By.XPATH, primary_xpath, "Add new condition(span.add-text.enabled)", timeout=10):
-                # 等待新的condition DOM完全渲染
+            elif new_count == current_count:
+                LOGGER.warning(f"⚠️ Operation区块数量未增加，但可能DOM还在渲染中，继续尝试...")
+                # 再等待一次并重新查找
                 time.sleep(2.0)
-                return True
-
-            LOGGER.debug("方法2失败：未找到带class的Add new condition，尝试仅按文本查找")
-
-            # 方法3: 仅按文本查找
-            fallback_xpath = "//*[normalize-space(text())='Add new condition']"
-            if self._scroll_and_click(By.XPATH, fallback_xpath, "Add new condition(文本匹配)", timeout=10):
-                # 等待新的condition DOM完全渲染
-                time.sleep(2.0)
-                return True
-
-            LOGGER.error("❌ 未找到'Add new condition'元素")
-            return False
+                retry_headers = self._find_operation_headers(scroll_to_bottom=True)
+                retry_count = len(retry_headers)
+                if retry_count > current_count:
+                    LOGGER.info(f"✅ 第二次检查：新区块已添加（从 {current_count} 增加到 {retry_count}）")
+                    return True
+                else:
+                    LOGGER.error(f"❌ 第二次检查：区块数量仍未增加（{retry_count}）")
+                    return False
+            else:
+                LOGGER.error(f"❌ 区块数量异常减少（从 {current_count} 变为 {new_count}）")
+                return False
         
         except Exception as e:
             LOGGER.error(f"点击'Add new condition'失败: {e}")

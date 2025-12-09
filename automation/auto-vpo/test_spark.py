@@ -1,5 +1,6 @@
-"""Spark自动化测试 - Material、Flow和More options标签"""
+"""Spark自动化测试 - Material、Flow和More options标签（支持多condition）"""
 import sys
+import time
 from pathlib import Path
 import pandas as pd
 
@@ -42,12 +43,12 @@ def main():
     first_operation = first_row['Operation']
     first_eng_id = first_row['Eng ID']
 
-    # 读取More options字段（按Lot第一行）
+    # 读取More options字段（使用第一行）
     first_unit_test_time = first_row['Unit test time']
     first_retest_rate = first_row['Retest rate']
     first_hri_mrv = first_row['HRI / MRV:'] if 'HRI / MRV:' in lot_group.columns else None
 
-    # 其余行用于Add new condition
+    # 其余行用于Add new condition（如果存在多个operation行）
     additional_conditions = lot_group.iloc[1:]
 
     submitter = SparkSubmitter(config.spark)
@@ -128,36 +129,40 @@ def main():
             return
         print("✅\n")
 
-        # 如果同一个Lot还有更多行，则为每一行添加一个新的condition
+        # 如果同一个SourceLot还有更多行（多个Operation），则为每一行添加一个新的condition
         if not additional_conditions.empty:
-            print(f"11+. 为Lot {first_lot} 添加 {len(additional_conditions)} 个额外Flow condition...\n")
+            print(f"检测到同一SourceLot有 {len(additional_conditions)} 个额外的Operation行，开始添加新的condition...\n")
+            
+            # 遍历剩余的每一行，为每行添加一个新的condition
+            for i, (_, row) in enumerate(additional_conditions.iterrows(), start=1):
+                condition_index = i  # 第2个condition是i=1，第3个是i=2...
+                op = str(row['Operation'])
+                eng = str(row['Eng ID'])
 
-        # ⚠️ 关键修复：使用enumerate而不是iterrows的idx，确保condition_index从1开始连续
-        for i, (_, row) in enumerate(additional_conditions.iterrows(), start=1):
-            condition_index = i  # 第2个condition是i=1，第3个是i=2...
-            op = str(row['Operation'])
-            eng = str(row['Eng ID'])
+                print(f"11.{i} 点击Add new condition（添加第{condition_index + 1}个condition）...")
+                if not submitter._click_add_new_condition():
+                    print("❌ 失败\n")
+                    input()
+                    return
+                print("✅\n")
+                
+                # 等待新condition的DOM完全渲染（增加等待时间）
+                print(f"等待新区块渲染...")
+                time.sleep(2.0)
 
-            print(f"11.{i} 点击Add new condition（添加第{condition_index + 1}个condition）...")
-            if not submitter._click_add_new_condition():
-                print("❌ 失败\n")
-                input()
-                return
-            print("✅\n")
+                print(f"11.{i} 选择Operation（第{condition_index + 1}个condition，值={op}）...")
+                if not submitter._select_operation(op, condition_index=condition_index):
+                    print("❌ 失败\n")
+                    input()
+                    return
+                print("✅\n")
 
-            print(f"11.{i} 选择Operation（第{condition_index + 1}个condition，值={op}）...")
-            if not submitter._select_operation(op, condition_index=condition_index):
-                print("❌ 失败\n")
-                input()
-                return
-            print("✅\n")
-
-            print(f"11.{i} 选择Eng ID（第{condition_index + 1}个condition，值={eng}）...")
-            if not submitter._select_eng_id(eng, condition_index=condition_index):
-                print("❌ 失败\n")
-                input()
-                return
-            print("✅\n")
+                print(f"11.{i} 选择Eng ID（第{condition_index + 1}个condition，值={eng}）...")
+                if not submitter._select_eng_id(eng, condition_index=condition_index):
+                    print("❌ 失败\n")
+                    input()
+                    return
+                print("✅\n")
         
         print("12. 点击More options标签...")
         if not submitter._click_more_options_tab():
@@ -181,12 +186,16 @@ def main():
         print("✅ 所有标签填写完成！")
         print("=" * 60)
         print(f"Material: Lot={first_lot}, PartType={first_part_type}")
-        print(f"Flow: 第1个condition Operation={first_operation}, EngID={first_eng_id}")
+        print(f"Flow condition 1: Operation={first_operation}, EngID={first_eng_id}")
+        
+        # 显示所有额外的condition
         if not additional_conditions.empty:
-            for idx, row in additional_conditions.iterrows():
-                cond_no = idx + 2
-                print(f"      第{cond_no}个condition Operation={row['Operation']}, EngID={row['Eng ID']}")
+            for i, (_, row) in enumerate(additional_conditions.iterrows(), start=1):
+                cond_no = i + 1  # 第2个condition开始（i=1时，cond_no=2）
+                print(f"Flow condition {cond_no}: Operation={row['Operation']}, EngID={row['Eng ID']}")
+        
         print(f"More options: UnitTestTime={first_unit_test_time}, RetestRate={first_retest_rate}, HRI/MRV={first_hri_mrv or 'default'}")
+        print(f"\n总共填写了 {1 + len(additional_conditions)} 个Flow condition")
         print("\n按Enter关闭浏览器...")
         input()
         
