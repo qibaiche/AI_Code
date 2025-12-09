@@ -5,9 +5,10 @@
 基于SIO_BSCAN_PCD_4JMP表，使用Test_Type和Configuration去匹配Leakage_LIMIT_COLD表，生成新表
 """
 
-import pandas as pd
-import os
 from datetime import datetime
+from pathlib import Path
+
+import pandas as pd
 
 def merge_tables():
     """合并两个表格的主函数"""
@@ -16,19 +17,20 @@ def merge_tables():
     print("基于SIO_BSCAN_PCD_4JMP表，使用Test_Type和Configuration匹配Leakage_LIMIT_COLD表\n")
     
     # 定义文件路径
-    base_dir = "CONJUCTION WITH TEST INSTANCE"
-    sio_file = os.path.join(base_dir, "SIO_BSCAN_PCD_4JMP.xlsx")
-    leakage_file = os.path.join(base_dir, "Leakage_LIMIT_COLD.xlsx")
+    repo_root = Path(__file__).resolve().parents[2]
+    base_dir = repo_root / "data" / "leakage-conjunction"
+    sio_file = base_dir / "SIO_BSCAN_PCD_4JMP.xlsx"
+    leakage_file = base_dir / "Leakage_LIMIT_COLD.xlsx"
     
     # 检查文件是否存在
-    if not os.path.exists(sio_file):
+    if not sio_file.exists():
         print(f"❌ 文件不存在: {sio_file}")
-        print(f"当前目录: {os.getcwd()}")
+        print(f"当前目录: {Path.cwd()}")
         return False
-    
-    if not os.path.exists(leakage_file):
+
+    if not leakage_file.exists():
         print(f"❌ 文件不存在: {leakage_file}")
-        print(f"当前目录: {os.getcwd()}")
+        print(f"当前目录: {Path.cwd()}")
         return False
     
     try:
