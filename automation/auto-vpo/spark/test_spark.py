@@ -1,209 +1,273 @@
-"""Spark自动化测试 - Material、Flow和More options标签（支持多condition）"""
+"""Spark自动化测试 - Material和Flow标签"""
 import sys
 import time
 from pathlib import Path
 import pandas as pd
 
-# 添加父目录到路径
+# 添加父目录到路径（workflow_automation在父目录）
 current_dir = Path(__file__).parent
-sys.path.insert(0, str(current_dir))
+parent_dir = current_dir.parent  # automation/auto-vpo/
+sys.path.insert(0, str(parent_dir))
 
 from workflow_automation.config_loader import load_config
 from workflow_automation.spark_submitter import SparkSubmitter
 
 def main():
-    print("=" * 60)
-    print("Spark自动化 - Material、Flow和More options标签")
-    print("=" * 60)
+    print("=" * 80)
+    print("🚀 Spark 自动化工具")
+    print("=" * 80)
+    print()
     
-    config_path = current_dir / "workflow_automation" / "config.yaml"
+    # 加载配置
+    config_path = parent_dir / "workflow_automation" / "config.yaml"
+    
+    # 检查配置文件是否存在
+    if not config_path.exists():
+        print("❌ 错误：配置文件不存在！")
+        print(f"   预期位置：{config_path}")
+        print()
+        print("💡 解决方法：")
+        print("   1. 确认文件路径是否正确")
+        print("   2. 查看 README.md 了解配置方法")
+        input("\n按 Enter 键退出...")
+        return
+    
     config = load_config(config_path)
     
-    # 读取MIR结果
-    mir_files = list(current_dir.glob("MIR_Results_*.csv"))
+    # 显示当前配置
+    print("📋 当前配置：")
+    print(f"   TP路径: {config.paths.tp_path}")
+    print(f"   VPO类别: {config.spark.vpo_category}")
+    print(f"   Step: {config.spark.step}")
+    print(f"   Tags: {config.spark.tags}")
+    print()
+    
+    # 提示用户确认
+    print("⚠️  请确认以上配置是否正确")
+    print("   如需修改，请编辑：workflow_automation/config.yaml")
+    print("   详细说明请查看：spark/README.md")
+    print()
+    
+    # 读取MIR结果（在多个位置查找）
+    print("🔍 查找 MIR 结果文件...")
+    mir_files = []
+    
+    search_locations = [
+        (current_dir, "当前目录 (spark/)"),
+        (parent_dir, "父目录 (auto-vpo/)"),
+    ]
+    
+    mole_dir = parent_dir / "mole"
+    if mole_dir.exists():
+        search_locations.append((mole_dir, "mole目录"))
+    
+    for location, description in search_locations:
+        files = list(location.glob("MIR_Results_*.csv"))
+        if files:
+            print(f"   ✅ 在 {description} 找到 {len(files)} 个文件")
+        mir_files.extend(files)
+    
     if not mir_files:
-        print("❌ 未找到MIR结果文件")
-        input()
+        print()
+        print("❌ 错误：未找到 MIR 结果文件！")
+        print()
+        print("📁 已搜索以下位置：")
+        for location, description in search_locations:
+            print(f"   - {location}")
+        print()
+        print("💡 解决方法：")
+        print("   1. 确认文件名格式为：MIR_Results_*.csv")
+        print("   2. 将文件放在以上任一目录")
+        print("   3. 查看 README.md 了解详细说明")
+        input("\n按 Enter 键退出...")
         return
     
-    df = pd.read_csv(sorted(mir_files, reverse=True)[0])
+    # 使用最新的文件
+    selected_file = sorted(mir_files, reverse=True)[0]
+    print(f"   📄 使用文件：{selected_file.name}")
+    print()
+    
+    df = pd.read_csv(selected_file)
     if df.empty:
-        print("❌ MIR结果文件为空")
-        input()
+        print("❌ 错误：MIR 结果文件为空！")
+        print(f"   文件：{selected_file}")
+        print()
+        print("💡 解决方法：")
+        print("   1. 检查文件是否损坏")
+        print("   2. 重新生成 MIR 结果文件")
+        input("\n按 Enter 键退出...")
         return
+    
+    print(f"✅ 成功读取 MIR 数据：{len(df)} 行")
+    print()
 
-    # 使用第一个SourceLot对应的所有行，支持同一个Lot多个Operation/EngID
+    # 使用第一个SourceLot的第一行（不再考虑多个Operation的情形）
     first_lot_value = df['SourceLot'].iloc[0]
-    lot_group = df[df['SourceLot'] == first_lot_value].reset_index(drop=True)
-
-    # 第一行用于Material + Flow第一个condition + More options
-    first_row = lot_group.iloc[0]
+    first_row = df[df['SourceLot'] == first_lot_value].iloc[0]
+    
     first_lot = first_row['SourceLot']
     first_part_type = first_row['Part Type']
     first_operation = first_row['Operation']
     first_eng_id = first_row['Eng ID']
-
-    # 读取More options字段（使用第一行）
-    first_unit_test_time = first_row['Unit test time']
-    first_retest_rate = first_row['Retest rate']
-    first_hri_mrv = first_row['HRI / MRV:'] if 'HRI / MRV:' in lot_group.columns else None
-
-    # 其余行用于Add new condition（如果存在多个operation行）
-    additional_conditions = lot_group.iloc[1:]
+    
+    # 读取More options字段（如果存在）
+    unit_test_time = first_row.get('Unit test time', None)
+    retest_rate = first_row.get('Retest rate', None)
+    hri_mrv = first_row.get('HRI / MRV:', None)
+    
+    # 处理空值并转换为字符串（处理numpy.int64等类型）
+    if pd.isna(unit_test_time) or str(unit_test_time).strip() == '':
+        unit_test_time = None
+    else:
+        unit_test_time = str(unit_test_time).strip()
+    
+    if pd.isna(retest_rate) or str(retest_rate).strip() == '':
+        retest_rate = None
+    else:
+        retest_rate = str(retest_rate).strip()
+    
+    if pd.isna(hri_mrv) or str(hri_mrv).strip() == '':
+        hri_mrv = None
+    else:
+        hri_mrv = str(hri_mrv).strip()
 
     submitter = SparkSubmitter(config.spark)
     
     try:
-        print("1. 打开网页...")
+        print("=" * 80)
+        print("开始自动化流程...")
+        print("=" * 80)
+        print()
+        
+        print("步骤 1/13: 打开网页...")
         submitter._init_driver()
         submitter._navigate_to_page()
-        print("✅\n")
-        
-        print("2. 点击Add New...")
+        print("✅ 完成\n")
+                
+        print("步骤 2/13: 点击Add New...")
         if not submitter._click_add_new_button():
             print("❌ 失败\n")
-            input()
+            input("\n按 Enter 键退出...")
             return
-        print("✅\n")
+        print("✅ 完成\n")
         
-        print("3. 填写TP路径...")
+        print("步骤 3/13: 填写TP路径...")
         if not submitter._fill_test_program_path(config.paths.tp_path):
             print("❌ 失败\n")
-            input()
+            input("\n按 Enter 键退出...")
             return
-        print("✅\n")
+        print("✅ 完成\n")
         
-        print("4. Add New Experiment...")
+        print("步骤 4/13: Add New Experiment...")
         if not submitter._click_add_new_experiment():
             print("❌ 失败\n")
-            input()
+            input("\n按 Enter 键退出...")
             return
-        print("✅\n")
+        print("✅ 完成\n")
         
-        print("5. 选择VPO类别...")
+        print("步骤 5/13: 选择VPO类别...")
         if not submitter._select_vpo_category(config.spark.vpo_category):
             print("❌ 失败\n")
-            input()
+            input("\n按 Enter 键退出...")
             return
-        print("✅\n")
+        print("✅ 完成\n")
         
-        print("6. 填写实验信息...")
+        print("步骤 6/13: 填写实验信息...")
         if not submitter._fill_experiment_info(config.spark.step, config.spark.tags):
             print("❌ 失败\n")
-            input()
+            input("\n按 Enter 键退出...")
             return
-        print("✅\n")
+        print("✅ 完成\n")
         
-        print("7. 添加Lot name...")
+        print("步骤 7/13: 添加Lot name...")
         if not submitter._add_lot_name(str(first_lot)):
             print("❌ 失败\n")
-            input()
+            input("\n按 Enter 键退出...")
             return
-        print("✅\n")
+        print("✅ 完成\n")
         
-        print("8. 选择Part Type...")
+        print("步骤 8/13: 选择Part Type...")
         if not submitter._select_parttype(str(first_part_type)):
             print("❌ 失败\n")
-            input()
+            input("\n按 Enter 键退出...")
             return
-        print("✅\n")
+        print("✅ 完成\n")
         
-        print("9. 点击Flow标签...")
+        print("步骤 9/13: 点击Flow标签...")
         if not submitter._click_flow_tab():
             print("❌ 失败\n")
-            input()
+            input("\n按 Enter 键退出...")
             return
-        print("✅\n")
+        print("✅ 完成\n")
         
-        print("10. 选择Operation（第1个condition）...")
-        if not submitter._select_operation(str(first_operation), condition_index=0):
+        print("步骤 10/13: 选择Operation...")
+        if not submitter._select_operation(str(first_operation)):
             print("❌ 失败\n")
-            input()
+            input("\n按 Enter 键退出...")
             return
-        print("✅\n")
+        print("✅ 完成\n")
         
-        print("11. 选择Eng ID（第1个condition）...")
-        if not submitter._select_eng_id(str(first_eng_id), condition_index=0):
+        print("步骤 11/13: 选择Eng ID...")
+        if not submitter._select_eng_id(str(first_eng_id)):
             print("❌ 失败\n")
-            input()
+            input("\n按 Enter 键退出...")
             return
-        print("✅\n")
-
-        # 如果同一个SourceLot还有更多行（多个Operation），则为每一行添加一个新的condition
-        if not additional_conditions.empty:
-            print(f"检测到同一SourceLot有 {len(additional_conditions)} 个额外的Operation行，开始添加新的condition...\n")
-            
-            # 遍历剩余的每一行，为每行添加一个新的condition
-            for i, (_, row) in enumerate(additional_conditions.iterrows(), start=1):
-                condition_index = i  # 第2个condition是i=1，第3个是i=2...
-                op = str(row['Operation'])
-                eng = str(row['Eng ID'])
-
-                print(f"11.{i} 点击Add new condition（添加第{condition_index + 1}个condition）...")
-                if not submitter._click_add_new_condition():
-                    print("❌ 失败\n")
-                    input()
-                    return
-                print("✅\n")
-                
-                # 等待新condition的DOM完全渲染（增加等待时间）
-                print(f"等待新区块渲染...")
-                time.sleep(2.0)
-
-                print(f"11.{i} 选择Operation（第{condition_index + 1}个condition，值={op}）...")
-                if not submitter._select_operation(op, condition_index=condition_index):
-                    print("❌ 失败\n")
-                    input()
-                    return
-                print("✅\n")
-
-                print(f"11.{i} 选择Eng ID（第{condition_index + 1}个condition，值={eng}）...")
-                if not submitter._select_eng_id(eng, condition_index=condition_index):
-                    print("❌ 失败\n")
-                    input()
-                    return
-                print("✅\n")
+        print("✅ 完成\n")
         
-        print("12. 点击More options标签...")
+        print("步骤 12/13: 点击More options标签...")
         if not submitter._click_more_options_tab():
             print("❌ 失败\n")
-            input()
+            input("\n按 Enter 键退出...")
             return
-        print("✅\n")
+        print("✅ 完成\n")
         
-        print("13. 填写More options...")
-        if not submitter._fill_more_options(
-            str(first_unit_test_time),
-            str(first_retest_rate),
-            str(first_hri_mrv) if first_hri_mrv and pd.notna(first_hri_mrv) else None
-        ):
+        print("步骤 13/13: 填写More options字段...")
+        if not submitter._fill_more_options(unit_test_time, retest_rate, hri_mrv):
             print("❌ 失败\n")
-            input()
+            input("\n按 Enter 键退出...")
             return
-        print("✅\n")
+        print("✅ 完成\n")
         
-        print("=" * 60)
-        print("✅ 所有标签填写完成！")
-        print("=" * 60)
-        print(f"Material: Lot={first_lot}, PartType={first_part_type}")
-        print(f"Flow condition 1: Operation={first_operation}, EngID={first_eng_id}")
-        
-        # 显示所有额外的condition
-        if not additional_conditions.empty:
-            for i, (_, row) in enumerate(additional_conditions.iterrows(), start=1):
-                cond_no = i + 1  # 第2个condition开始（i=1时，cond_no=2）
-                print(f"Flow condition {cond_no}: Operation={row['Operation']}, EngID={row['Eng ID']}")
-        
-        print(f"More options: UnitTestTime={first_unit_test_time}, RetestRate={first_retest_rate}, HRI/MRV={first_hri_mrv or 'default'}")
-        print(f"\n总共填写了 {1 + len(additional_conditions)} 个Flow condition")
-        print("\n按Enter关闭浏览器...")
-        input()
-        
+        print()
+        print("=" * 80)
+        print("🎉 所有步骤完成！")
+        print("=" * 80)
+        print()
+        print("📊 填写摘要：")
+        print(f"   Material:")
+        print(f"      - Lot: {first_lot}")
+        print(f"      - Part Type: {first_part_type}")
+        print(f"   Flow:")
+        print(f"      - Operation: {first_operation}")
+        print(f"      - Eng ID: {first_eng_id}")
+        print(f"   More options:")
+        print(f"      - Unit test time: {unit_test_time or '(未填写)'}")
+        print(f"      - Retest rate: {retest_rate or '(未填写)'}")
+        print(f"      - HRI / MRV: {hri_mrv or 'DEFAULT'}")
+        print()
+        print("=" * 80)
+        print("✅ 自动化流程执行成功！")
+        print("   请在浏览器中检查填写结果")
+        print("=" * 80)
+        print()
+        input("按 Enter 键关闭浏览器...")
+                
     except Exception as e:
-        print(f"❌ 错误: {e}")
+        print()
+        print("=" * 80)
+        print("❌ 执行过程中发生错误")
+        print("=" * 80)
+        print(f"错误信息: {e}")
+        print()
         import traceback
         traceback.print_exc()
-        input()
+        print()
+        print("💡 建议：")
+        print("   1. 检查配置文件是否正确")
+        print("   2. 查看上方的错误信息")
+        print("   3. 查阅 README.md 获取帮助")
+        print()
+        input("按 Enter 键关闭...")
     finally:
         submitter._close_driver()
 
