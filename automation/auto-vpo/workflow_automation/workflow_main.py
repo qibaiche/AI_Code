@@ -162,7 +162,7 @@ class WorkflowController:
             
             # 生成输出文件名（包含日期和时间）
             date_str = datetime.now().strftime("%Y%m%d_%H%M%S")
-            output_file = source_lot_file_path.parent / f"MIR_Results_{date_str}.csv"
+            output_file = self.config.paths.output_dir / f"MIR_Results_{date_str}.csv"
             
             # 保存到CSV
             result_df.to_csv(output_file, index=False, encoding='utf-8-sig')

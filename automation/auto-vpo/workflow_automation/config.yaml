@@ -11,7 +11,7 @@ paths:
   # 其他路径配置（一般不需要修改）
   input_dir: ".."  # 输入文件目录（Auto VPO根目录）
   source_lot_file: "../Source Lot.csv"  # Source Lot文件路径
-  output_dir: "./reports"  # 输出文件目录
+  output_dir: "../output"  # 输出文件目录
   log_dir: "./logs"  # 日志目录
   spark_config: "../spark_automation_config.yaml"  # Spark自动化配置文件
 

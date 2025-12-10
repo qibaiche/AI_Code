@@ -100,7 +100,7 @@ def load_config(config_path: Path) -> WorkflowConfig:
     
     paths_cfg = PathsConfig(
         input_dir=_ensure_path(paths_section.get("input_dir", ".."), base_dir),
-        output_dir=_ensure_path(paths_section.get("output_dir", "./reports"), base_dir),
+        output_dir=_ensure_path(paths_section.get("output_dir", "../output"), base_dir),
         log_dir=_ensure_path(paths_section.get("log_dir", "./logs"), base_dir),
         source_lot_file=_ensure_path(source_lot_file_path, base_dir) if source_lot_file_path else None,
         file_path_config=_ensure_path(file_path_config, base_dir) if file_path_config else None,
