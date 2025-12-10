@@ -1,14 +1,19 @@
+# ========================================================================
+# 🔧 常用配置 - 请在运行前检查以下配置是否正确
+# ========================================================================
+
+# ⚠️ 重要：Test Program 路径（运行前请确认此路径正确）
+# 格式：使用双反斜杠 \\ 或正斜杠 /
+# 示例：\\\\server\\path\\to\\tp 或 //server/path/to/tp
 paths:
+  tp_path: "\\\\gar.corp.intel.com\\ec\\proj\\mdl\\pg\\intel\\hdmxprogs\\ptl\\PTLP484BXG24J41S547\\POR_TP\\PTL_P_CLASS"
+  
+  # 其他路径配置（一般不需要修改）
   input_dir: ".."  # 输入文件目录（Auto VPO根目录）
-  source_lot_file: "../Source Lot.csv"  # Source Lot文件路径（相对于workflow_automation目录）
+  source_lot_file: "../Source Lot.csv"  # Source Lot文件路径
   output_dir: "./reports"  # 输出文件目录
   log_dir: "./logs"  # 日志目录
-  spark_config: "../spark_automation_config.yaml"  # Spark自动化配置文件（新格式）
-  
-  # 已弃用：file_path_config: "../file path.txt"  # 旧的文本配置文件，已被spark_automation_config.yaml替代
-  
-  # 以下配置从spark_automation_config.yaml读取，此处保留作为默认值
-  tp_path: "\\\\gar.corp.intel.com\\ec\\proj\\mdl\\pg\\intel\\tpvalidation\\hdmxprogs\\ptl\\PTLP484BXG24J4AS544\\POR_TP\\PTL_P_CLASS"  # TP路径
+  spark_config: "../spark_automation_config.yaml"  # Spark自动化配置文件
 
 # Mole工具配置
 mole:
@@ -19,16 +24,23 @@ mole:
   retry_count: 3  # 重试次数
   retry_delay: 2  # 重试延迟（秒）
 
-# Spark网页配置
+# ========================================================================
+# Spark 自动化配置
+# ========================================================================
 spark:
-  url: "https://spark.app.intel.com/dashboard"  # Spark网页URL
-  vpo_category: "correlation"  # VPO类别: correlation, engineering, 或 walk the lot
+  url: "https://spark.app.intel.com/dashboard"
+  
+  # 实验信息配置（根据需要修改）
+  vpo_category: "engineering"  # VPO类别: correlation, engineering, walk the lot
+  step: "B5"  # Step选项: B0, B4, B5, B6等
+  tags: "ECG_24J-DOD"  # Tags标签
+  
+  # 高级配置（一般不需要修改）
   timeout: 60  # 页面加载超时时间（秒）
   retry_count: 3  # 重试次数
   retry_delay: 2  # 重试延迟（秒）
   wait_after_submit: 5  # 提交后等待时间（秒）
-  # Selenium WebDriver配置
-  headless: false  # 是否使用无头模式（false表示显示浏览器）
+  headless: false  # 是否使用无头模式（false=显示浏览器）
   implicit_wait: 10  # 隐式等待时间（秒）
   explicit_wait: 20  # 显式等待时间（秒）
 

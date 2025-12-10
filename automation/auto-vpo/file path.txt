@@ -2,6 +2,7 @@
 
 Spark 网址 https://spark.app.intel.com/dashboard
 
-TP 路径 \\gar.corp.intel.com\ec\proj\mdl\pg\intel\tpvalidation\hdmxprogs\ptl\PTLP484BXG24J4AS544\POR_TP\PTL_P_CLASS
+TP 路径 V Drive: \\\\gar.corp.intel.com\\ec\\proj\\mdl\\pg\\intel\\tpvalidation\\hdmxprogs\\ptl\\PTLP484BXG24J4AS544\\POR_TP\\PTL_P_CLASS
+I Drive: \\\\gar.corp.intel.com\\ec\\proj\\mdl\\pg\\intel\\hdmxprogs\\ptl\\PTLP484BXG24J41S547\\POR_TP\\PTL_P_CLASS
 
 VPO catgory： correlation
