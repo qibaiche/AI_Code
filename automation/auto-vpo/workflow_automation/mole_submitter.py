@@ -2007,19 +2007,27 @@ class MoleSubmitter:
                     if "BUTTON" in class_name.upper():
                         LOGGER.info(f"  扫描到按钮: '{text}' (类名: {class_name})")
                         # 去掉&符号后比较（Windows按钮常用&表示快捷键）
-                        clean_text = text.replace("&", "").upper()
-                        if clean_text == "YES":
-                            yes_button_info["hwnd"] = hwnd_child
-                            yes_button_info["rect"] = win32gui.GetWindowRect(hwnd_child)
-                            LOGGER.info(f"  ✅ 匹配到Yes按钮！原始文本: '{text}'")
-                            return False # 找到了，停止遍历
-                except:
+                        clean_text = text.replace("&", "").strip().upper()
+                        LOGGER.debug(f"    清理后的文本: '{clean_text}'")
+                        # 支持多种Yes按钮文本格式
+                        if clean_text == "YES" or clean_text.startswith("YES") or "YES" in clean_text:
+                            try:
+                                yes_button_info["hwnd"] = hwnd_child
+                                yes_button_info["rect"] = win32gui.GetWindowRect(hwnd_child)
+                                LOGGER.info(f"  ✅ 匹配到Yes按钮！原始文本: '{text}', 清理后: '{clean_text}'")
+                                return False # 找到了，停止遍历
+                            except Exception as e:
+                                LOGGER.warning(f"  获取Yes按钮信息失败: {e}")
+                                # 继续查找其他按钮
+                except Exception as e:
+                    LOGGER.debug(f"  扫描按钮时出错: {e}")
                     pass
                 return True
 
             win32gui.EnumChildWindows(dialog_hwnd, find_yes_button, None)
 
             # 3. 如果找到了Yes按钮，计算中心坐标并点击
+            LOGGER.info(f"按钮查找结果: hwnd={yes_button_info['hwnd']}, rect={yes_button_info['rect']}")
             if yes_button_info["hwnd"] and yes_button_info["rect"]:
                 rect = yes_button_info["rect"]
                 center_x = (rect[0] + rect[2]) // 2
@@ -2029,15 +2037,73 @@ class MoleSubmitter:
                 
                 try:
                     import pyautogui
-                    # 移动鼠标过去
-                    pyautogui.moveTo(center_x, center_y, duration=0.2)
-                    # 执行物理点击
-                    pyautogui.click()
-                    LOGGER.info(f"🖱️ 已执行鼠标点击")
-                    time.sleep(0.3)
-                    return True
+                    # 确保对话框在最前面
+                    win32gui.SetForegroundWindow(dialog_hwnd)
+                    win32gui.BringWindowToTop(dialog_hwnd)
+                    time.sleep(0.2)
+                    
+                    # 方法1: 使用坐标直接点击（更可靠）
+                    try:
+                        pyautogui.click(center_x, center_y)
+                        LOGGER.info(f"🖱️ 已执行鼠标点击（方法1：直接坐标点击）")
+                        time.sleep(0.3)
+                        # 验证对话框是否消失
+                        if not win32gui.IsWindow(dialog_hwnd) or not win32gui.IsWindowVisible(dialog_hwnd):
+                            LOGGER.info("✅ 对话框已关闭，点击成功")
+                            return True
+                    except Exception as e:
+                        LOGGER.warning(f"方法1失败: {e}，尝试方法2...")
+                    
+                    # 方法2: 先移动再点击
+                    try:
+                        pyautogui.moveTo(center_x, center_y, duration=0.2)
+                        time.sleep(0.1)
+                        pyautogui.click()
+                        LOGGER.info(f"🖱️ 已执行鼠标点击（方法2：移动后点击）")
+                        time.sleep(0.3)
+                        # 验证对话框是否消失
+                        if not win32gui.IsWindow(dialog_hwnd) or not win32gui.IsWindowVisible(dialog_hwnd):
+                            LOGGER.info("✅ 对话框已关闭，点击成功")
+                            return True
+                    except Exception as e:
+                        LOGGER.warning(f"方法2失败: {e}，尝试方法3...")
+                    
+                    # 方法3: 使用Windows API点击按钮
+                    try:
+                        if win32gui and win32con:
+                            win32gui.SetForegroundWindow(dialog_hwnd)
+                            time.sleep(0.1)
+                            # 发送点击消息到按钮（使用win32gui.SendMessage）
+                            win32gui.SendMessage(yes_button_info["hwnd"], win32con.BM_CLICK, 0, 0)
+                            LOGGER.info(f"🖱️ 已执行Windows API点击（方法3：SendMessage）")
+                            time.sleep(0.3)
+                            # 验证对话框是否消失
+                            if not win32gui.IsWindow(dialog_hwnd) or not win32gui.IsWindowVisible(dialog_hwnd):
+                                LOGGER.info("✅ 对话框已关闭，点击成功")
+                                return True
+                            
+                            # 如果SendMessage失败，尝试PostMessage
+                            win32gui.PostMessage(yes_button_info["hwnd"], win32con.BM_CLICK, 0, 0)
+                            LOGGER.info(f"🖱️ 已执行Windows API点击（方法3b：PostMessage）")
+                            time.sleep(0.3)
+                            # 再次验证对话框是否消失
+                            if not win32gui.IsWindow(dialog_hwnd) or not win32gui.IsWindowVisible(dialog_hwnd):
+                                LOGGER.info("✅ 对话框已关闭，点击成功")
+                                return True
+                    except Exception as e:
+                        LOGGER.warning(f"方法3失败: {e}")
+                    
+                    # 如果所有方法都失败，返回False让调用者尝试fallback
+                    LOGGER.warning("所有点击方法都执行了，但对话框可能未关闭，将尝试fallback方法")
+                    return False
+                    
                 except ImportError:
                     LOGGER.error("缺少 pyautogui 库，无法执行物理点击")
+                    return False
+                except Exception as e:
+                    LOGGER.error(f"点击Yes按钮时出错: {e}")
+                    import traceback
+                    LOGGER.error(traceback.format_exc())
                     return False
             else:
                 # Fallback: 直接按'y'键（之前成功的方法）
@@ -2312,7 +2378,7 @@ class MoleSubmitter:
         """
         try:
             LOGGER.info("等待最终成功对话框出现...")
-            time.sleep(2.0)  # 等待对话框弹出
+            time.sleep(3.0)  # 等待对话框弹出（增加到3秒，确保对话框完全弹出）
             
             # 查找"Submit MIR Request"对话框
             for attempt in range(5):
@@ -2375,27 +2441,116 @@ class MoleSubmitter:
                             
                             try:
                                 import pyautogui
-                                pyautogui.moveTo(center_x, center_y, duration=0.2)
-                                pyautogui.click()
-                                LOGGER.info("🖱️ 已点击Copy MIR & Close按钮")
-                                time.sleep(0.5)
+                                # 确保对话框在最前面
+                                win32gui.SetForegroundWindow(dialog_hwnd)
+                                win32gui.BringWindowToTop(dialog_hwnd)
+                                time.sleep(0.2)
                                 
-                                # 从剪贴板获取MIR号码
+                                # 方法1: 使用坐标直接点击（最可靠）
+                                click_success = False
+                                try:
+                                    pyautogui.click(center_x, center_y)
+                                    LOGGER.info("🖱️ 已点击Copy MIR & Close按钮（方法1：直接坐标点击）")
+                                    time.sleep(0.5)
+                                    click_success = True
+                                except Exception as e:
+                                    LOGGER.warning(f"方法1失败: {e}，尝试方法2...")
+                                    
+                                    # 方法2: 先移动再点击
+                                    try:
+                                        pyautogui.moveTo(center_x, center_y, duration=0.2)
+                                        time.sleep(0.1)
+                                        pyautogui.click()
+                                        LOGGER.info("🖱️ 已点击Copy MIR & Close按钮（方法2：移动后点击）")
+                                        time.sleep(0.5)
+                                        click_success = True
+                                    except Exception as e2:
+                                        LOGGER.warning(f"方法2失败: {e2}，尝试方法3...")
+                                        
+                                        # 方法3: 使用Windows API点击按钮
+                                        try:
+                                            if win32gui and win32con:
+                                                win32gui.SetForegroundWindow(dialog_hwnd)
+                                                time.sleep(0.1)
+                                                win32gui.SendMessage(button_info["hwnd"], win32con.BM_CLICK, 0, 0)
+                                                LOGGER.info("🖱️ 已点击Copy MIR & Close按钮（方法3：SendMessage）")
+                                                time.sleep(0.3)
+                                                # 如果SendMessage后对话框还在，尝试PostMessage
+                                                if win32gui.IsWindow(dialog_hwnd) and win32gui.IsWindowVisible(dialog_hwnd):
+                                                    win32gui.PostMessage(button_info["hwnd"], win32con.BM_CLICK, 0, 0)
+                                                    LOGGER.info("🖱️ 已点击Copy MIR & Close按钮（方法3b：PostMessage）")
+                                                    time.sleep(0.3)
+                                                click_success = True
+                                        except Exception as e3:
+                                            LOGGER.warning(f"方法3失败: {e3}")
+                                
+                                # 验证对话框是否关闭
+                                if not win32gui.IsWindow(dialog_hwnd) or not win32gui.IsWindowVisible(dialog_hwnd):
+                                    LOGGER.info("✅ 对话框已关闭，点击成功")
+                                elif click_success:
+                                    LOGGER.info("✅ 已执行点击操作（对话框可能稍后关闭）")
+                                
+                                # 从剪贴板获取MIR号码（无论对话框是否关闭，都尝试获取）
+                                time.sleep(0.5)  # 等待剪贴板更新
                                 try:
                                     import pyperclip
                                     mir_number = pyperclip.paste().strip()
-                                    LOGGER.info(f"✅ 已从剪贴板获取MIR号码: {mir_number}")
-                                    return mir_number
+                                    if mir_number:
+                                        LOGGER.info(f"✅ 已从剪贴板获取MIR号码: {mir_number}")
+                                        return mir_number
+                                    else:
+                                        LOGGER.warning("剪贴板为空，尝试使用win32clipboard...")
+                                        raise ImportError("剪贴板为空")
                                 except ImportError:
                                     # 使用win32clipboard
-                                    import win32clipboard
-                                    win32clipboard.OpenClipboard()
-                                    mir_number = win32clipboard.GetClipboardData().strip()
-                                    win32clipboard.CloseClipboard()
-                                    LOGGER.info(f"✅ 已从剪贴板获取MIR号码: {mir_number}")
-                                    return mir_number
+                                    try:
+                                        import win32clipboard
+                                        win32clipboard.OpenClipboard()
+                                        try:
+                                            mir_number = win32clipboard.GetClipboardData().strip()
+                                        finally:
+                                            win32clipboard.CloseClipboard()
+                                        if mir_number:
+                                            LOGGER.info(f"✅ 已从剪贴板获取MIR号码: {mir_number}")
+                                            return mir_number
+                                        else:
+                                            LOGGER.warning("剪贴板内容为空")
+                                    except Exception as e:
+                                        LOGGER.error(f"获取剪贴板内容失败: {e}")
+                                
+                                # 如果无法从剪贴板获取，尝试从对话框文本中提取MIR号码
+                                LOGGER.warning("无法从剪贴板获取MIR号码，尝试从对话框文本中提取...")
+                                try:
+                                    # 获取对话框文本内容
+                                    def enum_text(hwnd_child, texts):
+                                        try:
+                                            text = win32gui.GetWindowText(hwnd_child)
+                                            if text and "MIR#" in text:
+                                                texts.append(text)
+                                        except:
+                                            pass
+                                        return True
+                                    
+                                    texts = []
+                                    win32gui.EnumChildWindows(dialog_hwnd, enum_text, texts)
+                                    for text in texts:
+                                        import re
+                                        match = re.search(r'MIR#\s*(\d+)', text)
+                                        if match:
+                                            mir_number = match.group(1)
+                                            LOGGER.info(f"✅ 从对话框文本中提取MIR号码: {mir_number}")
+                                            return mir_number
+                                except Exception as e:
+                                    LOGGER.error(f"从对话框文本提取MIR号码失败: {e}")
+                                
+                                LOGGER.warning("无法获取MIR号码")
+                                return ""
+                                
                             except Exception as e:
                                 LOGGER.error(f"点击按钮或获取剪贴板内容失败: {e}")
+                                import traceback
+                                LOGGER.error(traceback.format_exc())
+                                return ""
                         else:
                             LOGGER.warning("未找到Copy MIR & Close按钮，等待1秒后重试...")
                             time.sleep(1.0)
@@ -2778,12 +2933,36 @@ class MoleSubmitter:
         LOGGER.info("填写Requestor Comments...")
         
         try:
+            # 检查是否已经在Summary标签页（避免在错误的标签页填写）
+            # 如果不在Summary标签页，说明可能已经提交了，不应该再填写comments
+            try:
+                # 检查是否存在Submit按钮（如果存在，说明还在可以编辑的页面）
+                # 如果不存在Submit按钮，可能已经提交了，不应该再填写
+                submit_buttons = self._window.descendants(control_type="Button")
+                has_submit_button = False
+                for btn in submit_buttons:
+                    try:
+                        btn_text = btn.window_text().strip()
+                        if btn_text == "Submit" or "Submit" in btn_text:
+                            has_submit_button = True
+                            break
+                    except:
+                        continue
+                
+                if not has_submit_button:
+                    LOGGER.warning("⚠️ 未找到Submit按钮，可能已经提交，跳过填写Requestor Comments")
+                    return
+            except:
+                # 如果检查失败，继续执行（可能是检查逻辑有问题）
+                pass
+            
             # 确保主窗口有焦点
             self._window.set_focus()
             time.sleep(0.3)
             
             # 读取MIR Comments.txt文件
             possible_paths = [
+                Path(__file__).parent.parent / "input" / "MIR Comments.txt",  # input目录（优先）
                 Path(__file__).parent.parent / "MIR Comments.txt",  # Auto VPO根目录
                 Path("MIR Comments.txt"),  # 当前工作目录
                 Path(__file__).parent / "MIR Comments.txt",  # workflow_automation目录

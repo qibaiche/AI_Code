@@ -52,7 +52,11 @@ def main():
     print("🔍 查找 MIR 结果文件...")
     mir_files = []
     
+    # 优先在output目录查找（MIR结果文件默认保存在这里）
+    output_dir = parent_dir / "output"
+    
     search_locations = [
+        (output_dir, "output目录（推荐）"),
         (current_dir, "当前目录 (spark/)"),
         (parent_dir, "父目录 (auto-vpo/)"),
     ]
@@ -100,15 +104,69 @@ def main():
     
     print(f"✅ 成功读取 MIR 数据：{len(df)} 行")
     print()
+    
+    # 显示文件中的列名（用于调试）
+    print(f"📋 文件列名: {df.columns.tolist()}")
+    print()
 
     # 使用第一个SourceLot的第一行（不再考虑多个Operation的情形）
-    first_lot_value = df['SourceLot'].iloc[0]
-    first_row = df[df['SourceLot'] == first_lot_value].iloc[0]
+    # 查找SourceLot列（支持多种命名格式）
+    source_lot_col = None
+    for col in df.columns:
+        col_upper = str(col).strip().upper()
+        if col_upper in ['SOURCELOT', 'SOURCE LOT', 'SOURCE_LOT', 'SOURCELOTS', 'SOURCE LOTS']:
+            source_lot_col = col
+            break
     
-    first_lot = first_row['SourceLot']
-    first_part_type = first_row['Part Type']
-    first_operation = first_row['Operation']
-    first_eng_id = first_row['Eng ID']
+    if source_lot_col is None:
+        print("❌ 错误：未找到SourceLot列！")
+        print(f"   可用列: {df.columns.tolist()}")
+        input("\n按 Enter 键退出...")
+        return
+    
+    first_lot_value = df[source_lot_col].iloc[0]
+    first_row = df[df[source_lot_col] == first_lot_value].iloc[0]
+    
+    # 安全地获取列值（支持多种列名格式）
+    first_lot = str(first_row.get(source_lot_col, '')).strip()
+    
+    # 查找Part Type列
+    part_type_col = None
+    for col in df.columns:
+        col_upper = str(col).strip().upper()
+        if col_upper in ['PART TYPE', 'PARTTYPE', 'PART_TYPE']:
+            part_type_col = col
+            break
+    first_part_type = str(first_row.get(part_type_col, '')).strip() if part_type_col else ''
+    
+    # 查找Operation列（可选）
+    operation_col = None
+    for col in df.columns:
+        col_upper = str(col).strip().upper()
+        if col_upper in ['OPERATION', 'OP', 'OPN']:
+            operation_col = col
+            break
+    first_operation = str(first_row.get(operation_col, '')).strip() if operation_col else None
+    
+    # 查找Eng ID列（支持多种命名格式）
+    eng_id_col = None
+    for col in df.columns:
+        col_upper = str(col).strip().upper()
+        if col_upper in ['ENG ID', 'ENGID', 'ENG_ID', 'ENGINEERING ID', 'ENGINEERING_ID']:
+            eng_id_col = col
+            break
+    first_eng_id = str(first_row.get(eng_id_col, '')).strip() if eng_id_col else None
+    
+    # 验证必需字段
+    if not first_lot:
+        print("❌ 错误：SourceLot值为空！")
+        input("\n按 Enter 键退出...")
+        return
+    
+    if not first_part_type:
+        print("❌ 错误：Part Type值为空！")
+        input("\n按 Enter 键退出...")
+        return
     
     # 读取More options字段（如果存在）
     unit_test_time = first_row.get('Unit test time', None)
@@ -200,19 +258,27 @@ def main():
             return
         print("✅ 完成\n")
         
-        print("步骤 10/13: 选择Operation...")
-        if not submitter._select_operation(str(first_operation)):
-            print("❌ 失败\n")
-            input("\n按 Enter 键退出...")
-            return
-        print("✅ 完成\n")
+        # Operation是可选的，如果存在则选择
+        if first_operation:
+            print("步骤 10/13: 选择Operation...")
+            if not submitter._select_operation(str(first_operation)):
+                print("❌ 失败\n")
+                input("\n按 Enter 键退出...")
+                return
+            print("✅ 完成\n")
+        else:
+            print("步骤 10/13: 跳过Operation（文件中未提供）\n")
         
-        print("步骤 11/13: 选择Eng ID...")
-        if not submitter._select_eng_id(str(first_eng_id)):
-            print("❌ 失败\n")
-            input("\n按 Enter 键退出...")
-            return
-        print("✅ 完成\n")
+        # Eng ID是可选的，如果存在则选择
+        if first_eng_id:
+            print("步骤 11/13: 选择Eng ID...")
+            if not submitter._select_eng_id(str(first_eng_id)):
+                print("❌ 失败\n")
+                input("\n按 Enter 键退出...")
+                return
+            print("✅ 完成\n")
+        else:
+            print("步骤 11/13: 跳过Eng ID（文件中未提供）\n")
         
         print("步骤 12/13: 点击More options标签...")
         if not submitter._click_more_options_tab():
@@ -228,6 +294,13 @@ def main():
             return
         print("✅ 完成\n")
         
+        print("步骤 14/14: 点击Roll按钮...")
+        if not submitter._click_roll_button():
+            print("❌ 失败\n")
+            input("\n按 Enter 键退出...")
+            return
+        print("✅ 完成\n")
+        
         print()
         print("=" * 80)
         print("🎉 所有步骤完成！")
@@ -238,8 +311,8 @@ def main():
         print(f"      - Lot: {first_lot}")
         print(f"      - Part Type: {first_part_type}")
         print(f"   Flow:")
-        print(f"      - Operation: {first_operation}")
-        print(f"      - Eng ID: {first_eng_id}")
+        print(f"      - Operation: {first_operation or '(未提供)'}")
+        print(f"      - Eng ID: {first_eng_id or '(未提供)'}")
         print(f"   More options:")
         print(f"      - Unit test time: {unit_test_time or '(未填写)'}")
         print(f"      - Retest rate: {retest_rate or '(未填写)'}")

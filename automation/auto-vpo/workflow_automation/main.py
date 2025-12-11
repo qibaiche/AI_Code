@@ -145,13 +145,14 @@ def run_workflow_cli(excel_file_path: Path, config_path: Path) -> None:
 
 def find_source_lot_file(base_dir: Path, config=None) -> Path | None:
     """自动查找Source Lot文件"""
+    logger = logging.getLogger(__name__)
+    
     # 首先检查配置文件中的路径
     if config and config.paths.source_lot_file and config.paths.source_lot_file.exists():
-        logger = logging.getLogger(__name__)
         logger.info(f"从配置中找到Source Lot文件: {config.paths.source_lot_file}")
         return config.paths.source_lot_file
     
-    # 在父目录（Auto VPO根目录）中查找
+    # 父目录（Auto VPO根目录）
     parent_dir = base_dir.parent
     
     # 可能的文件名列表
@@ -164,10 +165,19 @@ def find_source_lot_file(base_dir: Path, config=None) -> Path | None:
         "source lot.xls",
     ]
     
+    # 优先在 input/ 目录下查找
+    input_dir = parent_dir / "input"
+    if input_dir.exists():
+        for filename in possible_names:
+            file_path = input_dir / filename
+            if file_path.exists():
+                logger.info(f"自动找到Source Lot文件（在input目录）: {file_path}")
+                return file_path
+    
+    # 在父目录（Auto VPO根目录）中查找
     for filename in possible_names:
         file_path = parent_dir / filename
         if file_path.exists():
-            logger = logging.getLogger(__name__)
             logger.info(f"自动找到Source Lot文件: {file_path}")
             return file_path
     

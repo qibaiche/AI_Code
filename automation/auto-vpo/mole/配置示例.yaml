@@ -1,0 +1,100 @@
+# ========================================================================
+# Mole 工具配置示例
+# ========================================================================
+# 
+# 说明：这是 Mole 工具的配置示例文件
+# 实际配置请编辑：workflow_automation/config.yaml
+# 
+# ========================================================================
+
+# Mole工具配置
+mole:
+  # ⚠️ 必须配置：Mole工具可执行文件路径
+  # 支持 .appref-ms 文件（ClickOnce 应用程序）
+  # Windows 路径可以使用正斜杠 / 或双反斜杠 \\
+  executable_path: "C:/Users/YourName/Desktop/Mole 2.0.appref-ms"
+  
+  # ⚠️ 必须配置：Mole工具窗口标题
+  # 支持正则表达式，用于识别 Mole 窗口
+  # 示例：".*MOLE.*" 匹配包含 "MOLE" 的窗口标题
+  window_title: ".*MOLE.*"
+  
+  # ⚠️ 必须配置：登录对话框标题
+  # 用于识别和处理登录对话框
+  login_dialog_title: "MOLE LOGIN"
+  
+  # 可选配置：操作超时时间（秒）
+  # 如果操作在指定时间内未完成，将超时失败
+  timeout: 60
+  
+  # 可选配置：重试次数
+  # 操作失败时自动重试的次数
+  retry_count: 3
+  
+  # 可选配置：重试延迟（秒）
+  # 每次重试之间的等待时间
+  retry_delay: 2
+
+# ========================================================================
+# 配置说明
+# ========================================================================
+# 
+# 1. executable_path
+#    - 必须指向 Mole 工具的实际可执行文件路径
+#    - 支持 .appref-ms 文件（ClickOnce 应用程序）
+#    - 如果路径包含空格，不需要加引号（YAML 会自动处理）
+#    - 示例：
+#      executable_path: "C:/Program Files/Mole/Mole.exe"
+#      executable_path: "C:/Users/YourName/Desktop/Mole 2.0.appref-ms"
+# 
+# 2. window_title
+#    - 用于识别 Mole 工具的主窗口
+#    - 支持正则表达式
+#    - 常见值：
+#      - ".*MOLE.*" - 匹配包含 "MOLE" 的窗口
+#      - "MOLE v4.9.12.21" - 精确匹配特定版本
+#      - "Mole" - 简单匹配
+# 
+# 3. login_dialog_title
+#    - 用于识别登录对话框
+#    - 通常为 "MOLE LOGIN"
+#    - 如果登录对话框标题不同，请修改此值
+# 
+# 4. timeout
+#    - 单个操作的最大等待时间（秒）
+#    - 如果操作在超时时间内未完成，将失败
+#    - 建议值：60-120 秒
+# 
+# 5. retry_count
+#    - 操作失败时的自动重试次数
+#    - 建议值：3-5 次
+# 
+# 6. retry_delay
+#    - 每次重试之间的等待时间（秒）
+#    - 给系统一些时间恢复
+#    - 建议值：2-5 秒
+# 
+# ========================================================================
+# 常见配置场景
+# ========================================================================
+# 
+# 场景1：Mole 工具在桌面
+# mole:
+#   executable_path: "C:/Users/YourName/Desktop/Mole 2.0.appref-ms"
+#   window_title: ".*MOLE.*"
+#   login_dialog_title: "MOLE LOGIN"
+# 
+# 场景2：Mole 工具在 Program Files
+# mole:
+#   executable_path: "C:/Program Files/Mole/Mole.exe"
+#   window_title: ".*MOLE.*"
+#   login_dialog_title: "MOLE LOGIN"
+# 
+# 场景3：自定义窗口标题匹配
+# mole:
+#   executable_path: "C:/Users/YourName/Desktop/Mole 2.0.appref-ms"
+#   window_title: "MOLE v4.9.12.21"  # 精确匹配版本
+#   login_dialog_title: "MOLE LOGIN"
+# 
+# ========================================================================
+

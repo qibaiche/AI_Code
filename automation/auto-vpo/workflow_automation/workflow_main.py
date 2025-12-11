@@ -8,6 +8,11 @@ from pathlib import Path
 from typing import Optional
 import pandas as pd
 
+try:
+    import win32gui
+except ImportError:
+    win32gui = None
+
 from .config_loader import load_config, WorkflowConfig
 from .data_reader import read_excel_file, save_result_excel, validate_data
 from .mole_submitter import MoleSubmitter
@@ -58,47 +63,35 @@ class WorkflowController:
         try:
             # 步骤0: 预先启动Mole工具
             LOGGER.info("\n" + "=" * 80)
-            LOGGER.info("步骤 0/2: 启动Mole工具")
+            LOGGER.info("步骤 0/3: 启动Mole工具")
             LOGGER.info("=" * 80)
             self._step_start_mole()
             
             # 步骤1: 读取文件（Excel或CSV）
             LOGGER.info("\n" + "=" * 80)
-            LOGGER.info("步骤 1/2: 读取source lot文件")
+            LOGGER.info("步骤 1/3: 读取source lot文件")
             LOGGER.info("=" * 80)
             df = self._step_read_excel(excel_file_path)
             
             # 步骤2: 提交MIR数据到Mole工具（循环处理所有行）
             LOGGER.info("\n" + "=" * 80)
-            LOGGER.info("步骤 2/2: 提交MIR数据到Mole工具（循环处理所有行）")
+            LOGGER.info("步骤 2/3: 提交MIR数据到Mole工具（循环处理所有行）")
             LOGGER.info("=" * 80)
             # 获取Source Lot文件路径
             source_lot_file_path = self._get_source_lot_file_path(excel_file_path)
             self._step_submit_to_mole(df, source_lot_file_path)
             
-            # ========================================================================
-            # 以下步骤已暂停（根据用户要求，执行到Add to Summary就停止）
-            # ========================================================================
-            # # 步骤3: 提交VPO数据到Spark网页
-            # LOGGER.info("\n" + "=" * 80)
-            # LOGGER.info("步骤 3/4: 提交VPO数据到Spark网页")
-            # LOGGER.info("=" * 80)
-            # self._step_submit_to_spark(df)
-            # 
-            # # 步骤4: 提交最终数据到GTS网站
-            # LOGGER.info("\n" + "=" * 80)
-            # LOGGER.info("步骤 4/4: 提交最终数据到GTS网站")
-            # LOGGER.info("=" * 80)
-            # self._step_submit_to_gts(df)
-            # 
-            # # 保存结果
-            # LOGGER.info("\n" + "=" * 80)
-            # LOGGER.info("保存处理结果")
-            # LOGGER.info("=" * 80)
-            # output_path = self._step_save_results(df)
-            # ========================================================================
+            # 步骤3: 提交VPO数据到Spark网页
+            LOGGER.info("\n" + "=" * 80)
+            LOGGER.info("步骤 3/3: 提交VPO数据到Spark网页")
+            LOGGER.info("=" * 80)
+            self._step_submit_to_spark(df)
             
-            output_path = None  # 不再保存结果文件
+            # 保存结果
+            LOGGER.info("\n" + "=" * 80)
+            LOGGER.info("保存处理结果")
+            LOGGER.info("=" * 80)
+            output_path = self._step_save_results(df)
             
             # 计算执行时间
             elapsed_time = (datetime.now() - start_time).total_seconds()
@@ -130,8 +123,10 @@ class WorkflowController:
         if self.config.paths.source_lot_file and self.config.paths.source_lot_file.exists():
             return self.config.paths.source_lot_file
         
-        # 否则在excel_file_path的同目录中查找
+        # 父目录（Auto VPO根目录）
         parent_dir = excel_file_path.parent
+        
+        # 可能的文件名列表
         possible_names = [
             "Source Lot.csv",
             "Source Lot.xlsx",
@@ -141,12 +136,23 @@ class WorkflowController:
             "source lot.xls",
         ]
         
+        # 优先在 input/ 目录下查找
+        input_dir = parent_dir / "input"
+        if input_dir.exists():
+            for filename in possible_names:
+                file_path = input_dir / filename
+                if file_path.exists():
+                    LOGGER.info(f"在input目录找到Source Lot文件: {file_path}")
+                    return file_path
+        
+        # 在父目录（Auto VPO根目录）中查找
         for filename in possible_names:
             file_path = parent_dir / filename
             if file_path.exists():
+                LOGGER.info(f"在根目录找到Source Lot文件: {file_path}")
                 return file_path
         
-        raise WorkflowError(f"未找到Source Lot文件。请确保文件存在于: {parent_dir}")
+        raise WorkflowError(f"未找到Source Lot文件。请确保文件存在于以下位置之一:\n  - {input_dir if input_dir.exists() else parent_dir / 'input'}\n  - {parent_dir}")
     
     def _save_all_mir_results(self, source_lot_file_path: Path, mir_results: list) -> None:
         """
@@ -157,8 +163,58 @@ class WorkflowController:
             mir_results: MIR结果列表，每个元素是一个字典，包含原始行数据+MIR列
         """
         try:
+            if not mir_results:
+                LOGGER.warning("没有MIR结果需要保存")
+                return
+            
             # 创建DataFrame
             result_df = pd.DataFrame(mir_results)
+            
+            # 查找SourceLot列（不区分大小写）
+            source_lot_col = None
+            for col in result_df.columns:
+                col_upper = str(col).strip().upper()
+                if col_upper in ['SOURCELOT', 'SOURCE LOT', 'SOURCE_LOT', 'SOURCELOTS', 'SOURCE LOTS']:
+                    source_lot_col = col
+                    break
+            
+            # 如果找到SourceLot列，按SourceLot分组，确保相同SourceLot的行放在一起
+            # 同时保持source lot表的原始顺序（相同SourceLot首次出现的顺序）
+            if source_lot_col:
+                LOGGER.info(f"按SourceLot列 '{source_lot_col}' 分组，确保相同SourceLot的MIR放在一起...")
+                
+                # 添加原始索引列，用于保持原始顺序
+                result_df['_original_index'] = range(len(result_df))
+                
+                # 记录每个SourceLot首次出现的索引
+                first_occurrence = {}
+                for idx, source_lot_value in enumerate(result_df[source_lot_col]):
+                    if pd.notna(source_lot_value):
+                        source_lot_str = str(source_lot_value).strip()
+                        if source_lot_str and source_lot_str not in first_occurrence:
+                            first_occurrence[source_lot_str] = idx
+                
+                # 创建分组键：SourceLot首次出现的索引 + SourceLot值
+                def get_group_key(row):
+                    source_lot_value = row[source_lot_col]
+                    if pd.isna(source_lot_value):
+                        return (float('inf'), '')  # NaN值放在最后
+                    source_lot_str = str(source_lot_value).strip()
+                    first_idx = first_occurrence.get(source_lot_str, float('inf'))
+                    return (first_idx, source_lot_str)
+                
+                # 创建分组键列
+                result_df['_group_key'] = result_df.apply(get_group_key, axis=1)
+                
+                # 按分组键和原始索引排序
+                result_df = result_df.sort_values(by=['_group_key', '_original_index'], na_position='last')
+                
+                # 删除临时列
+                result_df = result_df.drop(columns=['_original_index', '_group_key'])
+                
+                LOGGER.info(f"✅ 已按SourceLot分组，相同SourceLot的MIR已放在一起（保持source lot表的原始顺序）")
+            else:
+                LOGGER.warning("未找到SourceLot列，保持原始顺序")
             
             # 生成输出文件名（包含日期和时间）
             date_str = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -169,11 +225,11 @@ class WorkflowController:
             LOGGER.info(f"✅ 所有MIR结果已保存到: {output_file}")
             LOGGER.info(f"   共 {len(mir_results)} 行数据")
             
-            # 显示每行的详细信息
-            for idx, result in enumerate(mir_results):
-                source_lot = result.get('SourceLot', 'N/A')
-                mir = result.get('MIR', 'N/A')
-                LOGGER.info(f"   第 {idx + 1} 行: SourceLot={source_lot}, MIR={mir}")
+            # 显示每行的详细信息（按排序后的顺序）
+            for idx, (_, row) in enumerate(result_df.iterrows(), 1):
+                source_lot = row.get(source_lot_col, 'N/A') if source_lot_col else 'N/A'
+                mir = row.get('MIR', 'N/A')
+                LOGGER.info(f"   第 {idx} 行: SourceLot={source_lot}, MIR={mir}")
             
         except Exception as e:
             LOGGER.error(f"保存MIR结果到CSV失败: {e}")
@@ -189,6 +245,56 @@ class WorkflowController:
             LOGGER.info("✅ Mole工具已启动")
         except Exception as e:
             raise WorkflowError(f"启动Mole工具失败: {e}")
+    
+    def _close_mole(self) -> None:
+        """关闭Mole工具"""
+        try:
+            if not self.mole_submitter._window:
+                LOGGER.info("Mole窗口未连接，尝试查找并关闭...")
+                # 尝试查找MOLE窗口
+                if win32gui:
+                    def find_mole_window(hwnd, windows):
+                        try:
+                            if not win32gui.IsWindowVisible(hwnd):
+                                return True
+                            window_text = win32gui.GetWindowText(hwnd)
+                            if "MOLE" in window_text.upper() and "LOGIN" not in window_text.upper():
+                                windows.append(hwnd)
+                        except:
+                            pass
+                        return True
+                    
+                    mole_windows = []
+                    win32gui.EnumWindows(find_mole_window, mole_windows)
+                    if mole_windows:
+                        LOGGER.info(f"找到 {len(mole_windows)} 个Mole窗口，尝试关闭...")
+                        for hwnd in mole_windows:
+                            try:
+                                win32gui.PostMessage(hwnd, 0x0010, 0, 0)  # WM_CLOSE
+                                LOGGER.info(f"已发送关闭消息到Mole窗口")
+                            except:
+                                pass
+                        time.sleep(2.0)
+                        return
+            
+            # 如果已连接窗口，尝试关闭
+            if self.mole_submitter._window:
+                try:
+                    self.mole_submitter._window.close()
+                    LOGGER.info("✅ 已关闭Mole窗口")
+                    time.sleep(1.0)
+                except Exception as e:
+                    LOGGER.warning(f"关闭Mole窗口失败: {e}，尝试其他方法...")
+                    # 尝试通过进程关闭
+                    try:
+                        if win32gui and self.mole_submitter._window:
+                            hwnd = self.mole_submitter._window.handle
+                            win32gui.PostMessage(hwnd, 0x0010, 0, 0)  # WM_CLOSE
+                            time.sleep(1.0)
+                    except:
+                        pass
+        except Exception as e:
+            LOGGER.warning(f"关闭Mole工具时出错: {e}")
     
     def _step_read_excel(self, excel_file_path: Path) -> pd.DataFrame:
         """步骤1: 读取文件（Excel或CSV）"""
@@ -262,7 +368,41 @@ class WorkflowController:
                         
                         # 处理最终成功对话框并获取MIR号码
                         LOGGER.info("处理最终成功对话框并获取MIR号码...")
+                        
+                        # 如果是最后一行，增加等待时间，确保copy MIR对话框完全弹出
+                        is_last_row = (row_index == len(source_lot_df) - 1)
+                        if is_last_row:
+                            LOGGER.info("这是最后一行，等待更长时间确保copy MIR对话框完全弹出...")
+                            time.sleep(3.0)  # 额外等待3秒
+                        
                         mir_number = self.mole_submitter._handle_final_success_dialog_and_get_mir()
+                        
+                        # 如果是最后一行，再次等待确保对话框完全处理完成
+                        if is_last_row:
+                            LOGGER.info("最后一行处理完成，等待copy MIR对话框完全关闭...")
+                            time.sleep(2.0)  # 再等待2秒确保对话框关闭
+                            
+                            # 验证对话框是否已关闭
+                            if win32gui:
+                                try:
+                                    def check_dialog(hwnd, dialogs):
+                                        try:
+                                            if not win32gui.IsWindowVisible(hwnd):
+                                                return True
+                                            window_text = win32gui.GetWindowText(hwnd)
+                                            if window_text == "Submit MIR Request":
+                                                dialogs.append(hwnd)
+                                        except:
+                                            pass
+                                        return True
+                                    
+                                    remaining_dialogs = []
+                                    win32gui.EnumWindows(check_dialog, remaining_dialogs)
+                                    if remaining_dialogs:
+                                        LOGGER.warning(f"检测到仍有 {len(remaining_dialogs)} 个成功对话框未关闭，等待5秒...")
+                                        time.sleep(5.0)
+                                except:
+                                    pass
                         
                         if mir_number:
                             # 保存该行数据和MIR号码
@@ -318,7 +458,50 @@ class WorkflowController:
                     LOGGER.info("等待2秒后处理下一行...")
                     time.sleep(2.0)
             
-            # 所有行处理完后，保存结果到CSV
+            # 所有行处理完后，等待所有对话框关闭，然后关闭MOLE
+            LOGGER.info("=" * 80)
+            LOGGER.info("所有MIR提交完成，等待所有对话框关闭...")
+            LOGGER.info("=" * 80)
+            
+            # 等待所有成功对话框关闭（最多等待10秒）
+            if win32gui:
+                max_wait = 10
+                for i in range(max_wait):
+                    try:
+                        def check_dialog(hwnd, dialogs):
+                            try:
+                                if not win32gui.IsWindowVisible(hwnd):
+                                    return True
+                                window_text = win32gui.GetWindowText(hwnd)
+                                if window_text == "Submit MIR Request":
+                                    dialogs.append(hwnd)
+                            except:
+                                pass
+                            return True
+                        
+                        remaining_dialogs = []
+                        win32gui.EnumWindows(check_dialog, remaining_dialogs)
+                        if not remaining_dialogs:
+                            LOGGER.info("✅ 所有对话框已关闭")
+                            break
+                        else:
+                            if i % 2 == 0:
+                                LOGGER.info(f"等待对话框关闭... ({i+1}/{max_wait}秒，还有{len(remaining_dialogs)}个对话框)")
+                            time.sleep(1.0)
+                    except:
+                        time.sleep(1.0)
+            
+            # 关闭MOLE工具
+            LOGGER.info("=" * 80)
+            LOGGER.info("关闭MOLE工具...")
+            LOGGER.info("=" * 80)
+            try:
+                self._close_mole()
+                LOGGER.info("✅ MOLE工具已关闭")
+            except Exception as e:
+                LOGGER.warning(f"⚠️ 关闭MOLE工具时出错: {e}，继续执行...")
+            
+            # 保存结果到CSV
             if mir_results:
                 LOGGER.info("=" * 80)
                 LOGGER.info(f"所有行处理完成，保存结果...")
@@ -338,36 +521,258 @@ class WorkflowController:
             raise WorkflowError(f"提交MIR数据到Mole工具失败: {e}")
     
     def _step_submit_to_spark(self, df: pd.DataFrame) -> None:
-        """步骤3: 提交VPO数据到Spark网页"""
+        """步骤3: 提交VPO数据到Spark网页（从MIR结果文件读取数据）"""
         try:
+            # 查找最新的MIR结果文件
+            LOGGER.info("查找MIR结果文件...")
+            mir_files = []
+            
+            # 在多个位置查找MIR结果文件
+            search_locations = [
+                self.config.paths.output_dir,
+                self.config.paths.input_dir,
+            ]
+            
+            for location in search_locations:
+                if location.exists():
+                    files = list(location.glob("MIR_Results_*.csv"))
+                    mir_files.extend(files)
+            
+            if not mir_files:
+                raise WorkflowError("未找到MIR结果文件，无法提交到Spark。请先完成Mole步骤。")
+            
+            # 使用最新的文件
+            selected_file = sorted(mir_files, reverse=True)[0]
+            LOGGER.info(f"使用MIR结果文件: {selected_file.name}")
+            
+            # 读取MIR结果文件
+            mir_df = read_excel_file(selected_file)
+            if mir_df.empty:
+                raise WorkflowError("MIR结果文件为空")
+            
+            LOGGER.info(f"成功读取MIR数据：{len(mir_df)} 行")
+            LOGGER.info(f"MIR文件列名: {mir_df.columns.tolist()}")
+            
             # 使用上下文管理器确保WebDriver正确关闭
             with self.spark_submitter:
-                # 将DataFrame转换为字典格式
-                for idx, row in df.iterrows():
-                    data = row.to_dict()
-                    LOGGER.info(f"处理第 {idx + 1}/{len(df)} 行数据")
+                # 初始化并导航到页面（只需要一次）
+                LOGGER.info("初始化Spark网页...")
+                self.spark_submitter._init_driver()
+                self.spark_submitter._navigate_to_page()
+                
+                # 循环处理每一行MIR结果
+                # 使用enumerate确保行号从0开始，避免DataFrame索引问题
+                for row_num, (idx, row) in enumerate(mir_df.iterrows()):
+                    LOGGER.info("=" * 80)
+                    LOGGER.info(f"处理第 {row_num + 1}/{len(mir_df)} 行MIR数据 (DataFrame索引: {idx})")
+                    LOGGER.info("=" * 80)
                     
-                    success = self.spark_submitter.submit_vpo_data(data)
-                    if success:
-                        LOGGER.info(f"✅ 第 {idx + 1} 行数据提交成功")
+                    try:
+                        # 提取数据（支持多种列名格式）
+                        LOGGER.info(f"行数据: {row.to_dict()}")
+                        
+                        # 查找SourceLot列
+                        source_lot = None
+                        for col in row.index:
+                            col_upper = str(col).strip().upper()
+                            if col_upper in ['SOURCELOT', 'SOURCE LOT', 'SOURCE_LOT']:
+                                source_lot = str(row[col]).strip() if pd.notna(row[col]) else ''
+                                LOGGER.info(f"找到SourceLot列: '{col}' = '{source_lot}'")
+                                break
+                        
+                        if not source_lot:
+                            LOGGER.warning(f"第 {row_num + 1} 行SourceLot值为空，跳过")
+                            LOGGER.warning(f"可用列: {row.index.tolist()}")
+                            continue
+                        
+                        # 查找Part Type列
+                        part_type = None
+                        for col in row.index:
+                            col_upper = str(col).strip().upper()
+                            if col_upper in ['PART TYPE', 'PARTTYPE', 'PART_TYPE']:
+                                part_type = str(row[col]).strip() if pd.notna(row[col]) else ''
+                                break
+                        
+                        if not part_type:
+                            LOGGER.warning(f"第 {row_num + 1} 行Part Type值为空，跳过")
+                            continue
+                        
+                        # 查找Operation列（可选）
+                        operation = None
+                        for col in row.index:
+                            col_upper = str(col).strip().upper()
+                            if col_upper in ['OPERATION', 'OP', 'OPN']:
+                                if pd.notna(row[col]) and str(row[col]).strip():
+                                    operation = str(row[col]).strip()
+                                break
+                        
+                        # 查找Eng ID列（可选，支持多种格式）
+                        eng_id = None
+                        for col in row.index:
+                            col_upper = str(col).strip().upper()
+                            if col_upper in ['ENG ID', 'ENGID', 'ENG_ID', 'ENGINEERING ID', 'ENGINEERING_ID']:
+                                if pd.notna(row[col]) and str(row[col]).strip():
+                                    eng_id = str(row[col]).strip()
+                                break
+                        
+                        # 处理More options字段
+                        unit_test_time = row.get('Unit test time', None)
+                        retest_rate = row.get('Retest rate', None)
+                        hri_mrv = row.get('HRI / MRV:', None)
+                        
+                        # 处理空值
+                        if pd.isna(unit_test_time) or str(unit_test_time).strip() == '':
+                            unit_test_time = None
+                        else:
+                            unit_test_time = str(unit_test_time).strip()
+                        
+                        if pd.isna(retest_rate) or str(retest_rate).strip() == '':
+                            retest_rate = None
+                        else:
+                            retest_rate = str(retest_rate).strip()
+                        
+                        if pd.isna(hri_mrv) or str(hri_mrv).strip() == '':
+                            hri_mrv = None
+                        else:
+                            hri_mrv = str(hri_mrv).strip()
+                        
+                        # 执行Spark提交流程
+                        # 注意：第一行需要点击Add New，后续行在上一行Roll后已经点击了Add New
+                        if row_num == 0:
+                            LOGGER.info("步骤 1/13: 点击Add New...")
+                            if not self.spark_submitter._click_add_new_button():
+                                raise WorkflowError("点击Add New按钮失败")
+                        else:
+                            LOGGER.info("步骤 1/13: 已点击Add New（上一行Roll后已点击）")
+                        
+                        LOGGER.info("步骤 2/13: 填写TP路径...")
+                        if not self.spark_submitter._fill_test_program_path(self.config.paths.tp_path):
+                            raise WorkflowError("填写TP路径失败")
+                        
+                        LOGGER.info("步骤 3/13: 点击Add New Experiment...")
+                        if not self.spark_submitter._click_add_new_experiment():
+                            raise WorkflowError("点击Add New Experiment失败")
+                        
+                        LOGGER.info("步骤 4/13: 选择VPO类别...")
+                        if not self.spark_submitter._select_vpo_category(self.config.spark.vpo_category):
+                            raise WorkflowError("选择VPO类别失败")
+                        
+                        LOGGER.info("步骤 5/13: 填写实验信息...")
+                        if not self.spark_submitter._fill_experiment_info(self.config.spark.step, self.config.spark.tags):
+                            raise WorkflowError("填写实验信息失败")
+                        
+                        LOGGER.info("步骤 6/13: 添加Lot name...")
+                        if not self.spark_submitter._add_lot_name(source_lot):
+                            raise WorkflowError("添加Lot name失败")
+                        
+                        LOGGER.info("步骤 7/13: 选择Part Type...")
+                        if not self.spark_submitter._select_parttype(part_type):
+                            raise WorkflowError("选择Part Type失败")
+                        
+                        LOGGER.info("步骤 8/13: 点击Flow标签...")
+                        if not self.spark_submitter._click_flow_tab():
+                            raise WorkflowError("点击Flow标签失败")
+                        
+                        # Operation是可选的，但如果存在则必须成功选择
+                        if operation:
+                            LOGGER.info("步骤 9/13: 选择Operation...")
+                            if not self.spark_submitter._select_operation(operation):
+                                raise WorkflowError("选择Operation失败")
+                        else:
+                            LOGGER.info("步骤 9/13: 跳过Operation（文件中未提供）")
+                        
+                        # Eng ID是可选的，但如果存在则必须成功选择
+                        if eng_id:
+                            LOGGER.info("步骤 10/13: 选择Eng ID...")
+                            if not self.spark_submitter._select_eng_id(eng_id):
+                                raise WorkflowError("选择Eng ID失败")
+                        else:
+                            LOGGER.info("步骤 10/13: 跳过Eng ID（文件中未提供）")
+                        
+                        LOGGER.info("步骤 11/13: 点击More options标签...")
+                        if not self.spark_submitter._click_more_options_tab():
+                            raise WorkflowError("点击More options标签失败")
+                        
+                        LOGGER.info("步骤 12/13: 填写More options字段...")
+                        if not self.spark_submitter._fill_more_options(unit_test_time, retest_rate, hri_mrv):
+                            raise WorkflowError("填写More options字段失败")
+                        
+                        LOGGER.info("步骤 13/13: 点击Roll按钮...")
+                        if not self.spark_submitter._click_roll_button():
+                            raise WorkflowError("点击Roll按钮失败")
+                        
+                        # 等待Roll提交完成
+                        LOGGER.info("等待Roll提交完成...")
+                        time.sleep(3.0)  # 等待提交响应
+                        
+                        LOGGER.info(f"✅ 第 {row_num + 1} 行数据提交成功")
                         self.results.append({
                             'row_index': idx,
                             'step': 'Spark',
                             'status': 'success',
+                            'source_lot': source_lot,
                             'timestamp': datetime.now().isoformat()
                         })
-                    else:
-                        error_msg = f"第 {idx + 1} 行数据提交失败"
+                        
+                        # 如果不是最后一行，点击Add New按钮开始下一行
+                        if row_num < len(mir_df) - 1:
+                            LOGGER.info("=" * 80)
+                            LOGGER.info(f"准备处理下一行（第 {row_num + 2}/{len(mir_df)} 行）...")
+                            LOGGER.info("点击Add New按钮开始新的提交...")
+                            LOGGER.info("=" * 80)
+                            
+                            # 等待页面稳定
+                            time.sleep(2.0)
+                            
+                            # 点击Add New按钮
+                            if not self.spark_submitter._click_add_new_button():
+                                raise WorkflowError("点击Add New按钮失败，无法继续处理下一行")
+                            
+                            # 等待Add New对话框或页面响应
+                            time.sleep(2.0)
+                            
+                            LOGGER.info("✅ 已点击Add New按钮，准备处理下一行")
+                        else:
+                            LOGGER.info("=" * 80)
+                            LOGGER.info("这是最后一行，不需要点击Add New按钮")
+                            LOGGER.info("=" * 80)
+                        
+                    except Exception as e:
+                        error_msg = f"第 {row_num + 1} 行数据提交失败: {e}"
                         LOGGER.error(f"❌ {error_msg}")
+                        LOGGER.error(traceback.format_exc())
+                        
+                        source_lot_value = source_lot if 'source_lot' in locals() and source_lot else 'N/A'
                         self.errors.append({
                             'row_index': idx,
                             'step': 'Spark',
-                            'error': error_msg,
+                            'error': str(e),
+                            'source_lot': source_lot_value,
                             'timestamp': datetime.now().isoformat()
                         })
-                        raise WorkflowError(error_msg)
+                        
+                        # 继续处理下一行，不中断整个流程
+                        LOGGER.warning(f"⚠️ 第 {row_num + 1} 行提交失败，但将继续处理下一行...")
+                        
+                        # 如果不是最后一行，尝试点击Add New按钮，为下一行做准备
+                        if row_num < len(mir_df) - 1:
+                            try:
+                                LOGGER.info("尝试点击Add New按钮，为下一行做准备...")
+                                time.sleep(2.0)  # 等待页面稳定
+                                if self.spark_submitter._click_add_new_button():
+                                    LOGGER.info("✅ 已点击Add New按钮，可以继续处理下一行")
+                                    time.sleep(2.0)
+                                else:
+                                    LOGGER.warning("⚠️ 点击Add New按钮失败，下一行可能无法正常处理")
+                            except Exception as e2:
+                                LOGGER.warning(f"⚠️ 尝试点击Add New按钮时出错: {e2}，但将继续处理下一行")
                 
-                LOGGER.info("✅ 所有VPO数据提交成功")
+                LOGGER.info("=" * 80)
+                LOGGER.info("✅ 所有VPO数据提交完成")
+                LOGGER.info(f"   总行数: {len(mir_df)}")
+                LOGGER.info(f"   成功: {len([r for r in self.results if r.get('step') == 'Spark' and r.get('status') == 'success'])}")
+                LOGGER.info(f"   失败: {len([e for e in self.errors if e.get('step') == 'Spark'])}")
+                LOGGER.info("=" * 80)
                 
         except Exception as e:
             raise WorkflowError(f"提交VPO数据到Spark网页失败: {e}")

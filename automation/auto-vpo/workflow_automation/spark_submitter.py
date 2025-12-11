@@ -429,6 +429,21 @@ class SparkSubmitter:
             elapsed = 0
             continue_clicked = False
             
+            # 检查是否有错误提示（即使有错误，Continue按钮可能仍然可点击）
+            error_detected = False
+            try:
+                error_elements = self._driver.find_elements(By.XPATH, "//*[contains(@style, 'color: red') or contains(@class, 'error') or contains(text(), 'Failed to parse') or contains(text(), 'Failed')]")
+                if error_elements:
+                    for elem in error_elements[:3]:  # 只显示前3个
+                        error_text = elem.text.strip()
+                        if error_text and ("Failed to parse" in error_text or "Failed" in error_text):
+                            LOGGER.warning(f"⚠️ 检测到错误提示: {error_text}")
+                            error_detected = True
+                    if error_detected:
+                        LOGGER.info("⚠️ 检测到错误提示，但将继续尝试点击Continue按钮...")
+            except:
+                pass
+            
             while elapsed < max_wait:
                 try:
                     # 检查Continue按钮是否可点击
@@ -436,19 +451,65 @@ class SparkSubmitter:
                     if continue_button.is_displayed() and continue_button.is_enabled():
                         LOGGER.info(f"✅ Continue按钮已启用（用时{elapsed:.1f}秒）")
                         
-                        # 立即点击
+                        # 立即点击（即使有错误提示，也要继续点击）
                         LOGGER.info("立即点击Continue按钮...")
                         self._driver.execute_script(
                             "arguments[0].scrollIntoView({block: 'center'});", 
                             continue_button
                         )
                         time.sleep(0.2)
-                        continue_button.click()
+                        try:
+                            continue_button.click()
+                        except:
+                            # 如果普通点击失败，尝试JavaScript点击
+                            self._driver.execute_script("arguments[0].click();", continue_button)
                         LOGGER.info("✅ 已点击Continue按钮")
                         continue_clicked = True
                         break
+                    elif continue_button.is_displayed() and elapsed >= 60:
+                        # 如果超过60秒且按钮可见但未启用，检查是否有错误提示
+                        try:
+                            error_elements = self._driver.find_elements(By.XPATH, "//*[contains(@style, 'color: red') or contains(@class, 'error') or contains(text(), 'Failed to parse') or contains(text(), 'Failed')]")
+                            if error_elements:
+                                for elem in error_elements[:3]:
+                                    error_text = elem.text.strip()
+                                    if error_text and ("Failed to parse" in error_text or "Failed" in error_text):
+                                        LOGGER.warning(f"⚠️ 超过60秒且检测到错误提示: {error_text}")
+                                        LOGGER.info("尝试强制点击Continue按钮（即使可能disabled）...")
+                                        
+                                        # 尝试移除disabled属性并点击
+                                        try:
+                                            self._driver.execute_script("arguments[0].removeAttribute('disabled');", continue_button)
+                                            LOGGER.info("已移除disabled属性")
+                                        except:
+                                            pass
+                                        
+                                        # 滚动到按钮
+                                        self._driver.execute_script(
+                                            "arguments[0].scrollIntoView({block: 'center'});", 
+                                            continue_button
+                                        )
+                                        time.sleep(0.3)
+                                        
+                                        # 尝试点击
+                                        try:
+                                            continue_button.click()
+                                            LOGGER.info("✅ 已通过普通点击点击Continue按钮")
+                                            continue_clicked = True
+                                            break
+                                        except:
+                                            try:
+                                                self._driver.execute_script("arguments[0].click();", continue_button)
+                                                LOGGER.info("✅ 已通过JavaScript点击Continue按钮")
+                                                continue_clicked = True
+                                                break
+                                            except Exception as e:
+                                                LOGGER.warning(f"点击失败: {e}")
+                                        break
+                        except:
+                            pass
                 except:
-                    # Continue按钮还未启用，继续等待
+                    # Continue按钮还未启用或不存在，继续等待
                     pass
                 
                 # 显示loading状态（仅用于日志）
@@ -465,10 +526,81 @@ class SparkSubmitter:
                 
                 time.sleep(check_interval)
                 elapsed += check_interval
+                
+                # 如果已经点击成功，跳出循环
+                if continue_clicked:
+                    break
             
+            # 如果超时仍未点击成功，检查是否有错误提示
             if not continue_clicked:
                 LOGGER.warning(f"⚠️ Continue按钮{max_wait}秒内未启用")
-                return False
+                
+                # 检查是否有错误提示（如"Failed to parse the test program"）
+                error_detected = False
+                error_text = ""
+                try:
+                    error_elements = self._driver.find_elements(By.XPATH, "//*[contains(@style, 'color: red') or contains(@class, 'error') or contains(text(), 'Failed to parse') or contains(text(), 'Failed')]")
+                    if error_elements:
+                        for elem in error_elements[:3]:  # 只显示前3个
+                            text = elem.text.strip()
+                            if text and ("Failed to parse" in text or "Failed" in text):
+                                error_detected = True
+                                error_text = text
+                                LOGGER.warning(f"⚠️ 检测到错误提示: {text}")
+                                break
+                except:
+                    pass
+                
+                # 如果检测到错误提示，即使Continue按钮可能还是disabled，也尝试强制点击
+                if error_detected:
+                    LOGGER.info("⚠️ 检测到错误提示，但将继续尝试点击Continue按钮（即使可能disabled）...")
+                    try:
+                        continue_button = self._driver.find_element(By.ID, "tpPathContinue")
+                        if continue_button.is_displayed():
+                            LOGGER.info("找到Continue按钮，尝试强制点击（即使可能disabled）...")
+                            
+                            # 尝试移除disabled属性并点击
+                            try:
+                                self._driver.execute_script("arguments[0].removeAttribute('disabled');", continue_button)
+                                LOGGER.info("已移除disabled属性")
+                            except:
+                                pass
+                            
+                            # 滚动到按钮
+                            self._driver.execute_script(
+                                "arguments[0].scrollIntoView({block: 'center'});", 
+                                continue_button
+                            )
+                            time.sleep(0.3)
+                            
+                            # 尝试多种点击方法
+                            click_success = False
+                            try:
+                                continue_button.click()
+                                LOGGER.info("✅ 已通过普通点击点击Continue按钮")
+                                click_success = True
+                            except:
+                                try:
+                                    self._driver.execute_script("arguments[0].click();", continue_button)
+                                    LOGGER.info("✅ 已通过JavaScript点击Continue按钮")
+                                    click_success = True
+                                except Exception as e:
+                                    LOGGER.warning(f"JavaScript点击也失败: {e}")
+                            
+                            if click_success:
+                                LOGGER.info("✅ 已强制点击Continue按钮（尽管检测到错误）")
+                                continue_clicked = True
+                            else:
+                                LOGGER.error("❌ 所有点击方法都失败")
+                        else:
+                            LOGGER.warning("Continue按钮不可见")
+                    except Exception as e:
+                        LOGGER.error(f"尝试强制点击Continue按钮失败: {e}")
+                
+                # 如果仍然没有点击成功，返回False
+                if not continue_clicked:
+                    LOGGER.error("❌ 无法点击Continue按钮，流程失败")
+                    return False
             
             # ========== 第2步：等待页面跳转完成 ==========
             LOGGER.info("\n等待页面跳转完成...")
@@ -518,7 +650,120 @@ class SparkSubmitter:
                 LOGGER.info("=" * 60)
                 return True
             except TimeoutException:
-                LOGGER.error("❌ 15秒内未找到'Add New Experiment'按钮，页面跳转可能失败")
+                LOGGER.warning("⚠️ 15秒内未找到'Add New Experiment'按钮，验证页面状态...")
+                
+                # 验证页面是否在Create New Experiments页面，且正在加载test program
+                try:
+                    # 检查是否在Create New Experiments页面
+                    page_title = self._driver.title
+                    current_url = self._driver.current_url
+                    LOGGER.info(f"当前页面标题: {page_title}")
+                    LOGGER.info(f"当前URL: {current_url}")
+                    
+                    # 检查是否存在creation-progress元素（加载test program的指示器）
+                    creation_progress_elements = self._driver.find_elements(
+                        By.XPATH,
+                        "//div[contains(@class, 'creation-progress')]"
+                    )
+                    
+                    # 检查是否存在"preparing your test program data"文本
+                    preparing_text_elements = self._driver.find_elements(
+                        By.XPATH,
+                        "//div[contains(@class, 'creating-text') and contains(text(), 'preparing your test program data')]"
+                    )
+                    
+                    # 检查是否存在lds-ring加载动画
+                    lds_ring_elements = self._driver.find_elements(
+                        By.XPATH,
+                        "//div[contains(@class, 'lds-ring')]"
+                    )
+                    
+                    is_loading = False
+                    if creation_progress_elements:
+                        for elem in creation_progress_elements:
+                            if elem.is_displayed():
+                                is_loading = True
+                                LOGGER.info("✅ 检测到'creation-progress'元素，页面正在加载test program")
+                                break
+                    
+                    if preparing_text_elements:
+                        for elem in preparing_text_elements:
+                            if elem.is_displayed():
+                                is_loading = True
+                                LOGGER.info("✅ 检测到'preparing your test program data'文本，正在准备test program数据")
+                                break
+                    
+                    if lds_ring_elements:
+                        for elem in lds_ring_elements:
+                            if elem.is_displayed():
+                                is_loading = True
+                                LOGGER.info("✅ 检测到'lds-ring'加载动画，页面正在加载")
+                                break
+                    
+                    if is_loading:
+                        LOGGER.info("✅ 确认页面在'Create New Experiments'页面，且正在加载test program")
+                        LOGGER.info("等待test program加载完成，继续查找'Add New Experiment'按钮...")
+                        
+                        # 等待加载完成（最多再等30秒）
+                        max_additional_wait = 30
+                        for i in range(max_additional_wait):
+                            time.sleep(1.0)
+                            
+                            # 检查加载是否完成（creation-progress消失）
+                            still_loading = False
+                            try:
+                                current_progress = self._driver.find_elements(
+                                    By.XPATH,
+                                    "//div[contains(@class, 'creation-progress')]"
+                                )
+                                for elem in current_progress:
+                                    if elem.is_displayed():
+                                        still_loading = True
+                                        break
+                            except:
+                                pass
+                            
+                            if not still_loading:
+                                LOGGER.info(f"✅ Test program加载完成（额外等待{i+1}秒）")
+                                break
+                            
+                            # 检查是否已经出现Add New Experiment按钮
+                            try:
+                                add_exp_button = self._driver.find_element(
+                                    By.XPATH,
+                                    "//button[.//span[contains(text(), 'Add New Experiment')] or contains(text(), 'Add New Experiment')]"
+                                )
+                                if add_exp_button.is_displayed():
+                                    LOGGER.info("✅ 找到'Add New Experiment'按钮，页面跳转成功")
+                                    LOGGER.info("=" * 60)
+                                    return True
+                            except:
+                                pass
+                            
+                            if i % 5 == 0 and i > 0:
+                                LOGGER.info(f"   等待test program加载完成...（{i}秒/{max_additional_wait}秒）")
+                        
+                        # 加载完成后，再次尝试查找Add New Experiment按钮
+                        try:
+                            add_exp_button = WebDriverWait(self._driver, 10).until(
+                                EC.presence_of_element_located((
+                                    By.XPATH,
+                                    "//button[.//span[contains(text(), 'Add New Experiment')] or contains(text(), 'Add New Experiment')]"
+                                ))
+                            )
+                            LOGGER.info("✅ 找到'Add New Experiment'按钮，页面跳转成功")
+                            LOGGER.info("=" * 60)
+                            return True
+                        except TimeoutException:
+                            LOGGER.error("❌ Test program加载完成后，仍未找到'Add New Experiment'按钮")
+                    else:
+                        LOGGER.warning("⚠️ 未检测到test program加载状态，页面可能不在'Create New Experiments'页面")
+                        LOGGER.warning("⚠️ 或者页面加载已完成但未跳转到预期页面")
+                        
+                except Exception as e:
+                    LOGGER.warning(f"⚠️ 验证页面状态时出错: {e}")
+                
+                LOGGER.error("❌ 页面跳转可能失败")
                 LOGGER.info("=" * 60)
                 return False
             
@@ -3485,6 +3730,144 @@ class SparkSubmitter:
             
         except Exception as e:
             LOGGER.error(f"选择{field_name}下拉框失败: {e}")
+            import traceback
+            LOGGER.error(traceback.format_exc())
+            return False
+    
+    def _click_roll_button(self) -> bool:
+        """
+        点击页面右下角的Roll按钮
+        
+        Returns:
+            True如果点击成功
+        """
+        try:
+            LOGGER.info("查找并点击Roll按钮...")
+            
+            # 方法1: 通过按钮文本查找（支持多种可能的文本）
+            roll_texts = ["Roll", "ROLL", "roll"]
+            button_clicked = False
+            
+            for roll_text in roll_texts:
+                try:
+                    # 尝试通过文本查找按钮
+                    roll_button = WebDriverWait(self._driver, 5).until(
+                        EC.element_to_be_clickable((
+                            By.XPATH,
+                            f"//button[contains(text(), '{roll_text}') or .//span[contains(text(), '{roll_text}')]]"
+                        ))
+                    )
+                    if roll_button.is_displayed() and roll_button.is_enabled():
+                        LOGGER.info(f"找到Roll按钮（文本: '{roll_text}'）")
+                        # 滚动到按钮位置（右下角）
+                        self._driver.execute_script(
+                            "arguments[0].scrollIntoView({block: 'end', inline: 'end'});",
+                            roll_button
+                        )
+                        time.sleep(0.3)
+                        roll_button.click()
+                        LOGGER.info(f"✅ 已点击Roll按钮（文本: '{roll_text}'）")
+                        button_clicked = True
+                        break
+                except TimeoutException:
+                    continue
+                except Exception as e:
+                    LOGGER.debug(f"通过文本'{roll_text}'查找Roll按钮失败: {e}")
+                    continue
+            
+            # 方法2: 如果方法1失败，尝试查找页面右下角的所有按钮
+            if not button_clicked:
+                try:
+                    LOGGER.info("尝试在页面右下角查找Roll按钮...")
+                    # 获取页面尺寸
+                    page_height = self._driver.execute_script("return document.body.scrollHeight")
+                    viewport_height = self._driver.execute_script("return window.innerHeight")
+                    
+                    # 滚动到页面底部
+                    self._driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                    time.sleep(0.5)
+                    
+                    # 查找所有按钮
+                    all_buttons = self._driver.find_elements(By.TAG_NAME, "button")
+                    LOGGER.info(f"找到 {len(all_buttons)} 个按钮，查找Roll按钮...")
+                    
+                    for button in all_buttons:
+                        try:
+                            if not button.is_displayed():
+                                continue
+                            
+                            button_text = button.text.strip()
+                            button_location = button.location
+                            button_size = button.size
+                            
+                            # 检查按钮是否在右下角区域（右侧80%以上，底部20%以内）
+                            viewport_width = self._driver.execute_script("return window.innerWidth")
+                            is_bottom_right = (
+                                button_location['x'] + button_size['width'] / 2 > viewport_width * 0.8 and
+                                button_location['y'] + button_size['height'] / 2 > viewport_height * 0.8
+                            )
+                            
+                            # 检查按钮文本是否包含"roll"（不区分大小写）
+                            if "roll" in button_text.lower():
+                                LOGGER.info(f"找到可能的Roll按钮: '{button_text}' (位置: {button_location}, 是否右下角: {is_bottom_right})")
+                                if button.is_enabled():
+                                    self._driver.execute_script(
+                                        "arguments[0].scrollIntoView({block: 'end', inline: 'end'});",
+                                        button
+                                    )
+                                    time.sleep(0.3)
+                                    button.click()
+                                    LOGGER.info(f"✅ 已点击Roll按钮: '{button_text}'")
+                                    button_clicked = True
+                                    break
+                        except Exception as e:
+                            LOGGER.debug(f"检查按钮时出错: {e}")
+                            continue
+                except Exception as e:
+                    LOGGER.warning(f"在右下角查找Roll按钮失败: {e}")
+            
+            # 方法3: 如果前两种方法都失败，尝试通过CSS类名或ID查找
+            if not button_clicked:
+                try:
+                    LOGGER.info("尝试通过CSS选择器查找Roll按钮...")
+                    # 常见的按钮选择器模式
+                    selectors = [
+                        "button[class*='roll']",
+                        "button[id*='roll']",
+                        "button[class*='submit']",
+                        "button[class*='save']",
+                        ".roll-button",
+                        "#roll-button",
+                    ]
+                    
+                    for selector in selectors:
+                        try:
+                            roll_button = self._driver.find_element(By.CSS_SELECTOR, selector)
+                            if roll_button.is_displayed() and roll_button.is_enabled():
+                                LOGGER.info(f"通过CSS选择器找到Roll按钮: {selector}")
+                                self._driver.execute_script(
+                                    "arguments[0].scrollIntoView({block: 'end', inline: 'end'});",
+                                    roll_button
+                                )
+                                time.sleep(0.3)
+                                roll_button.click()
+                                LOGGER.info(f"✅ 已点击Roll按钮（通过CSS选择器: {selector}）")
+                                button_clicked = True
+                                break
+                        except:
+                            continue
+                except Exception as e:
+                    LOGGER.debug(f"通过CSS选择器查找失败: {e}")
+            
+            if button_clicked:
+                time.sleep(1.0)  # 等待按钮点击后的响应
+                return True
+            else:
+                LOGGER.error("❌ 未找到Roll按钮")
+                return False
+                
+        except Exception as e:
+            LOGGER.error(f"点击Roll按钮失败: {e}")
             import traceback
             LOGGER.error(traceback.format_exc())
             return False

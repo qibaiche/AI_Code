@@ -6,14 +6,13 @@
 # 格式：使用双反斜杠 \\ 或正斜杠 /
 # 示例：\\\\server\\path\\to\\tp 或 //server/path/to/tp
 paths:
-  tp_path: "\\\\gar.corp.intel.com\\ec\\proj\\mdl\\pg\\intel\\hdmxprogs\\ptl\\PTLP484BXG24J41S547\\POR_TP\\PTL_P_CLASS"
+  tp_path: "\\\\gar.corp.intel.com\\ec\\proj\\mdl\\pg\\intel\\hdmxprogs\\ptl\\PTLP484BXH24X00S549\\POR_TP\\PTL_P_CLASS"
   
   # 其他路径配置（一般不需要修改）
   input_dir: ".."  # 输入文件目录（Auto VPO根目录）
-  source_lot_file: "../Source Lot.csv"  # Source Lot文件路径
+  source_lot_file: "../input/Source Lot.csv"  # Source Lot文件路径（优先在input目录查找）
   output_dir: "../output"  # 输出文件目录
   log_dir: "./logs"  # 日志目录
-  spark_config: "../spark_automation_config.yaml"  # Spark自动化配置文件
 
 # Mole工具配置
 mole:
@@ -31,9 +30,9 @@ spark:
   url: "https://spark.app.intel.com/dashboard"
   
   # 实验信息配置（根据需要修改）
-  vpo_category: "engineering"  # VPO类别: correlation, engineering, walk the lot
+  vpo_category: "correlation"  # VPO类别: correlation, engineering, walk the lot
   step: "B5"  # Step选项: B0, B4, B5, B6等
-  tags: "ECG_24J-DOD"  # Tags标签
+  tags: "CCG_24X00"  # Tags标签
   
   # 高级配置（一般不需要修改）
   timeout: 60  # 页面加载超时时间（秒）
