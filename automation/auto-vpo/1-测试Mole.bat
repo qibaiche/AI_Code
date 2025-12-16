@@ -6,7 +6,7 @@ echo 自动化工作流工具
 echo ========================================
 echo.
 
-python -m workflow_automation.main
+python -m workflow_automation.main --mole-only
 
 echo.
 echo 按任意键退出...

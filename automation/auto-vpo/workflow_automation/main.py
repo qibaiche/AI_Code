@@ -1,4 +1,5 @@
 """主程序入口"""
+import argparse
 import logging
 import sys
 from pathlib import Path
@@ -83,8 +84,14 @@ def select_excel_file_cli() -> Path | None:
     return file_path
 
 
-def run_workflow_cli(excel_file_path: Path, config_path: Path) -> None:
-    """运行工作流（命令行模式）"""
+def run_workflow_cli(excel_file_path: Path, config_path: Path, mole_only: bool = False) -> None:
+    """运行工作流（命令行模式）
+    
+    Args:
+        excel_file_path: source lot文件路径
+        config_path: 配置文件路径
+        mole_only: 为True时仅运行Mole步骤，跳过Spark/GTS
+    """
     try:
         # 加载配置
         config = load_config(config_path)
@@ -96,23 +103,30 @@ def run_workflow_cli(excel_file_path: Path, config_path: Path) -> None:
         logger.info("=" * 80)
         logger.info("自动化工作流启动")
         logger.info("=" * 80)
+        if mole_only:
+            logger.info("当前模式: 仅运行Mole步骤（Spark/GTS已跳过）")
         
         # 创建控制器并运行工作流
         controller = WorkflowController(config)
-        output_path = controller.run_workflow(excel_file_path)
+        output_path = controller.run_mole_only(excel_file_path) if mole_only else controller.run_workflow(excel_file_path)
         
         # 显示成功消息
         if TKINTER_AVAILABLE:
             root = tk.Tk()
             root.withdraw()
-            messagebox.showinfo(
-                "工作流执行成功",
-                f"工作流执行成功！\n\n输出文件:\n{output_path}"
-            )
+            success_title = "Mole流程执行成功" if mole_only else "工作流执行成功"
+            success_body = "Mole步骤已完成（Spark/GTS已跳过）" if mole_only else "工作流执行成功！"
+            if output_path:
+                success_body += f"\n\n输出文件:\n{output_path}"
+            messagebox.showinfo(success_title, success_body)
             root.destroy()
         else:
-            print(f"\n✅ 工作流执行成功！")
-            print(f"输出文件: {output_path}")
+            if mole_only:
+                print(f"\n✅ Mole步骤执行成功（Spark/GTS已跳过）")
+            else:
+                print(f"\n✅ 工作流执行成功！")
+            if output_path:
+                print(f"输出文件: {output_path}")
     
     except WorkflowError as e:
         logger = logging.getLogger(__name__)
@@ -186,6 +200,14 @@ def find_source_lot_file(base_dir: Path, config=None) -> Path | None:
 
 def main():
     """主函数"""
+    parser = argparse.ArgumentParser(description="自动化工作流入口")
+    parser.add_argument(
+        "--mole-only",
+        action="store_true",
+        help="仅运行Mole步骤，跳过Spark/GTS"
+    )
+    args = parser.parse_args()
+    
     # 确定配置文件路径
     base_dir = Path(__file__).parent
     config_path = base_dir / "config.yaml"
@@ -224,7 +246,7 @@ def main():
             sys.exit(1)
     
     # 运行工作流
-    run_workflow_cli(excel_file_path, config_path)
+    run_workflow_cli(excel_file_path, config_path, mole_only=args.mole_only)
 
 
 if __name__ == "__main__":

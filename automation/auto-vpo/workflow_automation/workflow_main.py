@@ -37,6 +37,7 @@ class WorkflowController:
         self.gts_submitter = GTSSubmitter(config.gts)
         self.results = []
         self.errors = []
+        self.last_mir_result_file = None
     
     def run_workflow(self, excel_file_path: str | Path) -> Path | None:
         """
@@ -110,6 +111,69 @@ class WorkflowController:
         except Exception as e:
             elapsed_time = (datetime.now() - start_time).total_seconds()
             error_msg = f"工作流执行失败: {e}"
+            LOGGER.error("\n" + "=" * 80)
+            LOGGER.error(f"❌ {error_msg}")
+            LOGGER.error(f"执行时间: {elapsed_time:.2f} 秒")
+            LOGGER.error("=" * 80)
+            LOGGER.error(traceback.format_exc())
+            raise WorkflowError(error_msg) from e
+    
+    def run_mole_only(self, excel_file_path: str | Path) -> Path | None:
+        """
+        仅运行Mole步骤（不执行Spark/GTS）
+        
+        Args:
+            excel_file_path: source lot文件路径
+        
+        Returns:
+            最新的MIR结果文件路径（如果生成）
+        """
+        excel_file_path = Path(excel_file_path)
+        
+        LOGGER.info("=" * 80)
+        LOGGER.info("开始执行Mole-only工作流（Spark/GTS已跳过）")
+        LOGGER.info(f"输入文件: {excel_file_path}")
+        LOGGER.info("=" * 80)
+        
+        start_time = datetime.now()
+        
+        try:
+            # 步骤0: 预先启动Mole工具
+            LOGGER.info("\n" + "=" * 80)
+            LOGGER.info("步骤 0/2: 启动Mole工具")
+            LOGGER.info("=" * 80)
+            self._step_start_mole()
+            
+            # 步骤1: 读取文件（Excel或CSV）
+            LOGGER.info("\n" + "=" * 80)
+            LOGGER.info("步骤 1/2: 读取source lot文件")
+            LOGGER.info("=" * 80)
+            df = self._step_read_excel(excel_file_path)
+            
+            # 步骤2: 提交MIR数据到Mole工具（循环处理所有行）
+            LOGGER.info("\n" + "=" * 80)
+            LOGGER.info("步骤 2/2: 提交MIR数据到Mole工具（循环处理所有行）")
+            LOGGER.info("=" * 80)
+            source_lot_file_path = self._get_source_lot_file_path(excel_file_path)
+            self._step_submit_to_mole(df, source_lot_file_path)
+            
+            elapsed_time = (datetime.now() - start_time).total_seconds()
+            output_path = self.last_mir_result_file
+            
+            LOGGER.info("\n" + "=" * 80)
+            LOGGER.info("✅ Mole-only工作流执行成功（已跳过Spark/GTS）")
+            LOGGER.info(f"执行时间: {elapsed_time:.2f} 秒")
+            if output_path:
+                LOGGER.info(f"输出文件: {output_path}")
+            else:
+                LOGGER.info("注意: 未获取到MIR结果文件路径")
+            LOGGER.info("=" * 80)
+            
+            return output_path
+            
+        except Exception as e:
+            elapsed_time = (datetime.now() - start_time).total_seconds()
+            error_msg = f"Mole-only工作流执行失败: {e}"
             LOGGER.error("\n" + "=" * 80)
             LOGGER.error(f"❌ {error_msg}")
             LOGGER.error(f"执行时间: {elapsed_time:.2f} 秒")
@@ -224,12 +288,15 @@ class WorkflowController:
             result_df.to_csv(output_file, index=False, encoding='utf-8-sig')
             LOGGER.info(f"✅ 所有MIR结果已保存到: {output_file}")
             LOGGER.info(f"   共 {len(mir_results)} 行数据")
+            self.last_mir_result_file = output_file
             
             # 显示每行的详细信息（按排序后的顺序）
             for idx, (_, row) in enumerate(result_df.iterrows(), 1):
                 source_lot = row.get(source_lot_col, 'N/A') if source_lot_col else 'N/A'
                 mir = row.get('MIR', 'N/A')
                 LOGGER.info(f"   第 {idx} 行: SourceLot={source_lot}, MIR={mir}")
+            
+            return output_file
             
         except Exception as e:
             LOGGER.error(f"保存MIR结果到CSV失败: {e}")
@@ -523,26 +590,19 @@ class WorkflowController:
     def _step_submit_to_spark(self, df: pd.DataFrame) -> None:
         """步骤3: 提交VPO数据到Spark网页（从MIR结果文件读取数据）"""
         try:
-            # 查找最新的MIR结果文件
-            LOGGER.info("查找MIR结果文件...")
-            mir_files = []
+            # 仅在output目录查找最新的MIR结果文件（与test_spark一致）
+            LOGGER.info("查找MIR结果文件（仅output目录）...")
+            output_dir = self.config.paths.output_dir
+            if not output_dir.exists():
+                raise WorkflowError(f"output目录不存在: {output_dir}")
             
-            # 在多个位置查找MIR结果文件
-            search_locations = [
-                self.config.paths.output_dir,
-                self.config.paths.input_dir,
-            ]
-            
-            for location in search_locations:
-                if location.exists():
-                    files = list(location.glob("MIR_Results_*.csv"))
-                    mir_files.extend(files)
+            mir_files = sorted(output_dir.glob("MIR_Results_*.csv"), reverse=True)
             
             if not mir_files:
-                raise WorkflowError("未找到MIR结果文件，无法提交到Spark。请先完成Mole步骤。")
+                raise WorkflowError(f"未在output目录找到MIR结果文件，无法提交到Spark。请先完成Mole步骤。\n已检查目录: {output_dir}")
             
             # 使用最新的文件
-            selected_file = sorted(mir_files, reverse=True)[0]
+            selected_file = mir_files[0]
             LOGGER.info(f"使用MIR结果文件: {selected_file.name}")
             
             # 读取MIR结果文件
