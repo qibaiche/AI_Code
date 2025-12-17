@@ -33,6 +33,7 @@ class PathsConfig:
     report_dir: Path
     config_dir: Path
     log_dir: Path
+    upgrade_script: Optional[Path] = None  # SQLPathFinder 升级脚本路径
 
 
 @dataclass
@@ -42,6 +43,7 @@ class FieldsConfig:
     interface_bin: str = "interface_bin"
     devrevstep: str = "devrevstep"
     visual_id: str = "VISUAL_ID"
+    process_step: str = "process_step"  # 用于按 process_step 分组统计
 
 
 @dataclass
@@ -109,6 +111,11 @@ def load_config(config_path: Path) -> AppConfig:
     output_csv = _ensure_path(paths_section["output_csv"], base_dir)
     report_dir = _ensure_path(paths_section["report_dir"], base_dir)
     log_dir = _ensure_path(paths_section.get("log_dir", "logs"), base_dir)
+    
+    # 加载升级脚本路径（可选）
+    upgrade_script = None
+    if "upgrade_script" in paths_section and paths_section["upgrade_script"]:
+        upgrade_script = _ensure_path(paths_section["upgrade_script"], base_dir)
 
     report_dir.mkdir(parents=True, exist_ok=True)
     log_dir.mkdir(parents=True, exist_ok=True)
@@ -121,6 +128,7 @@ def load_config(config_path: Path) -> AppConfig:
         report_dir=report_dir,
         config_dir=base_dir,
         log_dir=log_dir,
+        upgrade_script=upgrade_script,
     )
 
     email_cfg = EmailConfig(
@@ -148,6 +156,7 @@ def load_config(config_path: Path) -> AppConfig:
         interface_bin=data.get("fields", {}).get("interface_bin", "interface_bin"),
         devrevstep=data.get("fields", {}).get("devrevstep", "devrevstep"),
         visual_id=data.get("fields", {}).get("visual_id", "VISUAL_ID"),
+        process_step=data.get("fields", {}).get("process_step", "process_step"),
     )
 
     timeouts_section = data.get("timeouts", {})

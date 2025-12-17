@@ -5,6 +5,7 @@ paths:
   output_csv: "C:/Users/qibaiche/AppData/Local/Temp/SQLPathFinder_Temp/by_lot.csv"
   report_dir: "../reports"
   log_dir: "../logs"
+  upgrade_script: "C:/Users/qibaiche/My Programs/SQLPathFinder3/StartSQLPathFinder.bat"  # SQLPathFinder 升级脚本路径
 
 fields:
   lot: "lot"  # 实际列名是小写
@@ -12,6 +13,7 @@ fields:
   interface_bin: "interface_bin"  # 实际列名是小写
   devrevstep: "devrevstep"  # 实际列名是小写
   visual_id: "VISUAL_ID"  # 实际列名是大写
+  process_step: "process_step"  # 用于按 process_step 分组统计
 
 timeouts:
   spf_launch: 60
@@ -36,7 +38,7 @@ processing:
   max_lots_per_batch: null
   filters:
     mut_within_subflow_latest_flag: "Y"  # 只统计最新的subflow数据
-    SUBSTRUCTURE_ID: "U1.U1"  # 只统计U1.U1的substructure
+    SUBSTRUCTURE_ID: "U1.U2"  # 只统计U1.U2的substructure，U1.U1最近抓不到
 
 email:
   mode: "outlook"  # or smtp

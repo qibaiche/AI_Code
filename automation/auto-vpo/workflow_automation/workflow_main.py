@@ -64,19 +64,19 @@ class WorkflowController:
         try:
             # 步骤0: 预先启动Mole工具
             LOGGER.info("\n" + "=" * 80)
-            LOGGER.info("步骤 0/3: 启动Mole工具")
+            LOGGER.info("步骤 0/5: 启动Mole工具")
             LOGGER.info("=" * 80)
             self._step_start_mole()
             
             # 步骤1: 读取文件（Excel或CSV）
             LOGGER.info("\n" + "=" * 80)
-            LOGGER.info("步骤 1/3: 读取source lot文件")
+            LOGGER.info("步骤 1/5: 读取source lot文件")
             LOGGER.info("=" * 80)
             df = self._step_read_excel(excel_file_path)
             
             # 步骤2: 提交MIR数据到Mole工具（循环处理所有行）
             LOGGER.info("\n" + "=" * 80)
-            LOGGER.info("步骤 2/3: 提交MIR数据到Mole工具（循环处理所有行）")
+            LOGGER.info("步骤 2/5: 提交MIR数据到Mole工具（循环处理所有行）")
             LOGGER.info("=" * 80)
             # 获取Source Lot文件路径
             source_lot_file_path = self._get_source_lot_file_path(excel_file_path)
@@ -84,9 +84,21 @@ class WorkflowController:
             
             # 步骤3: 提交VPO数据到Spark网页
             LOGGER.info("\n" + "=" * 80)
-            LOGGER.info("步骤 3/3: 提交VPO数据到Spark网页")
+            LOGGER.info("步骤 3/5: 提交VPO数据到Spark网页")
             LOGGER.info("=" * 80)
             self._step_submit_to_spark(df)
+            
+            # 步骤4: 生成GTS填充文件
+            LOGGER.info("\n" + "=" * 80)
+            LOGGER.info("步骤 4/5: 生成GTS填充文件")
+            LOGGER.info("=" * 80)
+            self._step_generate_gts_file()
+            
+            # 步骤5: 自动填充并提交GTS
+            LOGGER.info("\n" + "=" * 80)
+            LOGGER.info("步骤 5/5: 自动填充并提交GTS")
+            LOGGER.info("=" * 80)
+            self._step_submit_to_gts()
             
             # 保存结果
             LOGGER.info("\n" + "=" * 80)
@@ -98,7 +110,12 @@ class WorkflowController:
             elapsed_time = (datetime.now() - start_time).total_seconds()
             
             LOGGER.info("\n" + "=" * 80)
-            LOGGER.info("✅ 工作流执行成功（已处理所有Source Lot行）")
+            LOGGER.info("✅ 完整工作流执行成功！")
+            LOGGER.info("=" * 80)
+            LOGGER.info("已完成所有步骤:")
+            LOGGER.info("  ✓ Mole: MIR 数据已提交")
+            LOGGER.info("  ✓ Spark: VPO 数据已提交")
+            LOGGER.info("  ✓ GTS: 填充文件已生成并提交")
             LOGGER.info(f"执行时间: {elapsed_time:.2f} 秒")
             if output_path:
                 LOGGER.info(f"输出文件: {output_path}")
@@ -828,49 +845,98 @@ class WorkflowController:
                                 LOGGER.warning(f"⚠️ 尝试点击Add New按钮时出错: {e2}，但将继续处理下一行")
                 
                 LOGGER.info("=" * 80)
-                LOGGER.info("✅ 所有VPO数据提交完成")
+                LOGGER.info("✅ 所有VPO数据提交请求已完成")
                 LOGGER.info(f"   总行数: {len(mir_df)}")
                 LOGGER.info(f"   成功: {len([r for r in self.results if r.get('step') == 'Spark' and r.get('status') == 'success'])}")
                 LOGGER.info(f"   失败: {len([e for e in self.errors if e.get('step') == 'Spark'])}")
                 LOGGER.info("=" * 80)
+
+            # ------------------------------------------------------------------
+            # 所有提交完成后，等待一段时间，从Dashboard收集VPO并写回CSV
+            # ------------------------------------------------------------------
+            try:
+                expected_vpo_count = len(mir_df)
+                LOGGER.info("开始从Spark Dashboard收集VPO编号，用于回写到MIR结果CSV...")
+                vpo_list = self.spark_submitter.collect_recent_vpos_from_dashboard(expected_count=expected_vpo_count)
+
+                if not vpo_list:
+                    LOGGER.warning("未能从Dashboard收集到任何VPO编号，跳过生成包含VPO的新CSV。")
+                    return
+
+                # 页面上顺序：最新在前；MIR CSV顺序：最早在前
+                # 需要将列表反向后按顺序对应到每一行
+                LOGGER.info("开始将收集到的VPO编号与MIR结果按顺序匹配...")
+                vpo_list_reversed = list(reversed(vpo_list))
+
+                mir_with_vpo = mir_df.copy()
+                vpo_col_name = "VPO"
+                if vpo_col_name in mir_with_vpo.columns:
+                    LOGGER.warning(f"检测到MIR结果中已存在列 '{vpo_col_name}'，将覆盖该列的值。")
+
+                mir_with_vpo[vpo_col_name] = ""
+
+                max_count = min(len(mir_with_vpo), len(vpo_list_reversed))
+                for i in range(max_count):
+                    mir_with_vpo.at[mir_with_vpo.index[i], vpo_col_name] = vpo_list_reversed[i]
+                    LOGGER.info(f"第 {i+1} 行: SourceLot={mir_with_vpo.iloc[i].get('SourceLot', 'N/A')} , VPO={vpo_list_reversed[i]}")
+
+                # 生成新的带VPO的CSV文件
+                date_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+                output_file = self.config.paths.output_dir / f"MIR_Results_with_VPO_{date_str}.csv"
+                mir_with_vpo.to_csv(output_file, index=False, encoding="utf-8-sig")
+
+                LOGGER.info(f"✅ 已生成包含VPO的新CSV文件: {output_file}")
+                LOGGER.info(f"   共写入 {max_count} 条VPO记录（总行数: {len(mir_with_vpo)}）")
+            except Exception as e:
+                LOGGER.error(f"从Dashboard收集VPO并写回CSV时出错: {e}")
+                LOGGER.error(traceback.format_exc())
                 
         except Exception as e:
             raise WorkflowError(f"提交VPO数据到Spark网页失败: {e}")
     
-    def _step_submit_to_gts(self, df: pd.DataFrame) -> None:
-        """步骤4: 提交最终数据到GTS网站"""
+    def _step_generate_gts_file(self) -> None:
+        """步骤4: 生成GTS填充文件"""
         try:
-            # 使用上下文管理器确保WebDriver正确关闭
-            with self.gts_submitter:
-                # 将DataFrame转换为字典格式
-                for idx, row in df.iterrows():
-                    data = row.to_dict()
-                    LOGGER.info(f"处理第 {idx + 1}/{len(df)} 行数据")
-                    
-                    success = self.gts_submitter.submit_final_data(data)
-                    if success:
-                        LOGGER.info(f"✅ 第 {idx + 1} 行数据提交成功")
-                        self.results.append({
-                            'row_index': idx,
-                            'step': 'GTS',
-                            'status': 'success',
-                            'timestamp': datetime.now().isoformat()
-                        })
-                    else:
-                        error_msg = f"第 {idx + 1} 行数据提交失败"
-                        LOGGER.error(f"❌ {error_msg}")
-                        self.errors.append({
-                            'row_index': idx,
-                            'step': 'GTS',
-                            'error': error_msg,
-                            'timestamp': datetime.now().isoformat()
-                        })
-                        raise WorkflowError(error_msg)
-                
-                LOGGER.info("✅ 所有最终数据提交成功")
+            LOGGER.info("正在生成GTS填充文件...")
+            
+            # 导入GTS填充模块
+            from .gts_fill_table import fill_gts_table
+            
+            # 查找最新的 MIR_Results_with_VPO_*.csv 文件
+            output_dir = self.config.paths.output_dir
+            vpo_files = sorted(output_dir.glob("MIR_Results_with_VPO_*.csv"), reverse=True)
+            
+            if not vpo_files:
+                raise WorkflowError("未找到 MIR_Results_with_VPO_*.csv 文件，请先完成 Spark 步骤")
+            
+            input_file = vpo_files[0]
+            LOGGER.info(f"使用输入文件: {input_file.name}")
+            
+            # 调用填充函数
+            output_file = fill_gts_table(input_file, output_dir)
+            
+            if output_file and output_file.exists():
+                LOGGER.info(f"✅ GTS填充文件已生成: {output_file.name}")
+            else:
+                raise WorkflowError("生成GTS填充文件失败")
                 
         except Exception as e:
-            raise WorkflowError(f"提交最终数据到GTS网站失败: {e}")
+            raise WorkflowError(f"生成GTS填充文件失败: {e}")
+    
+    def _step_submit_to_gts(self) -> None:
+        """步骤5: 自动填充并提交GTS"""
+        try:
+            LOGGER.info("正在打开GTS页面并自动填充...")
+            
+            # 调用新的自动填充逻辑
+            self.gts_submitter.fill_ticket_with_latest_output()
+            
+            LOGGER.info("✅ GTS 填充和提交流程已完成")
+            
+        except Exception as e:
+            LOGGER.error(f"GTS自动填充失败: {e}")
+            LOGGER.error(traceback.format_exc())
+            raise WorkflowError(f"提交GTS失败: {e}")
     
     def _step_save_results(self, df: pd.DataFrame) -> Path:
         """保存处理结果"""

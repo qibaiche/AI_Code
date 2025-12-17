@@ -101,8 +101,25 @@ def process_lab_data(csv_path: Path, config) -> pd.DataFrame:
     # 去重（因为SQL可能返回重复行）
     result_df = result_df.drop_duplicates()
     
-    # 按 Sub Flow Step, Devrevstep, Program Name 排序
-    result_df = result_df.sort_values(['Sub Flow Step', 'Devrevstep', 'Program Name'])
+    # 按 Sub Flow Step 自定义排序：CLASSHOT, CLASSCOLD, PHMHOT, PHMCOLD, 其他的
+    # 然后按 Devrevstep, Program Name 排序
+    sort_order = ['CLASSHOT', 'CLASSCOLD', 'PHMHOT', 'PHMCOLD']
+    
+    def get_sort_key(value):
+        if pd.isna(value):
+            return (999, '')  # NaN 值排在最后
+        value_str = str(value).strip().upper()
+        try:
+            index = sort_order.index(value_str)
+            return (index, value_str)
+        except ValueError:
+            # 不在预定义顺序中，排在最后，但保持原有顺序
+            return (len(sort_order), value_str)
+    
+    # 创建临时排序列
+    result_df['_sort_key'] = result_df['Sub Flow Step'].apply(get_sort_key)
+    result_df = result_df.sort_values(['_sort_key', 'Devrevstep', 'Program Name']).reset_index(drop=True)
+    result_df = result_df.drop(columns=['_sort_key'])
     
     LOGGER.info("处理后数据形状: %s", result_df.shape)
     

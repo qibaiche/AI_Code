@@ -3,11 +3,12 @@ chcp 65001 >nul
 cd /d "%~dp0"
 
 echo ========================================
-echo    PRD LOT 自动化工具 - 直接运行
+echo    统一自动化工具
+echo    (Lab TP + PRD LOT)
 echo ========================================
 echo.
 
-python -m prd_lot_automation.main --config prd_lot_automation\config.yaml
+python unified_automation.py
 
 echo.
 if errorlevel 1 (

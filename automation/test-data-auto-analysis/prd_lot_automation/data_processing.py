@@ -24,7 +24,7 @@ def apply_filters(df: pd.DataFrame, filters: dict) -> pd.DataFrame:
     
     Args:
         df: 数据框
-        filters: 过滤条件字典，例如 {"mut_within_subflow_latest_flag": "Y", "SUBSTRUCTURE_ID": "U1.U1"}
+        filters: 过滤条件字典，例如 {"mut_within_subflow_latest_flag": "Y", "SUBSTRUCTURE_ID": "U1.U2"}
     
     Returns:
         过滤后的数据框
@@ -72,11 +72,26 @@ def normalize_columns(df: pd.DataFrame, config: AppConfig) -> pd.DataFrame:
         raise KeyError(error_msg)
 
     normalized = df.copy()
+    initial_count = len(normalized)
+    LOGGER.info(f"标准化前数据行数: {initial_count}")
     
     # 应用配置中的过滤条件
     filters = config.processing.filters
     if filters:
         normalized = apply_filters(normalized, filters)
+        filtered_count = len(normalized)
+        LOGGER.info(f"应用过滤条件后数据行数: {filtered_count}")
+        
+        if filtered_count == 0:
+            LOGGER.warning("⚠️ 警告：应用过滤条件后数据为空！")
+            LOGGER.warning(f"   过滤条件: {filters}")
+            LOGGER.warning("   可能的原因：")
+            LOGGER.warning("   1. 过滤条件太严格，没有数据满足条件")
+            LOGGER.warning("   2. 列名不匹配（检查大小写、下划线等）")
+            LOGGER.warning("   3. 数据中确实没有满足条件的数据")
+            LOGGER.warning("   建议：检查 config.yaml 中的 filters 配置，或查看原始数据")
+    else:
+        LOGGER.info("未配置过滤条件，使用全部数据")
     
     normalized[config.fields.functional_bin] = normalized[
         config.fields.functional_bin
@@ -88,6 +103,15 @@ def normalize_columns(df: pd.DataFrame, config: AppConfig) -> pd.DataFrame:
     normalized[config.fields.devrevstep] = normalized[
         config.fields.devrevstep
     ].fillna("UNKNOWN")
+    
+    # 处理 process_step 列（如果存在）
+    if config.fields.process_step in normalized.columns:
+        # 将空值填充为 "UNKNOWN"，以便分组统计
+        normalized[config.fields.process_step] = normalized[
+            config.fields.process_step
+        ].fillna("UNKNOWN")
+        LOGGER.info(f"process_step 列已处理，唯一值: {normalized[config.fields.process_step].unique().tolist()}")
+    
     return normalized
 
 
@@ -116,6 +140,26 @@ def build_quantity_table(df: pd.DataFrame, config: AppConfig, bin_type: str = "f
     dev_col = config.fields.devrevstep
     visual_col = config.fields.visual_id
 
+    # 检查数据是否为空
+    if df.empty:
+        LOGGER.warning(f"⚠️ 警告：{bin_type.upper()}_BIN 数据为空，无法构建数量表")
+        return pd.DataFrame(), False
+    
+    # 检查必要的列是否存在
+    if bin_col not in df.columns:
+        LOGGER.error(f"❌ 错误：{bin_col} 列不存在于数据中")
+        return pd.DataFrame(), False
+    
+    if dev_col not in df.columns:
+        LOGGER.error(f"❌ 错误：{dev_col} 列不存在于数据中")
+        return pd.DataFrame(), False
+    
+    if visual_col not in df.columns:
+        LOGGER.error(f"❌ 错误：{visual_col} 列不存在于数据中")
+        return pd.DataFrame(), False
+    
+    LOGGER.info(f"构建 {bin_type.upper()}_BIN 数量表，数据行数: {len(df)}")
+    
     visual_numeric = pd.to_numeric(df[visual_col], errors="coerce")
     is_numeric = visual_numeric.notna().all()
     if is_numeric:
@@ -128,6 +172,15 @@ def build_quantity_table(df: pd.DataFrame, config: AppConfig, bin_type: str = "f
 
     quantity = agg.unstack(dev_col).fillna(0)
     quantity = quantity.sort_index(axis=0)
+    
+    if quantity.empty:
+        LOGGER.warning(f"⚠️ 警告：{bin_type.upper()}_BIN 数量表为空")
+        LOGGER.warning("   可能的原因：")
+        LOGGER.warning("   1. 数据中没有有效的 functional_bin 或 devrevstep 值")
+        LOGGER.warning("   2. 所有数据都被过滤掉了")
+    else:
+        LOGGER.info(f"✅ {bin_type.upper()}_BIN 数量表构建完成，形状: {quantity.shape}")
+    
     return quantity, is_numeric
 
 

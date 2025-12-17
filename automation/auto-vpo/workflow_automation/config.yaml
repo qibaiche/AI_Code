@@ -43,16 +43,27 @@ spark:
   implicit_wait: 10  # 隐式等待时间（秒）
   explicit_wait: 20  # 显式等待时间（秒）
 
-# GTS网站配置
+# GTS网站配置（全新版本）
 gts:
-  url: null  # GTS网站URL，需要用户配置
+  # GTS 新建 ticket 页面 URL
+  url: "https://hsdes.intel.com/appstore/gts/#/newticket?ticket_category=Lab%20Support&site=Penang&service_type=lab&service_sub_type=request&lab=PG12%20MPE%20Lab&priority=2-high&notify=nbin240x,PDL-PG%20Test%20Ops&site_lab_org=Pen-ang&org_unit=External.IOTG&lab_org=MPE&category=Planner&component=lab.Planner.Vpo%20Scheduling.class&title=%5BPTL%5D%20WW34.1:%20Day%20Loading%20@%20X10%20HDMX5279_L2&program=PTL%20H"
+  
+  # Title 文本（会覆盖 URL 参数中的 title）
+  title_text: "[PTL] WW51.2: Night Loading @ X10 HDMX2524_L4/L5"
+  
+  # CSS 选择器配置（通常不需要修改）
+  title_selector: "input.ui-inputtext[pinputtext][type='text']"  # Title 输入框
+  description_iframe_selector: "iframe.fr-iframe"  # Description 的 iframe
+  description_body_selector: "body.fr-view[contenteditable='true']"  # iframe 里的富文本编辑器
+  
+  # 超时与重试配置
   timeout: 60  # 页面加载超时时间（秒）
   retry_count: 3  # 重试次数
   retry_delay: 2  # 重试延迟（秒）
-  wait_after_submit: 5  # 提交后等待时间（秒）
-  # Selenium WebDriver配置
-  headless: false  # 是否使用无头模式
-  implicit_wait: 10  # 隐式等待时间（秒）
+  
+  # Selenium WebDriver 配置
+  headless: false  # 是否使用无头模式（false=显示浏览器）
+  implicit_wait: 5  # 隐式等待时间（秒）
   explicit_wait: 20  # 显式等待时间（秒）
 
 # 通用超时配置

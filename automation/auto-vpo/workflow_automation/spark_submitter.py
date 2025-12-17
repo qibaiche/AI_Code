@@ -1,7 +1,8 @@
 """Spark网页提交VPO数据模块"""
 import logging
+import re
 import time
-from typing import Optional
+from typing import Optional, List
 from dataclasses import dataclass
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -34,6 +35,8 @@ class SparkConfig:
     headless: bool = False
     implicit_wait: int = 10
     explicit_wait: int = 20
+    # 提交完成后，从Dashboard收集VPO的等待时间（分钟），0 表示不等待
+    vpo_collect_wait_minutes: int = 0
 
 
 class SparkSubmitter:
@@ -3961,4 +3964,85 @@ class SparkSubmitter:
     def __exit__(self, exc_type, exc_val, exc_tb):
         """上下文管理器出口"""
         self._close_driver()
+
+    # ------------------------------------------------------------------
+    # Dashboard VPO 收集相关
+    # ------------------------------------------------------------------
+
+    def collect_recent_vpos_from_dashboard(self, expected_count: int) -> List[str]:
+        """
+        在Spark Dashboard的“Rolling Experiments”区域收集最近的VPO编号。
+        
+        显示顺序：从上到下、从左到右 = 从最近提交到最早提交。
+        
+        Args:
+            expected_count: 预期需要收集的VPO数量（通常等于本次提交的MIR行数）
+        
+        Returns:
+            VPO字符串列表（按页面显示顺序：最新在前、最旧在后）
+        """
+        wait_minutes = getattr(self.config, "vpo_collect_wait_minutes", 0)
+        LOGGER.info("=" * 80)
+        LOGGER.info(f"所有VPO提交完成，将等待 {wait_minutes} 分钟后再从Dashboard收集VPO编号（0 表示不等待）...")
+        LOGGER.info("=" * 80)
+        
+        # 等待一段时间，给后端系统生成VPO的时间；如果配置为0则不等待
+        if wait_minutes > 0:
+            time.sleep(wait_minutes * 60)
+        
+        # 初始化并打开Dashboard
+        self._init_driver()
+        self._navigate_to_page()
+        
+        vpo_list: List[str] = []
+        
+        try:
+            LOGGER.info("等待“Rolling Experiments”区域加载...")
+            try:
+                WebDriverWait(self._driver, self.config.explicit_wait).until(
+                    EC.presence_of_element_located(
+                        (By.XPATH, "//*[contains(text(), 'Rolling Experiments')]")
+                    )
+                )
+            except TimeoutException:
+                LOGGER.warning("在页面中未能明显找到“Rolling Experiments”标题，将直接全局搜索包含 VPO 的元素。")
+            
+            # 查找所有包含 "VPO " 文本的元素
+            LOGGER.info("在Dashboard页面中查找包含 'VPO ' 文本的元素...")
+            elements = self._driver.find_elements(
+                By.XPATH,
+                "//*[contains(normalize-space(text()), 'VPO ')]"
+            )
+            LOGGER.info(f"找到 {len(elements)} 个包含 'VPO ' 的元素，开始解析VPO编号...")
+            
+            pattern = re.compile(r"VPO\s+([A-Za-z0-9_-]+)")
+            
+            for elem in elements:
+                try:
+                    text = elem.text.strip()
+                    if not text:
+                        continue
+                    match = pattern.search(text)
+                    if match:
+                        vpo_code = match.group(1)
+                        if vpo_code not in vpo_list:
+                            vpo_list.append(vpo_code)
+                            LOGGER.info(f"解析到VPO: {vpo_code}")
+                            if len(vpo_list) >= expected_count:
+                                break
+                except Exception as e:
+                    LOGGER.debug(f"解析元素文本时出错: {e}")
+                    continue
+            
+            LOGGER.info(f"最终收集到 {len(vpo_list)} 个VPO编号，预期数量: {expected_count}")
+            if len(vpo_list) < expected_count:
+                LOGGER.warning("⚠️ 收集到的VPO数量少于预期，后续合并时将按可用数量进行匹配。")
+            
+            return vpo_list
+        
+        except Exception as e:
+            LOGGER.error(f"从Dashboard收集VPO编号失败: {e}")
+            import traceback
+            LOGGER.error(traceback.format_exc())
+            return vpo_list
 

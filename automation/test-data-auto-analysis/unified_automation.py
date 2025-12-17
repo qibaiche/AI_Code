@@ -63,27 +63,87 @@ def run_prd_lot_automation(config_path: Path) -> Path:
     merged_df = pd.concat(all_data).reset_index(drop=True)
     normalized_df = normalize_columns(merged_df, config)
     
-    # Functional_bin Pareto
-    quantity, _ = build_quantity_table(normalized_df, config, bin_type="functional")
-    percentages, row_totals, total_percentage = build_pareto(quantity)
-    functional_pareto = build_pareto_table(quantity, percentages, row_totals, total_percentage)
+    # 按 process_step 分组统计 Functional_bin Pareto
+    functional_pareto_by_step = {}
+    process_step_col = config.fields.process_step
     
-    # Interface_bin Pareto
+    if process_step_col in normalized_df.columns:
+        # 获取所有 process_step 类型
+        process_steps = normalized_df[process_step_col].dropna().unique()
+        logging.info(f"找到 {len(process_steps)} 个 process_step 类型: {list(process_steps)}")
+        
+        # 为每个 process_step 生成 Pareto 表
+        for step in process_steps:
+            step_df = normalized_df[normalized_df[process_step_col] == step].copy()
+            if not step_df.empty:
+                logging.info(f"处理 process_step: {step}，数据行数: {len(step_df)}")
+                quantity, _ = build_quantity_table(step_df, config, bin_type="functional")
+                if not quantity.empty:
+                    percentages, row_totals, total_percentage = build_pareto(quantity)
+                    pareto_table = build_pareto_table(quantity, percentages, row_totals, total_percentage)
+                    functional_pareto_by_step[str(step)] = pareto_table
+                    logging.info(f"✅ {step} 的 Functional_bin Pareto 生成完成")
+                else:
+                    logging.warning(f"⚠️ {step} 的数量表为空，跳过")
+            else:
+                logging.warning(f"⚠️ {step} 的数据为空，跳过")
+        
+        # 如果没有 process_step 数据，生成一个总的 Pareto 表
+        if not functional_pareto_by_step:
+            logging.warning("所有 process_step 的数据都为空，生成总的 Functional_bin Pareto")
+            quantity, _ = build_quantity_table(normalized_df, config, bin_type="functional")
+            percentages, row_totals, total_percentage = build_pareto(quantity)
+            functional_pareto = build_pareto_table(quantity, percentages, row_totals, total_percentage)
+        else:
+            # 如果按 process_step 分组成功，不生成总的 Pareto 表
+            functional_pareto = None
+            logging.info("已按 process_step 分组，不生成总的 Functional_bin Pareto 表")
+    else:
+        logging.warning(f"⚠️ 未找到 process_step 列（{process_step_col}），生成总的 Functional_bin Pareto")
+        # Functional_bin Pareto
+        quantity, _ = build_quantity_table(normalized_df, config, bin_type="functional")
+        percentages, row_totals, total_percentage = build_pareto(quantity)
+        functional_pareto = build_pareto_table(quantity, percentages, row_totals, total_percentage)
+    
+    # 按 process_step 分组统计 Interface_bin Pareto（如果存在）
     interface_pareto = None
+    interface_pareto_by_step = {}
     if config.fields.interface_bin in normalized_df.columns:
-        interface_quantity, _ = build_quantity_table(normalized_df, config, bin_type="interface")
-        if not interface_quantity.empty:
-            interface_percentages, interface_row_totals, interface_total_percentage = build_pareto(interface_quantity)
-            interface_pareto = build_pareto_table(
-                interface_quantity, interface_percentages, interface_row_totals, interface_total_percentage
-            )
+        if process_step_col in normalized_df.columns:
+            # 按 process_step 分组
+            process_steps = normalized_df[process_step_col].dropna().unique()
+            for step in process_steps:
+                step_df = normalized_df[normalized_df[process_step_col] == step].copy()
+                if not step_df.empty:
+                    interface_quantity, _ = build_quantity_table(step_df, config, bin_type="interface")
+                    if not interface_quantity.empty:
+                        interface_percentages, interface_row_totals, interface_total_percentage = build_pareto(interface_quantity)
+                        pareto_table = build_pareto_table(
+                            interface_quantity, interface_percentages, interface_row_totals, interface_total_percentage
+                        )
+                        interface_pareto_by_step[str(step)] = pareto_table
+                        logging.info(f"✅ {step} 的 Interface_bin Pareto 生成完成")
+            
+            if interface_pareto_by_step:
+                # 如果按 process_step 分组成功，不生成总的 Pareto 表
+                interface_pareto = None
+                logging.info("已按 process_step 分组，不生成总的 Interface_bin Pareto 表")
+        else:
+            # 没有 process_step 列，生成总的 Interface_bin Pareto
+            interface_quantity, _ = build_quantity_table(normalized_df, config, bin_type="interface")
+            if not interface_quantity.empty:
+                interface_percentages, interface_row_totals, interface_total_percentage = build_pareto(interface_quantity)
+                interface_pareto = build_pareto_table(
+                    interface_quantity, interface_percentages, interface_row_totals, interface_total_percentage
+                )
     
-    # Retest Bin Pareto
+    # 按 process_step 分组统计 Retest Bin Pareto（使用不同的过滤条件：mut_within_subflow_latest_flag = N）
     retest_pareto = None
+    retest_pareto_by_step = {}
     logging.info("开始生成 Retest Bin Pareto（mut_within_subflow_latest_flag = N）")
     retest_filters = {
         "mut_within_subflow_latest_flag": "N",
-        "SUBSTRUCTURE_ID": "U1.U1"
+        "SUBSTRUCTURE_ID": "U1.U2"
     }
     retest_df = apply_filters(merged_df, retest_filters)
     retest_df[config.fields.functional_bin] = retest_df[config.fields.functional_bin].fillna("UNKNOWN")
@@ -92,13 +152,44 @@ def run_prd_lot_automation(config_path: Path) -> Path:
     retest_df[config.fields.devrevstep] = retest_df[config.fields.devrevstep].fillna("UNKNOWN")
     
     if not retest_df.empty:
-        retest_quantity, _ = build_quantity_table(retest_df, config, bin_type="functional")
-        if not retest_quantity.empty:
-            retest_percentages, retest_row_totals, retest_total_percentage = build_pareto(retest_quantity)
-            retest_pareto = build_pareto_table(
-                retest_quantity, retest_percentages, retest_row_totals, retest_total_percentage
-            )
-            logging.info("Retest Bin Pareto 生成完成")
+        # 处理 process_step 列
+        if config.fields.process_step in retest_df.columns:
+            retest_df[config.fields.process_step] = retest_df[config.fields.process_step].fillna("UNKNOWN")
+            # 按 process_step 分组
+            process_steps = retest_df[config.fields.process_step].dropna().unique()
+            logging.info(f"Retest 数据中找到 {len(process_steps)} 个 process_step 类型: {list(process_steps)}")
+            
+            for step in process_steps:
+                step_df = retest_df[retest_df[config.fields.process_step] == step].copy()
+                if not step_df.empty:
+                    retest_quantity, _ = build_quantity_table(step_df, config, bin_type="functional")
+                    if not retest_quantity.empty:
+                        retest_percentages, retest_row_totals, retest_total_percentage = build_pareto(retest_quantity)
+                        pareto_table = build_pareto_table(
+                            retest_quantity, retest_percentages, retest_row_totals, retest_total_percentage
+                        )
+                        retest_pareto_by_step[str(step)] = pareto_table
+                        logging.info(f"✅ {step} 的 Retest Bin Pareto 生成完成")
+            
+            if retest_pareto_by_step:
+                # 如果按 process_step 分组成功，不生成总的 Pareto 表
+                retest_pareto = None
+                logging.info("已按 process_step 分组，不生成总的 Retest Bin Pareto 表")
+            else:
+                logging.warning("所有 process_step 的 Retest 数据都为空，跳过 Retest Bin Pareto")
+        else:
+            # 没有 process_step 列，生成总的 Retest Bin Pareto
+            retest_quantity, _ = build_quantity_table(retest_df, config, bin_type="functional")
+            if not retest_quantity.empty:
+                retest_percentages, retest_row_totals, retest_total_percentage = build_pareto(retest_quantity)
+                retest_pareto = build_pareto_table(
+                    retest_quantity, retest_percentages, retest_row_totals, retest_total_percentage
+                )
+                logging.info("Retest Bin Pareto 生成完成")
+            else:
+                logging.warning("Retest 数据为空，跳过 Retest Bin Pareto")
+    else:
+        logging.warning("没有 Retest 数据（mut_within_subflow_latest_flag = N），跳过 Retest Bin Pareto")
     
     exceptions_df = collect_exceptions(normalized_df, config)
     
@@ -106,8 +197,11 @@ def run_prd_lot_automation(config_path: Path) -> Path:
         report_dir=config.paths.report_dir,
         df=normalized_df,
         functional_pareto=functional_pareto,
+        functional_pareto_by_step=functional_pareto_by_step if functional_pareto_by_step else None,
         interface_pareto=interface_pareto,
+        interface_pareto_by_step=interface_pareto_by_step if interface_pareto_by_step else None,
         retest_pareto=retest_pareto,
+        retest_pareto_by_step=retest_pareto_by_step if retest_pareto_by_step else None,
         exceptions=exceptions_df,
         config=config,
     )
@@ -383,7 +477,10 @@ def get_phi_value(phi_df, row) -> dict:
     return phi_value
 
 def generate_lab_tp_html_table(df) -> str:
-    """生成 Lab TP Performance 的 HTML 表格，合并相同值并倒序排列 Sub Flow Step"""
+    """生成 Lab TP Performance 的 HTML 表格，合并相同值并按指定顺序排列 Sub Flow Step
+    
+    Sub Flow Step 排序顺序：CLASSHOT, CLASSCOLD, PHMHOT, PHMCOLD, 其他的
+    """
     import pandas as pd
     
     # 加载 PHI 数据
@@ -412,9 +509,27 @@ def generate_lab_tp_html_table(df) -> str:
         logging.warning(f"缺少列: merge={missing_merge}, data={missing_data}")
         logging.info(f"实际列名: {actual_cols}")
     
-    # 1. 按 Sub Flow Step 倒序排序
+    # 1. 按 Sub Flow Step 自定义排序：CLASSHOT, CLASSCOLD, PHMHOT, PHMCOLD, 其他的
     if 'Sub Flow Step' in df.columns:
-        df_sorted = df.sort_values('Sub Flow Step', ascending=False).reset_index(drop=True)
+        # 定义排序顺序
+        sort_order = ['CLASSHOT', 'CLASSCOLD', 'PHMHOT', 'PHMCOLD']
+        
+        # 创建排序键：如果在预定义顺序中，使用索引；否则使用很大的数字（排在最后）
+        def get_sort_key(value):
+            if pd.isna(value):
+                return (999, '')  # NaN 值排在最后
+            value_str = str(value).strip().upper()
+            try:
+                index = sort_order.index(value_str)
+                return (index, value_str)
+            except ValueError:
+                # 不在预定义顺序中，排在最后，但保持原有顺序
+                return (len(sort_order), value_str)
+        
+        # 创建临时排序列
+        df['_sort_key'] = df['Sub Flow Step'].apply(get_sort_key)
+        df_sorted = df.sort_values('_sort_key').reset_index(drop=True)
+        df_sorted = df_sorted.drop(columns=['_sort_key'])
     else:
         df_sorted = df.copy()
     
