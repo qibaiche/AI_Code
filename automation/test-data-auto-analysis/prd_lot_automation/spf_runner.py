@@ -49,6 +49,322 @@ class SQLPathFinderRunner:
         except Exception as e:
             LOGGER.warning(f"关闭现有窗口时出错（可能没有窗口）: {e}")
 
+    def _handle_update_dialog(self) -> bool:
+        """
+        检查并处理 SQLPathFinder 更新对话框
+        
+        Returns:
+            True 如果处理了更新对话框（需要重新打开 SQLPathFinder），False 如果没有更新对话框
+        """
+        if Application is None:
+            return False
+        
+        try:
+            # 尝试查找更新对话框
+            # 对话框标题是 "Update Recommended"
+            update_patterns = [
+                "Update Recommended",
+                ".*Update.*Recommended.*",
+                ".*Update.*",
+            ]
+            
+            for pattern in update_patterns:
+                try:
+                    # 使用更短的超时时间，避免阻塞太久
+                    app = Application(backend="win32").connect(title_re=pattern, timeout=1)
+                    dialog = app.window(title_re=pattern)
+                    
+                    if dialog.exists() and dialog.is_visible():
+                        dialog_text = dialog.window_text()
+                        LOGGER.info(f"✅ 检测到更新对话框: {dialog_text}")
+                        
+                        # 确保对话框在最前面并获得焦点
+                        try:
+                            if win32gui and win32con:
+                                hwnd = dialog.handle
+                                # 将对话框置于最前
+                                win32gui.SetWindowPos(hwnd, win32con.HWND_TOPMOST, 0, 0, 0, 0,
+                                                     win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
+                                win32gui.SetForegroundWindow(hwnd)
+                                time.sleep(0.3)
+                                # 恢复为非最顶层（但仍在前面）
+                                win32gui.SetWindowPos(hwnd, win32con.HWND_NOTOPMOST, 0, 0, 0, 0,
+                                                     win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
+                            else:
+                                dialog.set_focus()
+                                time.sleep(0.3)
+                        except Exception as e:
+                            LOGGER.warning(f"设置对话框焦点失败: {e}")
+                            try:
+                                dialog.set_focus()
+                                time.sleep(0.3)
+                            except:
+                                pass
+                        
+                        # 点击 Yes 按钮（必须点击 Yes，不能用 Enter 键，因为 Enter 可能触发 No）
+                        yes_clicked = False
+                        
+                        # 方法1: 直接点击第一个按钮（从测试得知，第一个按钮就是 Yes）
+                        try:
+                            LOGGER.info("尝试点击第一个按钮（Yes）...")
+                            buttons = dialog.children(class_name="Button")
+                            LOGGER.info(f"找到 {len(buttons)} 个按钮")
+                            
+                            if buttons:
+                                first_btn = buttons[0]
+                                btn_text = first_btn.window_text()
+                                LOGGER.info(f"第一个按钮文本: '{btn_text}'")
+                                
+                                if "Yes" in btn_text:
+                                    LOGGER.info("准备点击 Yes 按钮...")
+                                    first_btn.click_input()
+                                    LOGGER.info("✅ 已点击 Yes 按钮")
+                                    yes_clicked = True
+                                else:
+                                    LOGGER.warning(f"第一个按钮不是 Yes（文本: {btn_text}），尝试其他方法...")
+                            else:
+                                LOGGER.warning("未找到任何按钮")
+                        except Exception as e:
+                            LOGGER.warning(f"点击第一个按钮失败: {e}")
+                        
+                        # 方法2: 通过标题 "Yes" 或 "&Yes" 查找按钮
+                        if not yes_clicked:
+                            try:
+                                LOGGER.info("尝试通过标题查找 Yes 按钮...")
+                                # 尝试 "Yes"
+                                try:
+                                    yes_btn = dialog.child_window(title="Yes", control_type="Button")
+                                    if yes_btn.exists():
+                                        LOGGER.info("找到 Yes 按钮（title='Yes'）")
+                                        yes_btn.click_input()
+                                        LOGGER.info("✅ 已点击 Yes 按钮")
+                                        yes_clicked = True
+                                except:
+                                    pass
+                                
+                                # 尝试 "&Yes"
+                                if not yes_clicked:
+                                    try:
+                                        yes_btn = dialog.child_window(title="&Yes", control_type="Button")
+                                        if yes_btn.exists():
+                                            LOGGER.info("找到 Yes 按钮（title='&Yes'）")
+                                            yes_btn.click_input()
+                                            LOGGER.info("✅ 已点击 Yes 按钮")
+                                            yes_clicked = True
+                                    except:
+                                        pass
+                            except Exception as e:
+                                LOGGER.warning(f"通过标题查找失败: {e}")
+                        
+                        # 方法3: 遍历所有按钮，查找包含 "Yes" 的按钮
+                        if not yes_clicked:
+                            try:
+                                LOGGER.info("遍历所有按钮，查找 Yes...")
+                                buttons = dialog.children(class_name="Button")
+                                for idx, btn in enumerate(buttons):
+                                    try:
+                                        btn_text = btn.window_text()
+                                        LOGGER.info(f"  按钮 {idx}: '{btn_text}'")
+                                        if "Yes" in btn_text or "yes" in btn_text.lower():
+                                            LOGGER.info(f"尝试点击按钮 {idx}...")
+                                            btn.click_input()
+                                            LOGGER.info(f"✅ 已点击按钮 {idx}")
+                                            yes_clicked = True
+                                            break
+                                    except Exception as e:
+                                        LOGGER.warning(f"处理按钮 {idx} 失败: {e}")
+                            except Exception as e:
+                                LOGGER.warning(f"遍历按钮失败: {e}")
+                        
+                        # 方法4: 使用 pyautogui 模拟鼠标点击
+                        if not yes_clicked and pyautogui:
+                            try:
+                                LOGGER.info("尝试使用 pyautogui 点击 Yes 按钮...")
+                                buttons = dialog.children(class_name="Button")
+                                if buttons:
+                                    first_btn = buttons[0]
+                                    btn_rect = first_btn.rectangle()
+                                    # 计算按钮中心位置
+                                    center_x = (btn_rect.left + btn_rect.right) // 2
+                                    center_y = (btn_rect.top + btn_rect.bottom) // 2
+                                    LOGGER.info(f"按钮位置: ({center_x}, {center_y})")
+                                    
+                                    # 移动鼠标并点击
+                                    pyautogui.moveTo(center_x, center_y)
+                                    time.sleep(0.2)
+                                    pyautogui.click()
+                                    LOGGER.info("✅ 已通过 pyautogui 点击 Yes 按钮")
+                                    yes_clicked = True
+                            except Exception as e:
+                                LOGGER.warning(f"pyautogui 点击失败: {e}")
+                        
+                        if not yes_clicked:
+                            LOGGER.error("❌ 所有方法都失败，无法点击 Yes 按钮")
+                            LOGGER.error("请手动点击 Yes 按钮，然后脚本会继续执行")
+                            # 给用户 30 秒时间手动点击
+                            manual_deadline = time.time() + 30
+                            while time.time() < manual_deadline:
+                                try:
+                                    if not dialog.exists() or not dialog.is_visible():
+                                        LOGGER.info("✅ 对话框已关闭（用户可能已手动点击）")
+                                        yes_clicked = True
+                                        break
+                                except:
+                                    yes_clicked = True
+                                    break
+                                time.sleep(1)
+                            
+                            if not yes_clicked:
+                                LOGGER.error("❌ 超时，对话框仍未关闭")
+                                return False
+                        
+                        # 运行 StartSQLPathFinder.bat 来触发升级（不等待对话框关闭，立即运行）
+                        LOGGER.info("立即运行 StartSQLPathFinder.bat 来触发升级...")
+                        
+                        # 从配置文件读取升级脚本路径，如果没有配置则使用默认路径
+                        if self.config.paths.upgrade_script:
+                            upgrade_bat = self.config.paths.upgrade_script
+                        else:
+                            # 默认路径
+                            upgrade_bat = Path(r"C:\Users\qibaiche\My Programs\SQLPathFinder3\StartSQLPathFinder.bat")
+                        
+                        LOGGER.info(f"升级脚本路径: {upgrade_bat}")
+                        
+                        if upgrade_bat.exists():
+                            try:
+                                LOGGER.info(f"找到升级脚本: {upgrade_bat}")
+                                # 使用 subprocess 运行 bat 文件
+                                subprocess.Popen([str(upgrade_bat)], shell=True)
+                                LOGGER.info("✅ 升级脚本已启动")
+                                
+                                # 等待新的 "Update SQLPathFinder?" 窗口出现
+                                LOGGER.info("等待 'Update SQLPathFinder?' 窗口出现...")
+                                time.sleep(3)  # 给窗口一点时间出现
+                                
+                                # 查找并点击 "Update" 按钮
+                                update_dialog = None
+                                update_patterns = [
+                                    "Update SQLPathFinder?",
+                                    ".*Update.*SQLPathFinder.*",
+                                ]
+                                
+                                deadline = time.time() + 30
+                                while time.time() < deadline:
+                                    for pattern in update_patterns:
+                                        try:
+                                            app = Application(backend="win32").connect(title_re=pattern, timeout=1)
+                                            test_dialog = app.window(title_re=pattern)
+                                            
+                                            if test_dialog.exists() and test_dialog.is_visible():
+                                                update_dialog = test_dialog
+                                                LOGGER.info(f"✅ 找到升级窗口: {update_dialog.window_text()}")
+                                                break
+                                        except:
+                                            continue
+                                    
+                                    if update_dialog:
+                                        break
+                                    time.sleep(1)
+                                
+                                if update_dialog:
+                                    # 确保窗口获得焦点
+                                    try:
+                                        if win32gui and win32con:
+                                            hwnd = update_dialog.handle
+                                            win32gui.SetWindowPos(hwnd, win32con.HWND_TOPMOST, 0, 0, 0, 0,
+                                                                 win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
+                                            win32gui.SetForegroundWindow(hwnd)
+                                            time.sleep(0.3)
+                                            win32gui.SetWindowPos(hwnd, win32con.HWND_NOTOPMOST, 0, 0, 0, 0,
+                                                                 win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
+                                        else:
+                                            update_dialog.set_focus()
+                                        time.sleep(0.5)
+                                    except:
+                                        pass
+                                    
+                                    # 点击 Update 按钮
+                                    update_clicked = False
+                                    
+                                    # 查找并点击 Update 按钮
+                                    try:
+                                        all_children = update_dialog.descendants()
+                                        
+                                        for child in all_children:
+                                            try:
+                                                child_class = child.class_name()
+                                                child_text = child.window_text()
+                                                
+                                                # 只查找按钮控件，且文本精确匹配 "Update"
+                                                if "BUTTON" in child_class.upper() and child_text.strip() == "Update":
+                                                    child.click_input()
+                                                    LOGGER.info("✅ 已点击 Update 按钮")
+                                                    update_clicked = True
+                                                    break
+                                            except:
+                                                continue
+                                    except Exception as e:
+                                        LOGGER.warning(f"点击 Update 按钮失败: {e}")
+                                    
+                                    if not update_clicked:
+                                        LOGGER.warning("⚠️ 未能自动点击 Update 按钮，请手动点击")
+                                        time.sleep(10)
+                                    else:
+                                        # 等待升级完成（5 秒）
+                                        LOGGER.info("等待 SQLPathFinder 升级完成（5 秒）...")
+                                        time.sleep(5)
+                                        LOGGER.info("✅ 升级等待完成")
+                                else:
+                                    LOGGER.warning("⚠️ 未找到 'Update SQLPathFinder?' 窗口")
+                                    LOGGER.warning("将等待 5 秒后继续...")
+                                    time.sleep(5)
+                                
+                            except Exception as e:
+                                LOGGER.error(f"❌ 运行升级脚本失败: {e}")
+                                import traceback
+                                LOGGER.error(traceback.format_exc())
+                        else:
+                            LOGGER.warning(f"⚠️ 未找到升级脚本: {upgrade_bat}")
+                            LOGGER.warning("将尝试继续执行，但升级可能未完成")
+                        
+                        # 关闭所有 SQLPathFinder 窗口（确保完全关闭）
+                        LOGGER.info("关闭所有 SQLPathFinder 窗口...")
+                        from .close_sqlpathfinder import close_sqlpathfinder
+                        close_sqlpathfinder(self.config.ui.main_window_title)
+                        time.sleep(2)  # 等待完全关闭
+                        
+                        # 再次确认所有进程已关闭
+                        LOGGER.info("确认所有 SQLPathFinder 进程已关闭...")
+                        try:
+                            import psutil
+                            for proc in psutil.process_iter(['pid', 'name']):
+                                try:
+                                    if 'SQLPathFinder' in proc.info['name']:
+                                        LOGGER.info(f"终止残留进程: {proc.info['name']} (PID: {proc.info['pid']})")
+                                        proc.kill()
+                                        time.sleep(0.5)
+                                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                                    pass
+                        except:
+                            pass
+                        
+                        # 等待一下，确保升级完成
+                        LOGGER.info("等待 3 秒，确保升级完成...")
+                        time.sleep(3)
+                        
+                        LOGGER.info("✅ 更新对话框已处理，需要重新打开 SQLPathFinder")
+                        return True
+                except ElementNotFoundError:
+                    continue
+                except Exception as e:
+                    LOGGER.debug(f"检查更新对话框时出错（可能不存在）: {e}")
+                    continue
+            
+            return False
+        except Exception as e:
+            LOGGER.debug(f"检查更新对话框时出错: {e}")
+            return False
+
     def _ensure_application(self) -> None:
         if Application is None:
             raise RuntimeError("pywinauto 未安装，无法执行 UI 自动化")
@@ -59,6 +375,14 @@ class SQLPathFinderRunner:
         # 在启动新窗口之前，先关闭所有现有窗口
         self._close_existing_windows()
 
+        # 检查是否有更新对话框（可能在已打开的 SQLPathFinder 中）
+        if self._is_process_running():
+            LOGGER.info("检测到 SQLPathFinder 正在运行，检查是否有更新对话框...")
+            if self._handle_update_dialog():
+                # 如果处理了更新对话框，需要重新打开 SQLPathFinder
+                LOGGER.info("更新对话框已处理，等待后重新打开 SQLPathFinder...")
+                time.sleep(2)
+
         if self.config.paths.spf_executable and not self._is_process_running():
             LOGGER.info("启动 SQLPathFinder：%s", self.config.paths.spf_executable)
             subprocess.Popen(
@@ -67,6 +391,22 @@ class SQLPathFinderRunner:
         else:
             LOGGER.info("直接打开 VG2：%s", self.config.paths.vg2_file)
             os.startfile(self.config.paths.vg2_file)
+
+        # 在等待连接之前，再次检查更新对话框（可能在打开 VG2 时弹出）
+        time.sleep(2)  # 给一点时间让对话框出现
+        if self._handle_update_dialog():
+            # 如果处理了更新对话框，需要重新打开 SQLPathFinder
+            LOGGER.info("更新对话框已处理，重新打开 SQLPathFinder...")
+            time.sleep(2)
+            if self.config.paths.spf_executable:
+                LOGGER.info("重新启动 SQLPathFinder：%s", self.config.paths.spf_executable)
+                subprocess.Popen(
+                    [str(self.config.paths.spf_executable), str(self.config.paths.vg2_file)]
+                )
+            else:
+                LOGGER.info("重新打开 VG2：%s", self.config.paths.vg2_file)
+                os.startfile(self.config.paths.vg2_file)
+            time.sleep(2)  # 等待重新打开
 
         deadline = time.time() + self.config.timeouts.spf_launch
         while time.time() < deadline:

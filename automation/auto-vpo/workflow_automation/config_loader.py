@@ -139,21 +139,27 @@ def load_config(config_path: Path) -> WorkflowConfig:
         headless=spark_section.get("headless", False),
         implicit_wait=spark_section.get("implicit_wait", 10),
         explicit_wait=spark_section.get("explicit_wait", 20),
+        # 默认不等待，由配置显式开启
+        vpo_collect_wait_minutes=spark_section.get("vpo_collect_wait_minutes", 0),
     )
     
-    # GTS配置
+    # GTS配置（全新版本）
     gts_section = data.get("gts", {})
     gts_url = gts_section.get("url")
     if not gts_url:
         LOGGER.warning("GTS URL未配置，请在config.yaml中设置gts.url")
     gts_cfg = GTSConfig(
         url=gts_url or "",
+        title_text=gts_section.get("title_text", ""),
+        title_selector=gts_section.get("title_selector", "input.ui-inputtext[pinputtext][type='text']"),
+        description_iframe_selector=gts_section.get("description_iframe_selector", "iframe.fr-iframe"),
+        description_body_selector=gts_section.get("description_body_selector", "body.fr-view[contenteditable='true']"),
+        output_dir=paths_cfg.output_dir,
         timeout=gts_section.get("timeout", 60),
         retry_count=gts_section.get("retry_count", 3),
         retry_delay=gts_section.get("retry_delay", 2),
-        wait_after_submit=gts_section.get("wait_after_submit", 5),
         headless=gts_section.get("headless", False),
-        implicit_wait=gts_section.get("implicit_wait", 10),
+        implicit_wait=gts_section.get("implicit_wait", 5),
         explicit_wait=gts_section.get("explicit_wait", 20),
     )
     

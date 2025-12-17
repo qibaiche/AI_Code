@@ -21,6 +21,17 @@ def _assemble_pareto_table(
     total_percentage: pd.Series,
 ) -> pd.DataFrame:
     """组装Pareto表格，使用多级列索引，并在底部添加summary行"""
+    import logging
+    LOGGER = logging.getLogger(__name__)
+    
+    # 检查 quantity 是否为空
+    if quantity.empty:
+        LOGGER.warning("⚠️ 警告：quantity 表为空，生成的 Pareto 表将只包含 Grand Total 行（值为 0）")
+        LOGGER.warning("   可能的原因：")
+        LOGGER.warning("   1. 数据被过滤条件全部过滤掉了")
+        LOGGER.warning("   2. 数据中没有有效的 functional_bin 或 devrevstep 值")
+        LOGGER.warning("   3. 列名不匹配")
+    
     data = {}
     for dev in quantity.columns:
         data[(dev, "Quantity")] = quantity[dev]
@@ -28,8 +39,9 @@ def _assemble_pareto_table(
     data[("Grand Total", "Quantity")] = row_totals
     data[("Grand Total", "Percentage")] = total_percentage
     table = pd.DataFrame(data)
-    table.index.name = quantity.index.name
-    table = table.sort_values(("Grand Total", "Quantity"), ascending=False)
+    table.index.name = quantity.index.name if not quantity.empty else None
+    if not quantity.empty:
+        table = table.sort_values(("Grand Total", "Quantity"), ascending=False)
     
     # 在表格底部添加summary行（Grand Total行）
     summary_row = {}
@@ -156,7 +168,7 @@ def _format_pareto_sheet(ws, pareto_table: pd.DataFrame, sheet_name: str, red_th
             end_col_letter = get_column_letter(devrevstep_end_col - 1)
             ws.merge_cells(f"{cell.coordinate}:{end_col_letter}{row3}")  # 只跨第3行
         
-        # Grand Total列（第3行，只跨第3行，不跨第4行，因为第4行要单独显示"Grand Total"）
+        # Grand Total列（第3行，跨第3-4行，跨所有 Grand Total 列）
         gt_cols = [c for c in pareto_table.columns if c[0] == "Grand Total"]
         if gt_cols:
             cell = ws.cell(row=row3, column=devrevstep_end_col)
@@ -165,10 +177,9 @@ def _format_pareto_sheet(ws, pareto_table: pd.DataFrame, sheet_name: str, red_th
             cell.font = header_font
             cell.alignment = center_align
             cell.border = border
-            if len(gt_cols) > 1:
-                end_col_letter = get_column_letter(devrevstep_end_col + len(gt_cols) - 1)
-                ws.merge_cells(f"{cell.coordinate}:{end_col_letter}{row3}")  # 只跨第3行
-            # 如果只有一列，不需要合并
+            end_col_letter = get_column_letter(devrevstep_end_col + len(gt_cols) - 1)
+            # 跨第3-4行，跨所有 Grand Total 列
+            ws.merge_cells(f"{cell.coordinate}:{end_col_letter}{row4}")
         
         # 第4行：子表头（具体的devrevstep值和Grand Total，以及索引列标题）
         col = 2
@@ -204,30 +215,9 @@ def _format_pareto_sheet(ws, pareto_table: pd.DataFrame, sheet_name: str, red_th
                 
                 col += span
         
-        # Grand Total列（第4行，只在第4行，不跨第5行）
-        # 注意：第3行和第4行的"Grand Total"是分开的，第3行只跨第3行，第4行也只跨第4行
-        if gt_cols:
-            gt_col = devrevstep_end_col  # Grand Total列的起始列
-            
-            # 确保第4行的单元格没有被合并（如果被合并了，先取消）
-            cell_coord = ws.cell(row=row4, column=gt_col).coordinate
-            for merged_range in list(ws.merged_cells.ranges):
-                if cell_coord in merged_range:
-                    ws.unmerge_cells(str(merged_range))
-                    break
-            
-            cell = ws.cell(row=row4, column=gt_col)
-            cell.value = "Grand Total"
-            cell.fill = header_fill
-            cell.font = header_font
-            cell.alignment = center_align
-            cell.border = border
-            
-            # 只在第4行合并，不跨第5行
-            if len(gt_cols) > 1:
-                end_col_letter = get_column_letter(gt_col + len(gt_cols) - 1)
-                ws.merge_cells(f"{cell.coordinate}:{end_col_letter}{row4}")  # 只跨第4行
-            # 如果只有一列，不需要合并
+        # Grand Total列（第4行，已经被第3行合并了，不需要单独处理）
+        # 第3行的 "Grand Total" 已经跨第3-4行，跨所有 Grand Total 列（Quantity 和 Percentage）
+        # 合并后的单元格会自动应用样式和居中，不需要再单独处理第4行
         
         # 第5行：子表头（Quantity和Percentage）
         col = 2
@@ -317,11 +307,35 @@ def _format_pareto_sheet(ws, pareto_table: pd.DataFrame, sheet_name: str, red_th
             cell = ws.cell(row=row, column=col)
             cell.number_format = "0.00%"
     
-    # 应用条件格式（仅对百分比列，排除summary行）
+    # 识别需要特殊处理的 bin（functional bin 100 和 interface bin 1）
+    # 判断是 functional bin 还是 interface bin
+    is_functional_bin = "Func" in sheet_name or "Functional" in sheet_name
+    is_interface_bin = "Intf" in sheet_name or "Interface" in sheet_name
+    
+    # 需要排除的行（bin 100 用于 functional，bin 1 用于 interface）
+    excluded_rows = set()
+    green_fill = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")
+    
+    # 遍历数据行，识别需要特殊处理的行
+    for row in range(data_start_row, max_row):
+        try:
+            bin_value = ws.cell(row=row, column=1).value  # A列是 bin 值
+            if bin_value is not None:
+                bin_str = str(bin_value).strip()
+                # functional bin 100 或 interface bin 1
+                if (is_functional_bin and bin_str == "100") or (is_interface_bin and bin_str == "1"):
+                    excluded_rows.add(row)
+                    # 直接填充绿色（对所有百分比列）
+                    for col in percentage_columns:
+                        cell = ws.cell(row=row, column=col)
+                        cell.fill = green_fill
+        except:
+            pass
+    
+    # 应用条件格式（仅对百分比列，排除summary行和特殊bin行）
     if percentage_columns:
         red_fill = PatternFill(start_color="FF9999", end_color="FF9999", fill_type="solid")
         yellow_fill = PatternFill(start_color="FFE599", end_color="FFE599", fill_type="solid")
-        green_fill = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")
         
         # 确定数据行的范围（排除summary行）
         data_end_row = max_row - 1  # 排除最后一行（summary行）
@@ -330,24 +344,50 @@ def _format_pareto_sheet(ws, pareto_table: pd.DataFrame, sheet_name: str, red_th
         
         for col in percentage_columns:
             col_letter = get_column_letter(col)
-            # 只对数据行应用条件格式，不包括summary行
-            range_ref = f"{col_letter}{data_start_row}:{col_letter}{data_end_row}"
             
-            # 红色：大于red_threshold
-            ws.conditional_formatting.add(
-                range_ref,
-                CellIsRule(operator="greaterThan", formula=[str(red_threshold)], fill=red_fill),
-            )
-            # 黄色：在yellow_threshold和red_threshold之间
-            ws.conditional_formatting.add(
-                range_ref,
-                CellIsRule(operator="between", formula=[str(yellow_threshold), str(red_threshold)], fill=yellow_fill),
-            )
-            # 绿色：小于等于yellow_threshold
-            ws.conditional_formatting.add(
-                range_ref,
-                CellIsRule(operator="lessThanOrEqual", formula=[str(yellow_threshold)], fill=green_fill),
-            )
+            # 构建不包含排除行的范围列表
+            ranges_to_format = []
+            current_start = None
+            
+            for row in range(data_start_row, data_end_row + 1):
+                if row not in excluded_rows:
+                    if current_start is None:
+                        current_start = row
+                else:
+                    # 遇到排除行，如果之前有连续范围，添加到列表
+                    if current_start is not None:
+                        if current_start == row - 1:
+                            # 单个单元格
+                            ranges_to_format.append(f"{col_letter}{current_start}")
+                        else:
+                            # 范围
+                            ranges_to_format.append(f"{col_letter}{current_start}:{col_letter}{row - 1}")
+                        current_start = None
+            
+            # 处理最后一段
+            if current_start is not None:
+                if current_start == data_end_row:
+                    ranges_to_format.append(f"{col_letter}{current_start}")
+                else:
+                    ranges_to_format.append(f"{col_letter}{current_start}:{col_letter}{data_end_row}")
+            
+            # 对每个范围应用条件格式
+            for range_ref in ranges_to_format:
+                # 红色：大于red_threshold
+                ws.conditional_formatting.add(
+                    range_ref,
+                    CellIsRule(operator="greaterThan", formula=[str(red_threshold)], fill=red_fill),
+                )
+                # 黄色：在yellow_threshold和red_threshold之间
+                ws.conditional_formatting.add(
+                    range_ref,
+                    CellIsRule(operator="between", formula=[str(yellow_threshold), str(red_threshold)], fill=yellow_fill),
+                )
+                # 绿色：小于等于yellow_threshold
+                ws.conditional_formatting.add(
+                    range_ref,
+                    CellIsRule(operator="lessThanOrEqual", formula=[str(yellow_threshold)], fill=green_fill),
+                )
     
     # 设置列宽
     ws.column_dimensions["A"].width = 15
@@ -364,29 +404,69 @@ def save_report(
     retest_pareto: Optional[pd.DataFrame],
     exceptions: pd.DataFrame,
     config: AppConfig,
+    functional_pareto_by_step: Optional[dict] = None,
+    interface_pareto_by_step: Optional[dict] = None,
+    retest_pareto_by_step: Optional[dict] = None,
 ) -> Path:
     """保存报告到Excel文件"""
-    report_name = f"LOT_Report_{datetime.now():%Y-%m-%d}.xlsx"
+    report_name = f"Bin_Pareto_Report_{datetime.now():%Y-%m-%d}.xlsx"
     report_path = report_dir / report_name
     LOGGER.info("生成报表：%s", report_path)
 
     with pd.ExcelWriter(report_path, engine="openpyxl") as writer:
-        # Functional_bin Pareto
-        _write_pareto_sheet_with_style(
-            writer, functional_pareto, "Functional_bin Pareto", config
-        )
+        # Functional_bin Pareto（总的，如果存在）
+        if functional_pareto is not None and not functional_pareto.empty:
+            _write_pareto_sheet_with_style(
+                writer, functional_pareto, "Functional_bin Pareto", config
+            )
         
-        # Interface_bin Pareto（如果存在）
+        # 按 process_step 分组的 Functional_bin Pareto（如果存在）
+        if functional_pareto_by_step:
+            LOGGER.info(f"生成 {len(functional_pareto_by_step)} 个按 process_step 分组的 Functional_bin Pareto 表")
+            for step_name, pareto_table in functional_pareto_by_step.items():
+                if not pareto_table.empty:
+                    # Excel sheet 名称限制为 31 个字符
+                    sheet_name = f"FuncBin_{step_name}"[:31]
+                    _write_pareto_sheet_with_style(
+                        writer, pareto_table, sheet_name, config
+                    )
+                    LOGGER.info(f"✅ 已生成 {step_name} 的 Functional_bin Pareto 表")
+        
+        # Interface_bin Pareto（总的，如果存在）
         if interface_pareto is not None and not interface_pareto.empty:
             _write_pareto_sheet_with_style(
                 writer, interface_pareto, "Interface_bin Pareto", config
             )
         
-        # Retest Bin Pareto（如果存在）
+        # 按 process_step 分组的 Interface_bin Pareto（如果存在）
+        if interface_pareto_by_step:
+            LOGGER.info(f"生成 {len(interface_pareto_by_step)} 个按 process_step 分组的 Interface_bin Pareto 表")
+            for step_name, pareto_table in interface_pareto_by_step.items():
+                if not pareto_table.empty:
+                    # Excel sheet 名称限制为 31 个字符
+                    sheet_name = f"IntfBin_{step_name}"[:31]
+                    _write_pareto_sheet_with_style(
+                        writer, pareto_table, sheet_name, config
+                    )
+                    LOGGER.info(f"✅ 已生成 {step_name} 的 Interface_bin Pareto 表")
+        
+        # Retest Bin Pareto（总的，如果存在）
         if retest_pareto is not None and not retest_pareto.empty:
             _write_pareto_sheet_with_style(
                 writer, retest_pareto, "Retest Bin Pareto", config
             )
+        
+        # 按 process_step 分组的 Retest Bin Pareto（如果存在）
+        if retest_pareto_by_step:
+            LOGGER.info(f"生成 {len(retest_pareto_by_step)} 个按 process_step 分组的 Retest Bin Pareto 表")
+            for step_name, pareto_table in retest_pareto_by_step.items():
+                if not pareto_table.empty:
+                    # Excel sheet 名称限制为 31 个字符
+                    sheet_name = f"RetestBin_{step_name}"[:31]
+                    _write_pareto_sheet_with_style(
+                        writer, pareto_table, sheet_name, config
+                    )
+                    LOGGER.info(f"✅ 已生成 {step_name} 的 Retest Bin Pareto 表")
         
         # Details
         df.to_excel(writer, sheet_name="Details", index=False)

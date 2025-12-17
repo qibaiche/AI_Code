@@ -52,7 +52,9 @@ def process_lab_data(csv_path: Path, config) -> pd.DataFrame:
     col_mapping = {}
     for col in df.columns:
         col_lower = col.lower()
-        if 'facility' in col_lower:
+        if col_lower == 'lot':
+            col_mapping[col] = 'LOT'
+        elif 'facility' in col_lower:
             col_mapping[col] = 'Facility'
         elif 'operation' in col_lower:
             col_mapping[col] = 'Operation'
@@ -79,17 +81,27 @@ def process_lab_data(csv_path: Path, config) -> pd.DataFrame:
     
     LOGGER.info(f"列名映射: {col_mapping}")
     
-    # 选择需要的列
-    target_cols = ['Facility', 'Operation', 'Sub Flow Step', 'Devrevstep', 'Program Name',
+    # 选择需要的列（LOT 放在最前面）
+    target_cols = ['LOT', 'Facility', 'Operation', 'Sub Flow Step', 'Devrevstep', 'Program Name',
                    'Total Tested', 'Tested Good', 'Yield', 'TTG', 'ETT', 'RCS', 'Recovery Rate']
     
-    # 检查是否所有目标列都有映射
-    missing_targets = [col for col in target_cols if col not in col_mapping.values()]
+    # 检查是否所有目标列都有映射（LOT 是可选的）
+    required_cols = [col for col in target_cols if col != 'LOT']
+    missing_targets = [col for col in required_cols if col not in col_mapping.values()]
     if missing_targets:
-        LOGGER.error(f"缺少目标列: {missing_targets}")
+        LOGGER.error(f"缺少必需的目标列: {missing_targets}")
         LOGGER.error(f"实际列名: {df.columns.tolist()}")
         LOGGER.error(f"列名映射: {col_mapping}")
         raise KeyError(f"无法找到必需的列: {missing_targets}")
+    
+    # 检查 LOT 列是否存在
+    has_lot = 'LOT' in col_mapping.values()
+    if has_lot:
+        LOGGER.info("✅ 找到 LOT 列，将添加到报告中")
+    else:
+        LOGGER.warning("⚠️ 未找到 LOT 列，报告中将不包含 LOT 信息")
+        # 从目标列中移除 LOT
+        target_cols = [col for col in target_cols if col != 'LOT']
     
     # 反向映射：目标列 -> 原始列
     reverse_mapping = {v: k for k, v in col_mapping.items()}
@@ -101,8 +113,33 @@ def process_lab_data(csv_path: Path, config) -> pd.DataFrame:
     # 去重（因为SQL可能返回重复行）
     result_df = result_df.drop_duplicates()
     
-    # 按 Sub Flow Step, Devrevstep, Program Name 排序
-    result_df = result_df.sort_values(['Sub Flow Step', 'Devrevstep', 'Program Name'])
+    # 排除 Sub Flow Step 为 "SCS" 的数据
+    initial_count = len(result_df)
+    # 使用 fillna 处理 NaN 值，然后转换为字符串并比较
+    result_df = result_df[result_df['Sub Flow Step'].fillna('').str.upper() != 'SCS'].copy()
+    filtered_count = len(result_df)
+    if initial_count != filtered_count:
+        LOGGER.info(f"已排除 {initial_count - filtered_count} 行 Sub Flow Step 为 'SCS' 的数据")
+    
+    # 按 Sub Flow Step 自定义排序：CLASSHOT, CLASSCOLD, PHMHOT, PHMCOLD, 其他的
+    # 然后按 Devrevstep, Program Name 排序
+    sort_order = ['CLASSHOT', 'CLASSCOLD', 'PHMHOT', 'PHMCOLD']
+    
+    def get_sort_key(value):
+        if pd.isna(value):
+            return (999, '')  # NaN 值排在最后
+        value_str = str(value).strip().upper()
+        try:
+            index = sort_order.index(value_str)
+            return (index, value_str)
+        except ValueError:
+            # 不在预定义顺序中，排在最后，但保持原有顺序
+            return (len(sort_order), value_str)
+    
+    # 创建临时排序列
+    result_df['_sort_key'] = result_df['Sub Flow Step'].apply(get_sort_key)
+    result_df = result_df.sort_values(['_sort_key', 'Devrevstep', 'Program Name']).reset_index(drop=True)
+    result_df = result_df.drop(columns=['_sort_key'])
     
     LOGGER.info("处理后数据形状: %s", result_df.shape)
     
@@ -150,19 +187,35 @@ def save_report(report_dir: Path, df: pd.DataFrame) -> Path:
                 cell.border = border
                 cell.alignment = center_align
         
-        # 设置列宽
-        ws.column_dimensions['A'].width = 10  # Facility
-        ws.column_dimensions['B'].width = 10  # Operation
-        ws.column_dimensions['C'].width = 15  # Sub Flow Step
-        ws.column_dimensions['D'].width = 15  # Devrevstep
-        ws.column_dimensions['E'].width = 25  # Program Name
-        ws.column_dimensions['F'].width = 12  # Total Tested
-        ws.column_dimensions['G'].width = 12  # Tested Good
-        ws.column_dimensions['H'].width = 10  # Yield
-        ws.column_dimensions['I'].width = 10  # TTG
-        ws.column_dimensions['J'].width = 10  # ETT
-        ws.column_dimensions['K'].width = 10  # RCS
-        ws.column_dimensions['L'].width = 15  # Recovery Rate
+        # 设置列宽（根据是否有 LOT 列调整）
+        from openpyxl.utils import get_column_letter
+        col_idx = 1
+        if 'LOT' in df.columns:
+            ws.column_dimensions[get_column_letter(col_idx)].width = 15  # LOT
+            col_idx += 1
+        ws.column_dimensions[get_column_letter(col_idx)].width = 10  # Facility
+        col_idx += 1
+        ws.column_dimensions[get_column_letter(col_idx)].width = 10  # Operation
+        col_idx += 1
+        ws.column_dimensions[get_column_letter(col_idx)].width = 15  # Sub Flow Step
+        col_idx += 1
+        ws.column_dimensions[get_column_letter(col_idx)].width = 15  # Devrevstep
+        col_idx += 1
+        ws.column_dimensions[get_column_letter(col_idx)].width = 25  # Program Name
+        col_idx += 1
+        ws.column_dimensions[get_column_letter(col_idx)].width = 12  # Total Tested
+        col_idx += 1
+        ws.column_dimensions[get_column_letter(col_idx)].width = 12  # Tested Good
+        col_idx += 1
+        ws.column_dimensions[get_column_letter(col_idx)].width = 10  # Yield
+        col_idx += 1
+        ws.column_dimensions[get_column_letter(col_idx)].width = 10  # TTG
+        col_idx += 1
+        ws.column_dimensions[get_column_letter(col_idx)].width = 10  # ETT
+        col_idx += 1
+        ws.column_dimensions[get_column_letter(col_idx)].width = 10  # RCS
+        col_idx += 1
+        ws.column_dimensions[get_column_letter(col_idx)].width = 15  # Recovery Rate
     
     return report_path
 

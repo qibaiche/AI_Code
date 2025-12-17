@@ -114,8 +114,11 @@ def run_workflow_cli(excel_file_path: Path, config_path: Path, mole_only: bool =
         if TKINTER_AVAILABLE:
             root = tk.Tk()
             root.withdraw()
-            success_title = "Mole流程执行成功" if mole_only else "工作流执行成功"
-            success_body = "Mole步骤已完成（Spark/GTS已跳过）" if mole_only else "工作流执行成功！"
+            success_title = "Mole流程执行成功" if mole_only else "完整工作流执行成功"
+            if mole_only:
+                success_body = "Mole步骤已完成（Spark/GTS已跳过）"
+            else:
+                success_body = "完整工作流执行成功！\n\n已完成所有步骤:\n✓ Mole: MIR 数据已提交\n✓ Spark: VPO 数据已提交\n✓ GTS: 填充文件已生成并提交"
             if output_path:
                 success_body += f"\n\n输出文件:\n{output_path}"
             messagebox.showinfo(success_title, success_body)
@@ -124,7 +127,11 @@ def run_workflow_cli(excel_file_path: Path, config_path: Path, mole_only: bool =
             if mole_only:
                 print(f"\n✅ Mole步骤执行成功（Spark/GTS已跳过）")
             else:
-                print(f"\n✅ 工作流执行成功！")
+                print(f"\n✅ 完整工作流执行成功！")
+                print("已完成所有步骤:")
+                print("  ✓ Mole: MIR 数据已提交")
+                print("  ✓ Spark: VPO 数据已提交")
+                print("  ✓ GTS: 填充文件已生成并提交")
             if output_path:
                 print(f"输出文件: {output_path}")
     
