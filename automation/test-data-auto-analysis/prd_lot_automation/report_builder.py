@@ -215,27 +215,9 @@ def _format_pareto_sheet(ws, pareto_table: pd.DataFrame, sheet_name: str, red_th
                 
                 col += span
         
-        # Grand Total列（第4行，不显示文字，只保留样式，因为第5行会显示 Quantity 和 Percentage）
-        # 第3行的 "Grand Total" 已经跨所有列（Quantity 和 Percentage），第4行不需要显示文字
-        if gt_cols:
-            gt_col = devrevstep_end_col  # Grand Total列的起始列
-            
-            # 确保第4行的单元格没有被合并（如果被合并了，先取消）
-            cell_coord = ws.cell(row=row4, column=gt_col).coordinate
-            for merged_range in list(ws.merged_cells.ranges):
-                if cell_coord in merged_range:
-                    ws.unmerge_cells(str(merged_range))
-                    break
-            
-            # 第4行不显示 "Grand Total" 文字，只保留样式（蓝色背景）
-            # 对 Grand Total 的所有列应用样式
-            for i, gt_col_tuple in enumerate(gt_cols):
-                cell = ws.cell(row=row4, column=gt_col + i)
-                cell.value = None  # 不显示文字
-                cell.fill = header_fill
-                cell.font = header_font
-                cell.alignment = center_align
-                cell.border = border
+        # Grand Total列（第4行，已经被第3行合并了，不需要单独处理）
+        # 第3行的 "Grand Total" 已经跨第3-4行，跨所有 Grand Total 列（Quantity 和 Percentage）
+        # 合并后的单元格会自动应用样式和居中，不需要再单独处理第4行
         
         # 第5行：子表头（Quantity和Percentage）
         col = 2

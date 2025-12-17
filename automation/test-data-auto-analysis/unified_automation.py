@@ -494,6 +494,7 @@ def generate_lab_tp_html_table(df) -> str:
         logging.info(f"✅ PHI 数据加载成功，共 {len(phi_df)} 行")
     
     # 检查并修正列名（容错处理）
+    # LOT 是可选的，如果存在则添加到合并列中（在 Program Name 之后）
     expected_merge_cols = ['Facility', 'Operation', 'Sub Flow Step', 'Devrevstep', 'Program Name']
     expected_data_cols = ['Total Tested', 'Tested Good', 'Yield', 'TTG', 'ETT', 'RCS', 'Recovery Rate']
     
@@ -501,6 +502,16 @@ def generate_lab_tp_html_table(df) -> str:
     actual_cols = df.columns.tolist()
     merge_cols = [col for col in expected_merge_cols if col in actual_cols]
     data_cols = [col for col in expected_data_cols if col in actual_cols]
+    
+    # 如果存在 LOT 列，将其添加到 merge_cols 中（在 Program Name 之后）
+    if 'LOT' in actual_cols:
+        # 找到 Program Name 的位置，在其后插入 LOT
+        if 'Program Name' in merge_cols:
+            program_name_idx = merge_cols.index('Program Name')
+            merge_cols.insert(program_name_idx + 1, 'LOT')
+        else:
+            # 如果 Program Name 不存在，添加到末尾
+            merge_cols.append('LOT')
     
     # 检查必需的列是否存在
     missing_merge = set(expected_merge_cols) - set(merge_cols)
@@ -631,7 +642,12 @@ def generate_lab_tp_html_table(df) -> str:
                     <th style="background-color: #92D050; color: #000000; padding: 2px 4px; text-align: center; border: 1px solid #000000; font-weight: bold;">Operation</th>
                     <th style="background-color: #92D050; color: #000000; padding: 2px 4px; text-align: center; border: 1px solid #000000; font-weight: bold;">Sub Flow Step</th>
                     <th style="background-color: #92D050; color: #000000; padding: 2px 4px; text-align: center; border: 1px solid #000000; font-weight: bold;">Devrevstep</th>
-                    <th style="background-color: #92D050; color: #000000; padding: 2px 4px; text-align: center; border: 1px solid #000000; font-weight: bold;">Program Name</th>
+                    <th style="background-color: #92D050; color: #000000; padding: 2px 4px; text-align: center; border: 1px solid #000000; font-weight: bold;">Program Name</th>"""
+    # 如果存在 LOT 列，添加 LOT 表头
+    if 'LOT' in df.columns:
+        html += """
+                    <th style="background-color: #92D050; color: #000000; padding: 2px 4px; text-align: center; border: 1px solid #000000; font-weight: bold;">LOT</th>"""
+    html += """
                     <th style="background-color: #92D050; color: #000000; padding: 2px 4px; text-align: center; border: 1px solid #000000; font-weight: bold;">Total Tested</th>
                     <th style="background-color: #92D050; color: #000000; padding: 2px 4px; text-align: center; border: 1px solid #000000; font-weight: bold;">Tested Good</th>
                     <th style="background-color: #92D050; color: #000000; padding: 2px 4px; text-align: center; border: 1px solid #000000; font-weight: bold;">Yield</th>

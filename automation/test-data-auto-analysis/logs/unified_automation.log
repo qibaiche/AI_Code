@@ -4979,3 +4979,1107 @@ RuntimeError: F8 发送失败: PyAutoGUI fail-safe triggered from mouse moving t
 2025-12-17 00:54:58,691 | INFO | root |   Lab TP 报告: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\reports\Lab_TP_Performance_20251217.xlsx
 2025-12-17 00:54:58,696 | INFO | root |   PRD LOT 报告: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\reports\LOT_Report_2025-12-17.xlsx
 2025-12-17 00:54:58,696 | INFO | root | ================================================================================
+2025-12-17 01:03:00,838 | INFO | root | ================================================================================
+2025-12-17 01:03:00,869 | INFO | root | 统一自动化开始
+2025-12-17 01:03:00,885 | INFO | root | ================================================================================
+2025-12-17 01:03:00,916 | INFO | root | ================================================================================
+2025-12-17 01:03:00,916 | INFO | root | 开始执行 Lab TP Performance 自动化
+2025-12-17 01:03:00,916 | INFO | root | ================================================================================
+2025-12-17 01:03:00,931 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\Lot info.txt）
+2025-12-17 01:03:00,931 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-12-17 01:03:00,931 | INFO | prd_lot_automation.spf_runner | 检查并关闭现有的 SQLPathFinder 窗口...
+2025-12-17 01:03:00,931 | INFO | prd_lot_automation.close_sqlpathfinder | 使用 win32gui 查找并关闭 SQLPathFinder 窗口...
+2025-12-17 01:03:00,931 | INFO | prd_lot_automation.close_sqlpathfinder | 找到 0 个 SQLPathFinder 窗口
+2025-12-17 01:03:00,931 | INFO | prd_lot_automation.close_sqlpathfinder | 尝试强制终止 SQLPathFinder 进程...
+2025-12-17 01:03:01,119 | INFO | prd_lot_automation.close_sqlpathfinder | 未找到需要关闭的 SQLPathFinder 窗口
+2025-12-17 01:03:02,197 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\Lab_Class_Data_Performance.VG2
+2025-12-17 01:03:07,684 | INFO | prd_lot_automation.spf_runner | 找到 14 个 SQLPathFinder 窗口
+2025-12-17 01:03:07,700 | INFO | prd_lot_automation.spf_runner | ✅ 找到匹配的窗口: SQLPathFinder 3 (Main - 23366) - [Lab_Class_Data_Performance.VG2 (L0)]
+2025-12-17 01:03:07,700 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-12-17 01:03:07,700 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-12-17 01:03:09,103 | INFO | prd_lot_automation.spf_runner | ✅ 已发送 F8 快捷键
+2025-12-17 01:03:11,623 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-12-17 01:03:11,623 | INFO | prd_lot_automation.spf_runner | 等待弹窗出现...
+2025-12-17 01:03:13,632 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-12-17 01:03:13,649 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-12-17 01:03:13,682 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-12-17 01:03:13,682 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-12-17 01:03:13,695 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-12-17 01:03:14,106 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮
+2025-12-17 01:03:15,308 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-12-17 01:03:16,088 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交，SQLPathFinder 开始执行查询...
+2025-12-17 01:03:16,133 | INFO | prd_lot_automation.spf_runner | 等待 Query Log 窗口出现（表明查询已开始执行）...
+2025-12-17 01:03:16,165 | INFO | prd_lot_automation.spf_runner | ✅ 检测到 Query Log 窗口: SQLPathFinder Query Log (23366)
+2025-12-17 01:03:16,197 | INFO | prd_lot_automation.spf_runner | ✅ Query Log 窗口已出现，查询正在执行中
+2025-12-17 01:03:16,260 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-12-17 01:03:16,291 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-12-17 01:03:16,354 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:03:16,416 | INFO | prd_lot_automation.spf_runner | 开始等待 SQLPathFinder 查询完成...
+2025-12-17 01:03:16,447 | INFO | prd_lot_automation.spf_runner | 输出文件路径: C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\Lot_Level_Data.csv
+2025-12-17 01:03:16,463 | INFO | prd_lot_automation.spf_runner | 超时时间: 900 秒
+2025-12-17 01:03:16,479 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:03:16,525 | INFO | prd_lot_automation.spf_runner | ✅ 检测到 CSV 文件已创建 (大小: 1,649 字节，已等待 0 秒)
+2025-12-17 01:03:18,605 | INFO | prd_lot_automation.spf_runner | ⏳ 文件正在更新中... (已等待 2 秒，稳定检查: 1/4)
+2025-12-17 01:03:26,637 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:03:26,637 | INFO | prd_lot_automation.spf_runner | ✅ CSV 文件已生成并稳定: C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\Lot_Level_Data.csv
+2025-12-17 01:03:26,644 | INFO | prd_lot_automation.spf_runner |    文件大小: 1,649 字节
+2025-12-17 01:03:26,644 | INFO | prd_lot_automation.spf_runner |    等待时间: 10 秒
+2025-12-17 01:03:26,644 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:03:26,660 | INFO | lab_tp_automation.lab_tp_main | 读取 Lab TP 数据：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\Lot_Level_Data.csv
+2025-12-17 01:03:26,682 | INFO | lab_tp_automation.lab_tp_main | 数据集形状: (16, 13)
+2025-12-17 01:03:26,692 | INFO | lab_tp_automation.lab_tp_main | 列名映射: {'OPERATION': 'Operation', 'DEVREVSTEP': 'Devrevstep', 'PROGRAM_NAME': 'Program Name', 'SUB_FLOW_STEP': 'Sub Flow Step', 'FACILITY': 'Facility', 'TOTAL_TESTED': 'Total Tested', 'TESTE_GOOD': 'Tested Good', 'YIELD': 'Yield', 'TTG': 'TTG', 'ETT': 'ETT', 'RCS': 'RCS', 'RECOVERY_RATE': 'Recovery Rate'}
+2025-12-17 01:03:26,692 | INFO | lab_tp_automation.lab_tp_main | 处理后数据形状: (16, 12)
+2025-12-17 01:03:26,692 | INFO | lab_tp_automation.lab_tp_main | 生成报表：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\reports\Lab_TP_Performance_20251217.xlsx
+2025-12-17 01:03:26,819 | INFO | root | ✅ Lab TP Performance 自动化完成：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\reports\Lab_TP_Performance_20251217.xlsx
+2025-12-17 01:03:26,834 | INFO | root | 关闭 SQLPathFinder...
+2025-12-17 01:03:26,850 | INFO | prd_lot_automation.close_sqlpathfinder | 使用 win32gui 查找并关闭 SQLPathFinder 窗口...
+2025-12-17 01:03:26,850 | INFO | prd_lot_automation.close_sqlpathfinder | 找到 2 个 SQLPathFinder 窗口
+2025-12-17 01:03:26,850 | INFO | prd_lot_automation.close_sqlpathfinder | 关闭窗口: SQLPathFinder Query Log (23366)
+2025-12-17 01:03:27,266 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 已发送 Alt+F4
+2025-12-17 01:03:27,767 | INFO | prd_lot_automation.close_sqlpathfinder | 关闭窗口: SQLPathFinder 3 (Pre/Post Query -  -  - 23366) - [Lab_Class_Data_Performance.VG2 (L0)]
+2025-12-17 01:03:28,293 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 已发送 Alt+F4
+2025-12-17 01:03:28,838 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 成功关闭 2 个 SQLPathFinder 窗口/进程
+2025-12-17 01:03:28,838 | INFO | root | ================================================================================
+2025-12-17 01:03:28,838 | INFO | root | 准备执行下一个 VG2，先关闭所有 SQLPathFinder 窗口
+2025-12-17 01:03:28,849 | INFO | root | ================================================================================
+2025-12-17 01:03:28,849 | INFO | prd_lot_automation.close_sqlpathfinder | 使用 win32gui 查找并关闭 SQLPathFinder 窗口...
+2025-12-17 01:03:28,849 | INFO | prd_lot_automation.close_sqlpathfinder | 找到 0 个 SQLPathFinder 窗口
+2025-12-17 01:03:28,849 | INFO | prd_lot_automation.close_sqlpathfinder | 尝试强制终止 SQLPathFinder 进程...
+2025-12-17 01:03:28,864 | INFO | prd_lot_automation.close_sqlpathfinder | 未找到需要关闭的 SQLPathFinder 窗口
+2025-12-17 01:03:30,870 | INFO | root | ================================================================================
+2025-12-17 01:03:30,870 | INFO | root | 开始执行 PRD LOT 自动化
+2025-12-17 01:03:30,870 | INFO | root | ================================================================================
+2025-12-17 01:03:30,885 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\Lot info.txt）
+2025-12-17 01:03:30,885 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-12-17 01:03:30,885 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-12-17 01:03:30,885 | INFO | prd_lot_automation.spf_runner | 检查并关闭现有的 SQLPathFinder 窗口...
+2025-12-17 01:03:30,885 | INFO | prd_lot_automation.close_sqlpathfinder | 使用 win32gui 查找并关闭 SQLPathFinder 窗口...
+2025-12-17 01:03:30,885 | INFO | prd_lot_automation.close_sqlpathfinder | 找到 0 个 SQLPathFinder 窗口
+2025-12-17 01:03:30,885 | INFO | prd_lot_automation.close_sqlpathfinder | 尝试强制终止 SQLPathFinder 进程...
+2025-12-17 01:03:30,885 | INFO | prd_lot_automation.close_sqlpathfinder | 未找到需要关闭的 SQLPathFinder 窗口
+2025-12-17 01:03:31,916 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-12-17 01:03:37,183 | INFO | prd_lot_automation.spf_runner | 找到 14 个 SQLPathFinder 窗口
+2025-12-17 01:03:37,183 | INFO | prd_lot_automation.spf_runner | ✅ 找到匹配的窗口: SQLPathFinder 3 (Main - 22185) - [Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2 (L0)]
+2025-12-17 01:03:37,183 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-12-17 01:03:37,183 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-12-17 01:03:38,509 | INFO | prd_lot_automation.spf_runner | ✅ 已发送 F8 快捷键
+2025-12-17 01:03:41,017 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-12-17 01:03:41,017 | INFO | prd_lot_automation.spf_runner | 等待弹窗出现...
+2025-12-17 01:03:43,024 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-12-17 01:03:43,042 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-12-17 01:03:43,105 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-12-17 01:03:43,121 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-12-17 01:03:43,121 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-12-17 01:03:43,498 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮
+2025-12-17 01:03:44,776 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-12-17 01:03:45,424 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交，SQLPathFinder 开始执行查询...
+2025-12-17 01:03:45,456 | INFO | prd_lot_automation.spf_runner | 等待 Query Log 窗口出现（表明查询已开始执行）...
+2025-12-17 01:03:55,642 | INFO | prd_lot_automation.spf_runner | 未检测到 Query Log 窗口，检查是否有第二个参数弹窗...
+2025-12-17 01:03:57,643 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #2...
+2025-12-17 01:03:57,683 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-12-17 01:03:57,698 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-12-17 01:03:57,698 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-12-17 01:03:58,100 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮
+2025-12-17 01:03:59,278 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-12-17 01:03:59,807 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交，SQLPathFinder 开始执行查询...
+2025-12-17 01:03:59,830 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-12-17 01:03:59,846 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-12-17 01:04:01,870 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #3...
+2025-12-17 01:04:06,965 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #3...
+2025-12-17 01:04:12,033 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #3...
+2025-12-17 01:04:17,101 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #3...
+2025-12-17 01:04:22,152 | INFO | prd_lot_automation.spf_runner | 第 5 次尝试查找弹窗 #3...
+2025-12-17 01:04:27,202 | INFO | prd_lot_automation.spf_runner | 第 6 次尝试查找弹窗 #3...
+2025-12-17 01:04:32,254 | WARNING | prd_lot_automation.spf_runner | ❌ 超时后仍未找到弹窗 #3
+2025-12-17 01:04:32,254 | INFO | prd_lot_automation.spf_runner | 没有第三个参数弹窗
+2025-12-17 01:04:32,254 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-12-17 01:04:32,254 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-12-17 01:04:32,254 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:04:32,254 | INFO | prd_lot_automation.spf_runner | 开始等待 SQLPathFinder 查询完成...
+2025-12-17 01:04:32,254 | INFO | prd_lot_automation.spf_runner | 输出文件路径: C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-12-17 01:04:32,254 | INFO | prd_lot_automation.spf_runner | 超时时间: 900 秒
+2025-12-17 01:04:32,254 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:04:40,260 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 8 秒)
+2025-12-17 01:04:50,264 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 18 秒)
+2025-12-17 01:05:00,267 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 28 秒)
+2025-12-17 01:05:10,271 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 38 秒)
+2025-12-17 01:05:20,275 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 48 秒)
+2025-12-17 01:05:30,278 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 58 秒)
+2025-12-17 01:05:40,282 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 68 秒)
+2025-12-17 01:05:44,284 | INFO | prd_lot_automation.spf_runner | ✅ 检测到 CSV 文件已创建 (大小: 1,820,124 字节，已等待 72 秒)
+2025-12-17 01:05:46,289 | INFO | prd_lot_automation.spf_runner | ⏳ 文件正在更新中... (已等待 74 秒，稳定检查: 1/4)
+2025-12-17 01:05:50,294 | INFO | prd_lot_automation.spf_runner | ⏳ 文件正在更新中... (已等待 78 秒，稳定检查: 3/4)
+2025-12-17 01:05:52,296 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:05:52,296 | INFO | prd_lot_automation.spf_runner | ✅ CSV 文件已生成并稳定: C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-12-17 01:05:52,296 | INFO | prd_lot_automation.spf_runner |    文件大小: 1,820,124 字节
+2025-12-17 01:05:52,296 | INFO | prd_lot_automation.spf_runner |    等待时间: 80 秒
+2025-12-17 01:05:52,296 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:05:52,302 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-12-17 01:05:52,338 | INFO | prd_lot_automation.data_processing | 标准化前数据行数: 6075
+2025-12-17 01:05:52,354 | INFO | prd_lot_automation.data_processing | 应用过滤条件: mut_within_subflow_latest_flag = Y，从 6075 行过滤到 4527 行
+2025-12-17 01:05:52,354 | INFO | prd_lot_automation.data_processing | 应用过滤条件: SUBSTRUCTURE_ID = U1.U2，从 4527 行过滤到 1509 行
+2025-12-17 01:05:52,354 | INFO | prd_lot_automation.data_processing | 过滤完成：从原始 6075 行过滤到 1509 行
+2025-12-17 01:05:52,354 | INFO | prd_lot_automation.data_processing | 应用过滤条件后数据行数: 1509
+2025-12-17 01:05:52,354 | INFO | prd_lot_automation.data_processing | process_step 列已处理，唯一值: ['CLASSHOT', 'CSM']
+2025-12-17 01:05:52,354 | INFO | root | 找到 2 个 process_step 类型: ['CLASSHOT', 'CSM']
+2025-12-17 01:05:52,354 | INFO | root | 处理 process_step: CLASSHOT，数据行数: 1187
+2025-12-17 01:05:52,354 | INFO | prd_lot_automation.data_processing | 构建 FUNCTIONAL_BIN 数量表，数据行数: 1187
+2025-12-17 01:05:52,370 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-17 01:05:52,370 | INFO | prd_lot_automation.data_processing | ✅ FUNCTIONAL_BIN 数量表构建完成，形状: (67, 3)
+2025-12-17 01:05:52,385 | INFO | root | ✅ CLASSHOT 的 Functional_bin Pareto 生成完成
+2025-12-17 01:05:52,385 | INFO | root | 处理 process_step: CSM，数据行数: 322
+2025-12-17 01:05:52,385 | INFO | prd_lot_automation.data_processing | 构建 FUNCTIONAL_BIN 数量表，数据行数: 322
+2025-12-17 01:05:52,385 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-17 01:05:52,385 | INFO | prd_lot_automation.data_processing | ✅ FUNCTIONAL_BIN 数量表构建完成，形状: (22, 3)
+2025-12-17 01:05:52,385 | INFO | root | ✅ CSM 的 Functional_bin Pareto 生成完成
+2025-12-17 01:05:52,385 | INFO | root | 已按 process_step 分组，不生成总的 Functional_bin Pareto 表
+2025-12-17 01:05:52,401 | INFO | prd_lot_automation.data_processing | 构建 INTERFACE_BIN 数量表，数据行数: 1187
+2025-12-17 01:05:52,401 | WARNING | prd_lot_automation.data_processing | INTERFACE_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-17 01:05:52,401 | INFO | prd_lot_automation.data_processing | ✅ INTERFACE_BIN 数量表构建完成，形状: (26, 3)
+2025-12-17 01:05:52,417 | INFO | root | ✅ CLASSHOT 的 Interface_bin Pareto 生成完成
+2025-12-17 01:05:52,417 | INFO | prd_lot_automation.data_processing | 构建 INTERFACE_BIN 数量表，数据行数: 322
+2025-12-17 01:05:52,417 | WARNING | prd_lot_automation.data_processing | INTERFACE_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-17 01:05:52,417 | INFO | prd_lot_automation.data_processing | ✅ INTERFACE_BIN 数量表构建完成，形状: (11, 3)
+2025-12-17 01:05:52,417 | INFO | root | ✅ CSM 的 Interface_bin Pareto 生成完成
+2025-12-17 01:05:52,417 | INFO | root | 已按 process_step 分组，不生成总的 Interface_bin Pareto 表
+2025-12-17 01:05:52,417 | INFO | root | 开始生成 Retest Bin Pareto（mut_within_subflow_latest_flag = N）
+2025-12-17 01:05:52,432 | INFO | prd_lot_automation.data_processing | 应用过滤条件: mut_within_subflow_latest_flag = N，从 6075 行过滤到 1548 行
+2025-12-17 01:05:52,432 | INFO | prd_lot_automation.data_processing | 应用过滤条件: SUBSTRUCTURE_ID = U1.U2，从 1548 行过滤到 516 行
+2025-12-17 01:05:52,432 | INFO | prd_lot_automation.data_processing | 过滤完成：从原始 6075 行过滤到 516 行
+2025-12-17 01:05:52,432 | INFO | root | Retest 数据中找到 2 个 process_step 类型: ['CLASSHOT', 'CSM']
+2025-12-17 01:05:52,432 | INFO | prd_lot_automation.data_processing | 构建 FUNCTIONAL_BIN 数量表，数据行数: 325
+2025-12-17 01:05:52,432 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-17 01:05:52,448 | INFO | prd_lot_automation.data_processing | ✅ FUNCTIONAL_BIN 数量表构建完成，形状: (67, 3)
+2025-12-17 01:05:52,448 | INFO | root | ✅ CLASSHOT 的 Retest Bin Pareto 生成完成
+2025-12-17 01:05:52,448 | INFO | prd_lot_automation.data_processing | 构建 FUNCTIONAL_BIN 数量表，数据行数: 191
+2025-12-17 01:05:52,448 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-17 01:05:52,448 | INFO | prd_lot_automation.data_processing | ✅ FUNCTIONAL_BIN 数量表构建完成，形状: (23, 3)
+2025-12-17 01:05:52,448 | INFO | root | ✅ CSM 的 Retest Bin Pareto 生成完成
+2025-12-17 01:05:52,448 | INFO | root | 已按 process_step 分组，不生成总的 Retest Bin Pareto 表
+2025-12-17 01:05:52,463 | INFO | prd_lot_automation.report_builder | 生成报表：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\reports\Bin_Pareto_Report_2025-12-17.xlsx
+2025-12-17 01:05:52,479 | INFO | prd_lot_automation.report_builder | 生成 2 个按 process_step 分组的 Functional_bin Pareto 表
+2025-12-17 01:05:52,602 | INFO | prd_lot_automation.report_builder | ✅ 已生成 CLASSHOT 的 Functional_bin Pareto 表
+2025-12-17 01:05:52,651 | INFO | prd_lot_automation.report_builder | ✅ 已生成 CSM 的 Functional_bin Pareto 表
+2025-12-17 01:05:52,667 | INFO | prd_lot_automation.report_builder | 生成 2 个按 process_step 分组的 Interface_bin Pareto 表
+2025-12-17 01:05:52,729 | INFO | prd_lot_automation.report_builder | ✅ 已生成 CLASSHOT 的 Interface_bin Pareto 表
+2025-12-17 01:05:52,776 | INFO | prd_lot_automation.report_builder | ✅ 已生成 CSM 的 Interface_bin Pareto 表
+2025-12-17 01:05:52,776 | INFO | prd_lot_automation.report_builder | 生成 2 个按 process_step 分组的 Retest Bin Pareto 表
+2025-12-17 01:05:52,870 | INFO | prd_lot_automation.report_builder | ✅ 已生成 CLASSHOT 的 Retest Bin Pareto 表
+2025-12-17 01:05:52,917 | INFO | prd_lot_automation.report_builder | ✅ 已生成 CSM 的 Retest Bin Pareto 表
+2025-12-17 01:05:54,495 | INFO | root | ✅ PRD LOT 自动化完成：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\reports\Bin_Pareto_Report_2025-12-17.xlsx
+2025-12-17 01:05:54,495 | INFO | root | 关闭 SQLPathFinder...
+2025-12-17 01:05:54,495 | INFO | prd_lot_automation.close_sqlpathfinder | 使用 win32gui 查找并关闭 SQLPathFinder 窗口...
+2025-12-17 01:05:54,495 | INFO | prd_lot_automation.close_sqlpathfinder | 找到 2 个 SQLPathFinder 窗口
+2025-12-17 01:05:54,508 | INFO | prd_lot_automation.close_sqlpathfinder | 关闭窗口: SQLPathFinder Query Log (22185)
+2025-12-17 01:05:54,926 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 已发送 Alt+F4
+2025-12-17 01:05:55,431 | INFO | prd_lot_automation.close_sqlpathfinder | 关闭窗口: SQLPathFinder 3 (Main - 22185) - [Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2 (L0)]
+2025-12-17 01:05:55,870 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 已发送 Alt+F4
+2025-12-17 01:05:56,462 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 成功关闭 2 个 SQLPathFinder 窗口/进程
+2025-12-17 01:05:56,464 | INFO | root | ================================================================================
+2025-12-17 01:05:56,464 | INFO | root | 发送统一邮件
+2025-12-17 01:05:56,464 | INFO | root | ================================================================================
+2025-12-17 01:05:56,479 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\Lot info.txt）
+2025-12-17 01:05:56,479 | INFO | root | 尝试加载 PHI 文件: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\Prod_PHI.xlsx
+2025-12-17 01:05:56,511 | INFO | root | 成功加载 PHI 数据: (12, 6)
+2025-12-17 01:05:56,511 | INFO | root | PHI 数据列名: ['Operation', 'Sub Flow Step', 'Devrevstep', 'Yield PHI', 'TTG PHI', 'RCS PHI']
+2025-12-17 01:05:56,511 | INFO | root | 处理合并单元格后的 PHI 数据:
+2025-12-17 01:05:56,511 | INFO | root | PHI 数据前5行:
+2025-12-17 01:05:56,511 | INFO | root |   行 0: {'Operation': 6248.0, 'Sub Flow Step': 'CLASSHOT', 'Devrevstep': '4PXA2VDB', 'Yield PHI': 0.753, 'TTG PHI': 368.0, 'RCS PHI': 0.2}
+2025-12-17 01:05:56,511 | INFO | root |   行 1: {'Operation': 6248.0, 'Sub Flow Step': 'CLASSHOT', 'Devrevstep': '4PXA4VDB', 'Yield PHI': 0.753, 'TTG PHI': 368.0, 'RCS PHI': 0.2}
+2025-12-17 01:05:56,526 | INFO | root |   行 2: {'Operation': 6248.0, 'Sub Flow Step': 'CLASSHOT', 'Devrevstep': '4PXA5VDB', 'Yield PHI': 0.753, 'TTG PHI': 368.0, 'RCS PHI': 0.2}
+2025-12-17 01:05:56,526 | INFO | root |   行 3: {'Operation': 6248.0, 'Sub Flow Step': 'CLASSHOT', 'Devrevstep': '4PXA6VDB', 'Yield PHI': 0.753, 'TTG PHI': 368.0, 'RCS PHI': 0.2}
+2025-12-17 01:05:56,526 | INFO | root |   行 4: {'Operation': 6248.0, 'Sub Flow Step': 'CLASSCOLD', 'Devrevstep': '4PXA2VDB', 'Yield PHI': nan, 'TTG PHI': nan, 'RCS PHI': 0.1009}
+2025-12-17 01:05:56,526 | INFO | root | ✅ PHI 数据加载成功，共 12 行
+2025-12-17 01:05:56,542 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:05:56,542 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:05:56,542 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:05:56,542 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:05:56,542 | INFO | root | 第一行 PHI 值: {'Yield PHI': None, 'TTG PHI': None, 'RCS PHI': None}
+2025-12-17 01:05:56,542 | INFO | root | 第一行数据: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:05:56,542 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:05:56,542 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:05:56,542 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:05:56,542 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:05:56,542 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:05:56,542 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:05:56,542 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:05:56,542 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:05:56,542 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:05:56,542 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:05:56,542 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:05:56,542 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:05:56,557 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:05:56,557 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:05:56,557 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:05:56,557 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:05:56,573 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:05:56,573 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:05:56,573 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:05:56,573 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:05:56,573 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH4VEB
+2025-12-17 01:05:56,573 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:05:56,573 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:05:56,573 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:05:56,573 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH5VEB
+2025-12-17 01:05:56,573 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:05:56,573 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:05:56,573 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:05:56,573 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CSM, Devrevstep=4PLH2VEB
+2025-12-17 01:05:56,573 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:05:56,573 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:05:56,573 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:05:56,573 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CSM, Devrevstep=4PLH2VEB
+2025-12-17 01:05:56,573 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:05:56,573 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:05:56,573 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:05:56,573 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CSM, Devrevstep=4PLH4VEB
+2025-12-17 01:05:56,573 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:05:56,573 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:05:56,573 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:05:56,589 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CSM, Devrevstep=4PLH5VEB
+2025-12-17 01:05:56,589 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:05:56,589 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:05:56,589 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:05:56,589 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=SCS, Devrevstep=4PLH2VEB
+2025-12-17 01:05:56,589 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:05:56,589 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:05:56,589 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:05:56,589 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=SCS, Devrevstep=4PLH2VEB
+2025-12-17 01:05:56,589 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:05:56,589 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:05:56,604 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:05:56,604 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=SCS, Devrevstep=4PLH4VEB
+2025-12-17 01:05:56,604 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:05:56,604 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:05:56,604 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:05:56,604 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=SCS, Devrevstep=4PLH5VEB
+2025-12-17 01:05:56,604 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:05:56,604 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:05:56,604 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:05:59,713 | INFO | prd_lot_automation.mailer | Outlook HTML 邮件已发送
+2025-12-17 01:05:59,745 | INFO | root | ================================================================================
+2025-12-17 01:05:59,745 | INFO | root | ✅ 统一自动化完成
+2025-12-17 01:05:59,745 | INFO | root |   Lab TP 报告: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\reports\Lab_TP_Performance_20251217.xlsx
+2025-12-17 01:05:59,760 | INFO | root |   PRD LOT 报告: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\reports\Bin_Pareto_Report_2025-12-17.xlsx
+2025-12-17 01:05:59,760 | INFO | root | ================================================================================
+2025-12-17 01:09:53,668 | INFO | root | ================================================================================
+2025-12-17 01:09:53,668 | INFO | root | 统一自动化开始
+2025-12-17 01:09:53,668 | INFO | root | ================================================================================
+2025-12-17 01:09:53,668 | INFO | root | ================================================================================
+2025-12-17 01:09:53,668 | INFO | root | 开始执行 Lab TP Performance 自动化
+2025-12-17 01:09:53,668 | INFO | root | ================================================================================
+2025-12-17 01:09:53,683 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\Lot info.txt）
+2025-12-17 01:09:53,683 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-12-17 01:09:53,683 | INFO | prd_lot_automation.spf_runner | 检查并关闭现有的 SQLPathFinder 窗口...
+2025-12-17 01:09:53,683 | INFO | prd_lot_automation.close_sqlpathfinder | 使用 win32gui 查找并关闭 SQLPathFinder 窗口...
+2025-12-17 01:09:53,683 | INFO | prd_lot_automation.close_sqlpathfinder | 找到 0 个 SQLPathFinder 窗口
+2025-12-17 01:09:53,683 | INFO | prd_lot_automation.close_sqlpathfinder | 尝试强制终止 SQLPathFinder 进程...
+2025-12-17 01:09:53,777 | INFO | prd_lot_automation.close_sqlpathfinder | 未找到需要关闭的 SQLPathFinder 窗口
+2025-12-17 01:09:54,793 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\Lab_Class_Data_Performance.VG2
+2025-12-17 01:10:00,117 | INFO | prd_lot_automation.spf_runner | 找到 14 个 SQLPathFinder 窗口
+2025-12-17 01:10:00,117 | INFO | prd_lot_automation.spf_runner | ✅ 找到匹配的窗口: SQLPathFinder 3 (Main - 24192) - [Lab_Class_Data_Performance.VG2 (L0)]
+2025-12-17 01:10:00,117 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-12-17 01:10:00,117 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-12-17 01:10:01,445 | INFO | prd_lot_automation.spf_runner | ✅ 已发送 F8 快捷键
+2025-12-17 01:10:03,954 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-12-17 01:10:03,954 | INFO | prd_lot_automation.spf_runner | 等待弹窗出现...
+2025-12-17 01:10:05,956 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-12-17 01:10:05,956 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-12-17 01:10:05,980 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-12-17 01:10:05,980 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-12-17 01:10:05,980 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-12-17 01:10:06,374 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮
+2025-12-17 01:10:07,621 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-12-17 01:10:08,220 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交，SQLPathFinder 开始执行查询...
+2025-12-17 01:10:08,231 | INFO | prd_lot_automation.spf_runner | 等待 Query Log 窗口出现（表明查询已开始执行）...
+2025-12-17 01:10:08,262 | INFO | prd_lot_automation.spf_runner | ✅ 检测到 Query Log 窗口: SQLPathFinder Query Log (24192)
+2025-12-17 01:10:08,278 | INFO | prd_lot_automation.spf_runner | ✅ Query Log 窗口已出现，查询正在执行中
+2025-12-17 01:10:08,294 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-12-17 01:10:08,294 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-12-17 01:10:08,294 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:10:08,294 | INFO | prd_lot_automation.spf_runner | 开始等待 SQLPathFinder 查询完成...
+2025-12-17 01:10:08,294 | INFO | prd_lot_automation.spf_runner | 输出文件路径: C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\Lot_Level_Data.csv
+2025-12-17 01:10:08,294 | INFO | prd_lot_automation.spf_runner | 超时时间: 900 秒
+2025-12-17 01:10:08,294 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:10:08,294 | INFO | prd_lot_automation.spf_runner | ✅ 检测到 CSV 文件已创建 (大小: 1,649 字节，已等待 0 秒)
+2025-12-17 01:10:10,309 | INFO | prd_lot_automation.spf_runner | ⏳ 文件正在更新中... (已等待 2 秒，稳定检查: 1/4)
+2025-12-17 01:10:14,320 | INFO | prd_lot_automation.spf_runner | ⏳ 文件正在更新中... (已等待 6 秒，稳定检查: 2/4)
+2025-12-17 01:10:18,348 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:10:18,348 | INFO | prd_lot_automation.spf_runner | ✅ CSV 文件已生成并稳定: C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\Lot_Level_Data.csv
+2025-12-17 01:10:18,348 | INFO | prd_lot_automation.spf_runner |    文件大小: 1,649 字节
+2025-12-17 01:10:18,348 | INFO | prd_lot_automation.spf_runner |    等待时间: 10 秒
+2025-12-17 01:10:18,348 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:10:18,348 | INFO | lab_tp_automation.lab_tp_main | 读取 Lab TP 数据：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\Lot_Level_Data.csv
+2025-12-17 01:10:18,355 | INFO | lab_tp_automation.lab_tp_main | 数据集形状: (16, 13)
+2025-12-17 01:10:18,355 | INFO | lab_tp_automation.lab_tp_main | 列名映射: {'OPERATION': 'Operation', 'DEVREVSTEP': 'Devrevstep', 'PROGRAM_NAME': 'Program Name', 'SUB_FLOW_STEP': 'Sub Flow Step', 'FACILITY': 'Facility', 'TOTAL_TESTED': 'Total Tested', 'TESTE_GOOD': 'Tested Good', 'YIELD': 'Yield', 'TTG': 'TTG', 'ETT': 'ETT', 'RCS': 'RCS', 'RECOVERY_RATE': 'Recovery Rate'}
+2025-12-17 01:10:18,371 | INFO | lab_tp_automation.lab_tp_main | 处理后数据形状: (16, 12)
+2025-12-17 01:10:18,371 | INFO | lab_tp_automation.lab_tp_main | 生成报表：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\reports\Lab_TP_Performance_20251217.xlsx
+2025-12-17 01:10:18,433 | INFO | root | ✅ Lab TP Performance 自动化完成：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\reports\Lab_TP_Performance_20251217.xlsx
+2025-12-17 01:10:18,433 | INFO | root | 关闭 SQLPathFinder...
+2025-12-17 01:10:18,433 | INFO | prd_lot_automation.close_sqlpathfinder | 使用 win32gui 查找并关闭 SQLPathFinder 窗口...
+2025-12-17 01:10:18,433 | INFO | prd_lot_automation.close_sqlpathfinder | 找到 2 个 SQLPathFinder 窗口
+2025-12-17 01:10:18,433 | INFO | prd_lot_automation.close_sqlpathfinder | 关闭窗口: SQLPathFinder Query Log (24192)
+2025-12-17 01:10:18,852 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 已发送 Alt+F4
+2025-12-17 01:10:19,353 | INFO | prd_lot_automation.close_sqlpathfinder | 关闭窗口: SQLPathFinder 3 (Pre/Post Query -  -  - 24192) - [Lab_Class_Data_Performance.VG2 (L0)]
+2025-12-17 01:10:19,808 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 已发送 Alt+F4
+2025-12-17 01:10:20,360 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 成功关闭 2 个 SQLPathFinder 窗口/进程
+2025-12-17 01:10:20,360 | INFO | root | ================================================================================
+2025-12-17 01:10:20,360 | INFO | root | 准备执行下一个 VG2，先关闭所有 SQLPathFinder 窗口
+2025-12-17 01:10:20,360 | INFO | root | ================================================================================
+2025-12-17 01:10:20,360 | INFO | prd_lot_automation.close_sqlpathfinder | 使用 win32gui 查找并关闭 SQLPathFinder 窗口...
+2025-12-17 01:10:20,360 | INFO | prd_lot_automation.close_sqlpathfinder | 找到 0 个 SQLPathFinder 窗口
+2025-12-17 01:10:20,360 | INFO | prd_lot_automation.close_sqlpathfinder | 尝试强制终止 SQLPathFinder 进程...
+2025-12-17 01:10:20,371 | INFO | prd_lot_automation.close_sqlpathfinder | 未找到需要关闭的 SQLPathFinder 窗口
+2025-12-17 01:10:22,378 | INFO | root | ================================================================================
+2025-12-17 01:10:22,378 | INFO | root | 开始执行 PRD LOT 自动化
+2025-12-17 01:10:22,378 | INFO | root | ================================================================================
+2025-12-17 01:10:22,383 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\Lot info.txt）
+2025-12-17 01:10:22,383 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-12-17 01:10:22,383 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-12-17 01:10:22,383 | INFO | prd_lot_automation.spf_runner | 检查并关闭现有的 SQLPathFinder 窗口...
+2025-12-17 01:10:22,383 | INFO | prd_lot_automation.close_sqlpathfinder | 使用 win32gui 查找并关闭 SQLPathFinder 窗口...
+2025-12-17 01:10:22,383 | INFO | prd_lot_automation.close_sqlpathfinder | 找到 0 个 SQLPathFinder 窗口
+2025-12-17 01:10:22,383 | INFO | prd_lot_automation.close_sqlpathfinder | 尝试强制终止 SQLPathFinder 进程...
+2025-12-17 01:10:22,402 | INFO | prd_lot_automation.close_sqlpathfinder | 未找到需要关闭的 SQLPathFinder 窗口
+2025-12-17 01:10:23,418 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-12-17 01:10:28,596 | INFO | prd_lot_automation.spf_runner | 找到 14 个 SQLPathFinder 窗口
+2025-12-17 01:10:28,596 | INFO | prd_lot_automation.spf_runner | ✅ 找到匹配的窗口: SQLPathFinder 3 (Main - 16287) - [Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2 (L0)]
+2025-12-17 01:10:28,596 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-12-17 01:10:28,596 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-12-17 01:10:29,922 | INFO | prd_lot_automation.spf_runner | ✅ 已发送 F8 快捷键
+2025-12-17 01:10:32,429 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-12-17 01:10:32,429 | INFO | prd_lot_automation.spf_runner | 等待弹窗出现...
+2025-12-17 01:10:34,430 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-12-17 01:10:34,430 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-12-17 01:10:34,443 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-12-17 01:10:34,443 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-12-17 01:10:34,443 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-12-17 01:10:34,810 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮
+2025-12-17 01:10:36,008 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-12-17 01:10:36,621 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交，SQLPathFinder 开始执行查询...
+2025-12-17 01:10:36,621 | INFO | prd_lot_automation.spf_runner | 等待 Query Log 窗口出现（表明查询已开始执行）...
+2025-12-17 01:10:47,127 | INFO | prd_lot_automation.spf_runner | 未检测到 Query Log 窗口，检查是否有第二个参数弹窗...
+2025-12-17 01:10:49,173 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #2...
+2025-12-17 01:10:49,297 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-12-17 01:10:49,322 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-12-17 01:10:49,529 | WARNING | prd_lot_automation.spf_runner | 使用 win32clipboard 失败: (5, 'OpenClipboard', 'Access is denied.')，回退到 pyperclip
+2025-12-17 01:10:50,638 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个，使用 pyperclip)
+2025-12-17 01:10:51,097 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮
+2025-12-17 01:10:52,933 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-12-17 01:10:54,052 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交，SQLPathFinder 开始执行查询...
+2025-12-17 01:10:54,330 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-12-17 01:10:54,387 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-12-17 01:10:56,473 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #3...
+2025-12-17 01:11:01,536 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #3...
+2025-12-17 01:11:07,019 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #3...
+2025-12-17 01:11:12,100 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #3...
+2025-12-17 01:11:17,217 | INFO | prd_lot_automation.spf_runner | 第 5 次尝试查找弹窗 #3...
+2025-12-17 01:11:22,261 | INFO | prd_lot_automation.spf_runner | 第 6 次尝试查找弹窗 #3...
+2025-12-17 01:11:27,334 | WARNING | prd_lot_automation.spf_runner | ❌ 超时后仍未找到弹窗 #3
+2025-12-17 01:11:27,337 | INFO | prd_lot_automation.spf_runner | 没有第三个参数弹窗
+2025-12-17 01:11:27,338 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-12-17 01:11:27,340 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-12-17 01:11:27,340 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:11:27,341 | INFO | prd_lot_automation.spf_runner | 开始等待 SQLPathFinder 查询完成...
+2025-12-17 01:11:27,341 | INFO | prd_lot_automation.spf_runner | 输出文件路径: C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-12-17 01:11:27,341 | INFO | prd_lot_automation.spf_runner | 超时时间: 900 秒
+2025-12-17 01:11:27,343 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:11:35,877 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 8 秒)
+2025-12-17 01:11:46,655 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 19 秒)
+2025-12-17 01:11:56,668 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 29 秒)
+2025-12-17 01:12:06,681 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 39 秒)
+2025-12-17 01:12:16,684 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 49 秒)
+2025-12-17 01:12:26,695 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 59 秒)
+2025-12-17 01:12:32,704 | INFO | prd_lot_automation.spf_runner | ✅ 检测到 CSV 文件已创建 (大小: 1,820,124 字节，已等待 65 秒)
+2025-12-17 01:12:34,707 | INFO | prd_lot_automation.spf_runner | ⏳ 文件正在更新中... (已等待 67 秒，稳定检查: 1/4)
+2025-12-17 01:12:38,709 | INFO | prd_lot_automation.spf_runner | ⏳ 文件正在更新中... (已等待 71 秒，稳定检查: 3/4)
+2025-12-17 01:12:40,711 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:12:40,711 | INFO | prd_lot_automation.spf_runner | ✅ CSV 文件已生成并稳定: C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-12-17 01:12:40,711 | INFO | prd_lot_automation.spf_runner |    文件大小: 1,820,124 字节
+2025-12-17 01:12:40,711 | INFO | prd_lot_automation.spf_runner |    等待时间: 73 秒
+2025-12-17 01:12:40,711 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:12:40,711 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-12-17 01:12:41,105 | INFO | prd_lot_automation.data_processing | 标准化前数据行数: 6075
+2025-12-17 01:12:41,254 | INFO | prd_lot_automation.data_processing | 应用过滤条件: mut_within_subflow_latest_flag = Y，从 6075 行过滤到 4527 行
+2025-12-17 01:12:41,360 | INFO | prd_lot_automation.data_processing | 应用过滤条件: SUBSTRUCTURE_ID = U1.U2，从 4527 行过滤到 1509 行
+2025-12-17 01:12:41,452 | INFO | prd_lot_automation.data_processing | 过滤完成：从原始 6075 行过滤到 1509 行
+2025-12-17 01:12:41,527 | INFO | prd_lot_automation.data_processing | 应用过滤条件后数据行数: 1509
+2025-12-17 01:12:41,634 | INFO | prd_lot_automation.data_processing | process_step 列已处理，唯一值: ['CLASSHOT', 'CSM']
+2025-12-17 01:12:41,727 | INFO | root | 找到 2 个 process_step 类型: ['CLASSHOT', 'CSM']
+2025-12-17 01:12:41,824 | INFO | root | 处理 process_step: CLASSHOT，数据行数: 1187
+2025-12-17 01:12:41,933 | INFO | prd_lot_automation.data_processing | 构建 FUNCTIONAL_BIN 数量表，数据行数: 1187
+2025-12-17 01:12:42,037 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-17 01:12:42,132 | INFO | prd_lot_automation.data_processing | ✅ FUNCTIONAL_BIN 数量表构建完成，形状: (67, 3)
+2025-12-17 01:12:42,322 | INFO | root | ✅ CLASSHOT 的 Functional_bin Pareto 生成完成
+2025-12-17 01:12:42,445 | INFO | root | 处理 process_step: CSM，数据行数: 322
+2025-12-17 01:12:42,575 | INFO | prd_lot_automation.data_processing | 构建 FUNCTIONAL_BIN 数量表，数据行数: 322
+2025-12-17 01:12:42,679 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-17 01:12:42,755 | INFO | prd_lot_automation.data_processing | ✅ FUNCTIONAL_BIN 数量表构建完成，形状: (22, 3)
+2025-12-17 01:12:42,933 | INFO | root | ✅ CSM 的 Functional_bin Pareto 生成完成
+2025-12-17 01:12:43,116 | INFO | root | 已按 process_step 分组，不生成总的 Functional_bin Pareto 表
+2025-12-17 01:12:43,116 | INFO | prd_lot_automation.data_processing | 构建 INTERFACE_BIN 数量表，数据行数: 1187
+2025-12-17 01:12:43,121 | WARNING | prd_lot_automation.data_processing | INTERFACE_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-17 01:12:43,121 | INFO | prd_lot_automation.data_processing | ✅ INTERFACE_BIN 数量表构建完成，形状: (26, 3)
+2025-12-17 01:12:43,121 | INFO | root | ✅ CLASSHOT 的 Interface_bin Pareto 生成完成
+2025-12-17 01:12:43,121 | INFO | prd_lot_automation.data_processing | 构建 INTERFACE_BIN 数量表，数据行数: 322
+2025-12-17 01:12:43,132 | WARNING | prd_lot_automation.data_processing | INTERFACE_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-17 01:12:43,132 | INFO | prd_lot_automation.data_processing | ✅ INTERFACE_BIN 数量表构建完成，形状: (11, 3)
+2025-12-17 01:12:43,246 | INFO | root | ✅ CSM 的 Interface_bin Pareto 生成完成
+2025-12-17 01:12:43,393 | INFO | root | 已按 process_step 分组，不生成总的 Interface_bin Pareto 表
+2025-12-17 01:12:43,529 | INFO | root | 开始生成 Retest Bin Pareto（mut_within_subflow_latest_flag = N）
+2025-12-17 01:12:43,715 | INFO | prd_lot_automation.data_processing | 应用过滤条件: mut_within_subflow_latest_flag = N，从 6075 行过滤到 1548 行
+2025-12-17 01:12:43,841 | INFO | prd_lot_automation.data_processing | 应用过滤条件: SUBSTRUCTURE_ID = U1.U2，从 1548 行过滤到 516 行
+2025-12-17 01:12:43,881 | INFO | prd_lot_automation.data_processing | 过滤完成：从原始 6075 行过滤到 516 行
+2025-12-17 01:12:44,004 | INFO | root | Retest 数据中找到 2 个 process_step 类型: ['CLASSHOT', 'CSM']
+2025-12-17 01:12:44,226 | INFO | prd_lot_automation.data_processing | 构建 FUNCTIONAL_BIN 数量表，数据行数: 325
+2025-12-17 01:12:44,420 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-17 01:12:44,472 | INFO | prd_lot_automation.data_processing | ✅ FUNCTIONAL_BIN 数量表构建完成，形状: (67, 3)
+2025-12-17 01:12:44,540 | INFO | root | ✅ CLASSHOT 的 Retest Bin Pareto 生成完成
+2025-12-17 01:12:44,634 | INFO | prd_lot_automation.data_processing | 构建 FUNCTIONAL_BIN 数量表，数据行数: 191
+2025-12-17 01:12:44,709 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-17 01:12:44,780 | INFO | prd_lot_automation.data_processing | ✅ FUNCTIONAL_BIN 数量表构建完成，形状: (23, 3)
+2025-12-17 01:12:44,933 | INFO | root | ✅ CSM 的 Retest Bin Pareto 生成完成
+2025-12-17 01:12:45,253 | INFO | root | 已按 process_step 分组，不生成总的 Retest Bin Pareto 表
+2025-12-17 01:12:45,371 | INFO | prd_lot_automation.report_builder | 生成报表：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\reports\Bin_Pareto_Report_2025-12-17.xlsx
+2025-12-17 01:12:45,371 | INFO | prd_lot_automation.report_builder | 生成 2 个按 process_step 分组的 Functional_bin Pareto 表
+2025-12-17 01:12:45,632 | INFO | prd_lot_automation.report_builder | ✅ 已生成 CLASSHOT 的 Functional_bin Pareto 表
+2025-12-17 01:12:45,773 | INFO | prd_lot_automation.report_builder | ✅ 已生成 CSM 的 Functional_bin Pareto 表
+2025-12-17 01:12:45,812 | INFO | prd_lot_automation.report_builder | 生成 2 个按 process_step 分组的 Interface_bin Pareto 表
+2025-12-17 01:12:46,246 | INFO | prd_lot_automation.report_builder | ✅ 已生成 CLASSHOT 的 Interface_bin Pareto 表
+2025-12-17 01:12:46,482 | INFO | prd_lot_automation.report_builder | ✅ 已生成 CSM 的 Interface_bin Pareto 表
+2025-12-17 01:12:46,774 | INFO | prd_lot_automation.report_builder | 生成 2 个按 process_step 分组的 Retest Bin Pareto 表
+2025-12-17 01:12:48,238 | INFO | prd_lot_automation.report_builder | ✅ 已生成 CLASSHOT 的 Retest Bin Pareto 表
+2025-12-17 01:12:49,478 | INFO | prd_lot_automation.report_builder | ✅ 已生成 CSM 的 Retest Bin Pareto 表
+2025-12-17 01:12:57,453 | INFO | root | ✅ PRD LOT 自动化完成：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\reports\Bin_Pareto_Report_2025-12-17.xlsx
+2025-12-17 01:12:57,554 | INFO | root | 关闭 SQLPathFinder...
+2025-12-17 01:12:57,602 | INFO | prd_lot_automation.close_sqlpathfinder | 使用 win32gui 查找并关闭 SQLPathFinder 窗口...
+2025-12-17 01:12:57,697 | INFO | prd_lot_automation.close_sqlpathfinder | 找到 2 个 SQLPathFinder 窗口
+2025-12-17 01:12:57,697 | INFO | prd_lot_automation.close_sqlpathfinder | 关闭窗口: SQLPathFinder Query Log (16287)
+2025-12-17 01:12:58,709 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 已发送 Alt+F4
+2025-12-17 01:12:59,372 | INFO | prd_lot_automation.close_sqlpathfinder | 关闭窗口: SQLPathFinder 3 (Main - 16287) - [Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2 (L0)]
+2025-12-17 01:13:01,472 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 已发送 Alt+F4
+2025-12-17 01:13:01,975 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 成功关闭 2 个 SQLPathFinder 窗口/进程
+2025-12-17 01:13:01,977 | INFO | root | ================================================================================
+2025-12-17 01:13:01,977 | INFO | root | 发送统一邮件
+2025-12-17 01:13:01,978 | INFO | root | ================================================================================
+2025-12-17 01:13:01,987 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\Lot info.txt）
+2025-12-17 01:13:01,988 | INFO | root | 尝试加载 PHI 文件: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\Prod_PHI.xlsx
+2025-12-17 01:13:02,165 | INFO | root | 成功加载 PHI 数据: (12, 6)
+2025-12-17 01:13:02,210 | INFO | root | PHI 数据列名: ['Operation', 'Sub Flow Step', 'Devrevstep', 'Yield PHI', 'TTG PHI', 'RCS PHI']
+2025-12-17 01:13:02,262 | INFO | root | 处理合并单元格后的 PHI 数据:
+2025-12-17 01:13:02,374 | INFO | root | PHI 数据前5行:
+2025-12-17 01:13:02,417 | INFO | root |   行 0: {'Operation': 6248.0, 'Sub Flow Step': 'CLASSHOT', 'Devrevstep': '4PXA2VDB', 'Yield PHI': 0.753, 'TTG PHI': 368.0, 'RCS PHI': 0.2}
+2025-12-17 01:13:02,429 | INFO | root |   行 1: {'Operation': 6248.0, 'Sub Flow Step': 'CLASSHOT', 'Devrevstep': '4PXA4VDB', 'Yield PHI': 0.753, 'TTG PHI': 368.0, 'RCS PHI': 0.2}
+2025-12-17 01:13:02,448 | INFO | root |   行 2: {'Operation': 6248.0, 'Sub Flow Step': 'CLASSHOT', 'Devrevstep': '4PXA5VDB', 'Yield PHI': 0.753, 'TTG PHI': 368.0, 'RCS PHI': 0.2}
+2025-12-17 01:13:02,479 | INFO | root |   行 3: {'Operation': 6248.0, 'Sub Flow Step': 'CLASSHOT', 'Devrevstep': '4PXA6VDB', 'Yield PHI': 0.753, 'TTG PHI': 368.0, 'RCS PHI': 0.2}
+2025-12-17 01:13:02,488 | INFO | root |   行 4: {'Operation': 6248.0, 'Sub Flow Step': 'CLASSCOLD', 'Devrevstep': '4PXA2VDB', 'Yield PHI': nan, 'TTG PHI': nan, 'RCS PHI': 0.1009}
+2025-12-17 01:13:02,491 | INFO | root | ✅ PHI 数据加载成功，共 12 行
+2025-12-17 01:13:02,540 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:13:02,567 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:13:02,576 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:13:02,620 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:13:02,640 | INFO | root | 第一行 PHI 值: {'Yield PHI': None, 'TTG PHI': None, 'RCS PHI': None}
+2025-12-17 01:13:02,665 | INFO | root | 第一行数据: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:13:02,721 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:13:02,746 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:13:02,771 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:13:02,798 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:13:02,804 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:13:02,820 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:13:02,836 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:13:02,852 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:13:02,891 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:13:02,921 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:13:02,946 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:13:02,955 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:13:02,969 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:13:02,976 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:13:02,977 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:13:02,978 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:13:02,980 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:13:02,981 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:13:02,982 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:13:02,984 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:13:02,987 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH4VEB
+2025-12-17 01:13:02,992 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:13:02,994 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:13:02,996 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:13:03,008 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH5VEB
+2025-12-17 01:13:03,019 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:13:03,045 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:13:03,051 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:13:03,085 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CSM, Devrevstep=4PLH2VEB
+2025-12-17 01:13:03,111 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:13:03,138 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:13:03,235 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:13:03,375 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CSM, Devrevstep=4PLH2VEB
+2025-12-17 01:13:03,411 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:13:03,425 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:13:03,454 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:13:03,511 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CSM, Devrevstep=4PLH4VEB
+2025-12-17 01:13:03,576 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:13:03,630 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:13:03,996 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:13:03,999 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CSM, Devrevstep=4PLH5VEB
+2025-12-17 01:13:04,005 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:13:04,006 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:13:04,014 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:13:04,017 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=SCS, Devrevstep=4PLH2VEB
+2025-12-17 01:13:04,017 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:13:04,018 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:13:04,018 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:13:04,019 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=SCS, Devrevstep=4PLH2VEB
+2025-12-17 01:13:04,020 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:13:04,020 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:13:04,020 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:13:04,022 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=SCS, Devrevstep=4PLH4VEB
+2025-12-17 01:13:04,022 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:13:04,023 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:13:04,023 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:13:04,025 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=SCS, Devrevstep=4PLH5VEB
+2025-12-17 01:13:04,025 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:13:04,025 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:13:04,026 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:13:09,590 | INFO | prd_lot_automation.mailer | Outlook HTML 邮件已发送
+2025-12-17 01:13:09,648 | INFO | root | ================================================================================
+2025-12-17 01:13:09,649 | INFO | root | ✅ 统一自动化完成
+2025-12-17 01:13:09,665 | INFO | root |   Lab TP 报告: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\reports\Lab_TP_Performance_20251217.xlsx
+2025-12-17 01:13:09,670 | INFO | root |   PRD LOT 报告: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\reports\Bin_Pareto_Report_2025-12-17.xlsx
+2025-12-17 01:13:09,677 | INFO | root | ================================================================================
+2025-12-17 01:13:27,496 | INFO | root | ================================================================================
+2025-12-17 01:13:27,496 | INFO | root | 统一自动化开始
+2025-12-17 01:13:27,496 | INFO | root | ================================================================================
+2025-12-17 01:13:27,496 | INFO | root | ================================================================================
+2025-12-17 01:13:27,496 | INFO | root | 开始执行 Lab TP Performance 自动化
+2025-12-17 01:13:27,496 | INFO | root | ================================================================================
+2025-12-17 01:13:27,512 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\Lot info.txt）
+2025-12-17 01:13:27,512 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-12-17 01:13:27,512 | INFO | prd_lot_automation.spf_runner | 检查并关闭现有的 SQLPathFinder 窗口...
+2025-12-17 01:13:27,512 | INFO | prd_lot_automation.close_sqlpathfinder | 使用 win32gui 查找并关闭 SQLPathFinder 窗口...
+2025-12-17 01:13:27,512 | INFO | prd_lot_automation.close_sqlpathfinder | 找到 0 个 SQLPathFinder 窗口
+2025-12-17 01:13:27,512 | INFO | prd_lot_automation.close_sqlpathfinder | 尝试强制终止 SQLPathFinder 进程...
+2025-12-17 01:13:27,621 | INFO | prd_lot_automation.close_sqlpathfinder | 未找到需要关闭的 SQLPathFinder 窗口
+2025-12-17 01:13:28,625 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\Lab_Class_Data_Performance.VG2
+2025-12-17 01:13:33,949 | INFO | prd_lot_automation.spf_runner | 找到 14 个 SQLPathFinder 窗口
+2025-12-17 01:13:33,949 | INFO | prd_lot_automation.spf_runner | ✅ 找到匹配的窗口: SQLPathFinder 3 (Main - 27111) - [Lab_Class_Data_Performance.VG2 (L0)]
+2025-12-17 01:13:33,949 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-12-17 01:13:33,949 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-12-17 01:13:35,269 | INFO | prd_lot_automation.spf_runner | ✅ 已发送 F8 快捷键
+2025-12-17 01:13:37,775 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-12-17 01:13:37,775 | INFO | prd_lot_automation.spf_runner | 等待弹窗出现...
+2025-12-17 01:13:39,776 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-12-17 01:13:39,776 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-12-17 01:13:39,794 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-12-17 01:13:39,794 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-12-17 01:13:39,794 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-12-17 01:13:40,156 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮
+2025-12-17 01:13:41,390 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-12-17 01:13:42,089 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交，SQLPathFinder 开始执行查询...
+2025-12-17 01:13:42,098 | INFO | prd_lot_automation.spf_runner | 等待 Query Log 窗口出现（表明查询已开始执行）...
+2025-12-17 01:13:42,130 | INFO | prd_lot_automation.spf_runner | ✅ 检测到 Query Log 窗口: SQLPathFinder Query Log (27111)
+2025-12-17 01:13:42,130 | INFO | prd_lot_automation.spf_runner | ✅ Query Log 窗口已出现，查询正在执行中
+2025-12-17 01:13:42,177 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-12-17 01:13:42,177 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-12-17 01:13:42,177 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:13:42,177 | INFO | prd_lot_automation.spf_runner | 开始等待 SQLPathFinder 查询完成...
+2025-12-17 01:13:42,193 | INFO | prd_lot_automation.spf_runner | 输出文件路径: C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\Lot_Level_Data.csv
+2025-12-17 01:13:42,193 | INFO | prd_lot_automation.spf_runner | 超时时间: 900 秒
+2025-12-17 01:13:42,193 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:13:42,193 | INFO | prd_lot_automation.spf_runner | ✅ 检测到 CSV 文件已创建 (大小: 1,649 字节，已等待 0 秒)
+2025-12-17 01:13:44,209 | INFO | prd_lot_automation.spf_runner | ⏳ 文件正在更新中... (已等待 2 秒，稳定检查: 1/4)
+2025-12-17 01:13:48,214 | INFO | prd_lot_automation.spf_runner | ⏳ 文件正在更新中... (已等待 6 秒，稳定检查: 2/4)
+2025-12-17 01:13:52,242 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:13:52,242 | INFO | prd_lot_automation.spf_runner | ✅ CSV 文件已生成并稳定: C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\Lot_Level_Data.csv
+2025-12-17 01:13:52,242 | INFO | prd_lot_automation.spf_runner |    文件大小: 1,649 字节
+2025-12-17 01:13:52,242 | INFO | prd_lot_automation.spf_runner |    等待时间: 10 秒
+2025-12-17 01:13:52,242 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:13:52,247 | INFO | lab_tp_automation.lab_tp_main | 读取 Lab TP 数据：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\Lot_Level_Data.csv
+2025-12-17 01:13:52,263 | INFO | lab_tp_automation.lab_tp_main | 数据集形状: (16, 13)
+2025-12-17 01:13:52,279 | INFO | lab_tp_automation.lab_tp_main | 列名映射: {'OPERATION': 'Operation', 'DEVREVSTEP': 'Devrevstep', 'PROGRAM_NAME': 'Program Name', 'SUB_FLOW_STEP': 'Sub Flow Step', 'FACILITY': 'Facility', 'TOTAL_TESTED': 'Total Tested', 'TESTE_GOOD': 'Tested Good', 'YIELD': 'Yield', 'TTG': 'TTG', 'ETT': 'ETT', 'RCS': 'RCS', 'RECOVERY_RATE': 'Recovery Rate'}
+2025-12-17 01:13:52,279 | INFO | lab_tp_automation.lab_tp_main | 已排除 4 行 Sub Flow Step 为 'SCS' 的数据
+2025-12-17 01:13:52,295 | INFO | lab_tp_automation.lab_tp_main | 处理后数据形状: (12, 12)
+2025-12-17 01:13:52,295 | INFO | lab_tp_automation.lab_tp_main | 生成报表：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\reports\Lab_TP_Performance_20251217.xlsx
+2025-12-17 01:13:52,343 | INFO | root | ✅ Lab TP Performance 自动化完成：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\reports\Lab_TP_Performance_20251217.xlsx
+2025-12-17 01:13:52,343 | INFO | root | 关闭 SQLPathFinder...
+2025-12-17 01:13:52,343 | INFO | prd_lot_automation.close_sqlpathfinder | 使用 win32gui 查找并关闭 SQLPathFinder 窗口...
+2025-12-17 01:13:52,343 | INFO | prd_lot_automation.close_sqlpathfinder | 找到 2 个 SQLPathFinder 窗口
+2025-12-17 01:13:52,343 | INFO | prd_lot_automation.close_sqlpathfinder | 关闭窗口: SQLPathFinder Query Log (27111)
+2025-12-17 01:13:52,765 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 已发送 Alt+F4
+2025-12-17 01:13:53,266 | INFO | prd_lot_automation.close_sqlpathfinder | 关闭窗口: SQLPathFinder 3 (Pre/Post Query -  -  - 27111) - [Lab_Class_Data_Performance.VG2 (L0)]
+2025-12-17 01:13:53,699 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 已发送 Alt+F4
+2025-12-17 01:13:54,336 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 成功关闭 2 个 SQLPathFinder 窗口/进程
+2025-12-17 01:13:54,336 | INFO | root | ================================================================================
+2025-12-17 01:13:54,336 | INFO | root | 准备执行下一个 VG2，先关闭所有 SQLPathFinder 窗口
+2025-12-17 01:13:54,336 | INFO | root | ================================================================================
+2025-12-17 01:13:54,336 | INFO | prd_lot_automation.close_sqlpathfinder | 使用 win32gui 查找并关闭 SQLPathFinder 窗口...
+2025-12-17 01:13:54,340 | INFO | prd_lot_automation.close_sqlpathfinder | 找到 0 个 SQLPathFinder 窗口
+2025-12-17 01:13:54,340 | INFO | prd_lot_automation.close_sqlpathfinder | 尝试强制终止 SQLPathFinder 进程...
+2025-12-17 01:13:54,347 | INFO | prd_lot_automation.close_sqlpathfinder | 未找到需要关闭的 SQLPathFinder 窗口
+2025-12-17 01:13:56,355 | INFO | root | ================================================================================
+2025-12-17 01:13:56,357 | INFO | root | 开始执行 PRD LOT 自动化
+2025-12-17 01:13:56,357 | INFO | root | ================================================================================
+2025-12-17 01:13:56,373 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\Lot info.txt）
+2025-12-17 01:13:56,389 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-12-17 01:13:56,389 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-12-17 01:13:56,389 | INFO | prd_lot_automation.spf_runner | 检查并关闭现有的 SQLPathFinder 窗口...
+2025-12-17 01:13:56,389 | INFO | prd_lot_automation.close_sqlpathfinder | 使用 win32gui 查找并关闭 SQLPathFinder 窗口...
+2025-12-17 01:13:56,389 | INFO | prd_lot_automation.close_sqlpathfinder | 找到 0 个 SQLPathFinder 窗口
+2025-12-17 01:13:56,389 | INFO | prd_lot_automation.close_sqlpathfinder | 尝试强制终止 SQLPathFinder 进程...
+2025-12-17 01:13:56,389 | INFO | prd_lot_automation.close_sqlpathfinder | 未找到需要关闭的 SQLPathFinder 窗口
+2025-12-17 01:13:57,403 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-12-17 01:14:02,590 | INFO | prd_lot_automation.spf_runner | 找到 14 个 SQLPathFinder 窗口
+2025-12-17 01:14:02,590 | INFO | prd_lot_automation.spf_runner | ✅ 找到匹配的窗口: SQLPathFinder 3 (Main - 18275) - [Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2 (L0)]
+2025-12-17 01:14:02,590 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-12-17 01:14:02,590 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-12-17 01:14:03,917 | INFO | prd_lot_automation.spf_runner | ✅ 已发送 F8 快捷键
+2025-12-17 01:14:06,424 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-12-17 01:14:06,424 | INFO | prd_lot_automation.spf_runner | 等待弹窗出现...
+2025-12-17 01:14:08,426 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-12-17 01:14:08,426 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-12-17 01:14:08,450 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-12-17 01:14:08,465 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-12-17 01:14:08,496 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-12-17 01:14:08,907 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮
+2025-12-17 01:14:10,184 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-12-17 01:14:10,760 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交，SQLPathFinder 开始执行查询...
+2025-12-17 01:14:10,760 | INFO | prd_lot_automation.spf_runner | 等待 Query Log 窗口出现（表明查询已开始执行）...
+2025-12-17 01:14:20,788 | INFO | prd_lot_automation.spf_runner | 未检测到 Query Log 窗口，检查是否有第二个参数弹窗...
+2025-12-17 01:14:22,789 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #2...
+2025-12-17 01:14:22,809 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-12-17 01:14:22,809 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-12-17 01:14:22,822 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-12-17 01:14:23,188 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮
+2025-12-17 01:14:24,371 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-12-17 01:14:24,932 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交，SQLPathFinder 开始执行查询...
+2025-12-17 01:14:24,949 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-12-17 01:14:24,965 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-12-17 01:14:26,990 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #3...
+2025-12-17 01:14:32,042 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #3...
+2025-12-17 01:14:37,093 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #3...
+2025-12-17 01:14:42,143 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #3...
+2025-12-17 01:14:47,195 | INFO | prd_lot_automation.spf_runner | 第 5 次尝试查找弹窗 #3...
+2025-12-17 01:14:52,260 | INFO | prd_lot_automation.spf_runner | 第 6 次尝试查找弹窗 #3...
+2025-12-17 01:14:57,317 | WARNING | prd_lot_automation.spf_runner | ❌ 超时后仍未找到弹窗 #3
+2025-12-17 01:14:57,317 | INFO | prd_lot_automation.spf_runner | 没有第三个参数弹窗
+2025-12-17 01:14:57,317 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-12-17 01:14:57,317 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-12-17 01:14:57,317 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:14:57,317 | INFO | prd_lot_automation.spf_runner | 开始等待 SQLPathFinder 查询完成...
+2025-12-17 01:14:57,317 | INFO | prd_lot_automation.spf_runner | 输出文件路径: C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-12-17 01:14:57,317 | INFO | prd_lot_automation.spf_runner | 超时时间: 900 秒
+2025-12-17 01:14:57,317 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:15:05,323 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 8 秒)
+2025-12-17 01:15:15,326 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 18 秒)
+2025-12-17 01:15:25,330 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 28 秒)
+2025-12-17 01:15:35,333 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 38 秒)
+2025-12-17 01:15:45,350 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 48 秒)
+2025-12-17 01:15:55,353 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 58 秒)
+2025-12-17 01:16:05,357 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 68 秒)
+2025-12-17 01:16:07,358 | INFO | prd_lot_automation.spf_runner | ✅ 检测到 CSV 文件已创建 (大小: 1,820,124 字节，已等待 70 秒)
+2025-12-17 01:16:11,365 | INFO | prd_lot_automation.spf_runner | ⏳ 文件正在更新中... (已等待 74 秒，稳定检查: 2/4)
+2025-12-17 01:16:15,367 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:16:15,367 | INFO | prd_lot_automation.spf_runner | ✅ CSV 文件已生成并稳定: C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-12-17 01:16:15,367 | INFO | prd_lot_automation.spf_runner |    文件大小: 1,820,124 字节
+2025-12-17 01:16:15,367 | INFO | prd_lot_automation.spf_runner |    等待时间: 78 秒
+2025-12-17 01:16:15,367 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:16:15,367 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-12-17 01:16:15,404 | INFO | prd_lot_automation.data_processing | 标准化前数据行数: 6075
+2025-12-17 01:16:15,420 | INFO | prd_lot_automation.data_processing | 应用过滤条件: mut_within_subflow_latest_flag = Y，从 6075 行过滤到 4527 行
+2025-12-17 01:16:15,420 | INFO | prd_lot_automation.data_processing | 应用过滤条件: SUBSTRUCTURE_ID = U1.U2，从 4527 行过滤到 1509 行
+2025-12-17 01:16:15,420 | INFO | prd_lot_automation.data_processing | 过滤完成：从原始 6075 行过滤到 1509 行
+2025-12-17 01:16:15,420 | INFO | prd_lot_automation.data_processing | 应用过滤条件后数据行数: 1509
+2025-12-17 01:16:15,436 | INFO | prd_lot_automation.data_processing | process_step 列已处理，唯一值: ['CLASSHOT', 'CSM']
+2025-12-17 01:16:15,436 | INFO | root | 找到 2 个 process_step 类型: ['CLASSHOT', 'CSM']
+2025-12-17 01:16:15,436 | INFO | root | 处理 process_step: CLASSHOT，数据行数: 1187
+2025-12-17 01:16:15,436 | INFO | prd_lot_automation.data_processing | 构建 FUNCTIONAL_BIN 数量表，数据行数: 1187
+2025-12-17 01:16:15,436 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-17 01:16:15,436 | INFO | prd_lot_automation.data_processing | ✅ FUNCTIONAL_BIN 数量表构建完成，形状: (67, 3)
+2025-12-17 01:16:15,452 | INFO | root | ✅ CLASSHOT 的 Functional_bin Pareto 生成完成
+2025-12-17 01:16:15,452 | INFO | root | 处理 process_step: CSM，数据行数: 322
+2025-12-17 01:16:15,452 | INFO | prd_lot_automation.data_processing | 构建 FUNCTIONAL_BIN 数量表，数据行数: 322
+2025-12-17 01:16:15,452 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-17 01:16:15,452 | INFO | prd_lot_automation.data_processing | ✅ FUNCTIONAL_BIN 数量表构建完成，形状: (22, 3)
+2025-12-17 01:16:15,468 | INFO | root | ✅ CSM 的 Functional_bin Pareto 生成完成
+2025-12-17 01:16:15,468 | INFO | root | 已按 process_step 分组，不生成总的 Functional_bin Pareto 表
+2025-12-17 01:16:15,468 | INFO | prd_lot_automation.data_processing | 构建 INTERFACE_BIN 数量表，数据行数: 1187
+2025-12-17 01:16:15,468 | WARNING | prd_lot_automation.data_processing | INTERFACE_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-17 01:16:15,468 | INFO | prd_lot_automation.data_processing | ✅ INTERFACE_BIN 数量表构建完成，形状: (26, 3)
+2025-12-17 01:16:15,483 | INFO | root | ✅ CLASSHOT 的 Interface_bin Pareto 生成完成
+2025-12-17 01:16:15,483 | INFO | prd_lot_automation.data_processing | 构建 INTERFACE_BIN 数量表，数据行数: 322
+2025-12-17 01:16:15,483 | WARNING | prd_lot_automation.data_processing | INTERFACE_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-17 01:16:15,483 | INFO | prd_lot_automation.data_processing | ✅ INTERFACE_BIN 数量表构建完成，形状: (11, 3)
+2025-12-17 01:16:15,483 | INFO | root | ✅ CSM 的 Interface_bin Pareto 生成完成
+2025-12-17 01:16:15,483 | INFO | root | 已按 process_step 分组，不生成总的 Interface_bin Pareto 表
+2025-12-17 01:16:15,483 | INFO | root | 开始生成 Retest Bin Pareto（mut_within_subflow_latest_flag = N）
+2025-12-17 01:16:15,499 | INFO | prd_lot_automation.data_processing | 应用过滤条件: mut_within_subflow_latest_flag = N，从 6075 行过滤到 1548 行
+2025-12-17 01:16:15,499 | INFO | prd_lot_automation.data_processing | 应用过滤条件: SUBSTRUCTURE_ID = U1.U2，从 1548 行过滤到 516 行
+2025-12-17 01:16:15,499 | INFO | prd_lot_automation.data_processing | 过滤完成：从原始 6075 行过滤到 516 行
+2025-12-17 01:16:15,499 | INFO | root | Retest 数据中找到 2 个 process_step 类型: ['CSM', 'CLASSHOT']
+2025-12-17 01:16:15,499 | INFO | prd_lot_automation.data_processing | 构建 FUNCTIONAL_BIN 数量表，数据行数: 191
+2025-12-17 01:16:15,515 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-17 01:16:15,515 | INFO | prd_lot_automation.data_processing | ✅ FUNCTIONAL_BIN 数量表构建完成，形状: (23, 3)
+2025-12-17 01:16:15,515 | INFO | root | ✅ CSM 的 Retest Bin Pareto 生成完成
+2025-12-17 01:16:15,515 | INFO | prd_lot_automation.data_processing | 构建 FUNCTIONAL_BIN 数量表，数据行数: 325
+2025-12-17 01:16:15,515 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-17 01:16:15,515 | INFO | prd_lot_automation.data_processing | ✅ FUNCTIONAL_BIN 数量表构建完成，形状: (67, 3)
+2025-12-17 01:16:15,531 | INFO | root | ✅ CLASSHOT 的 Retest Bin Pareto 生成完成
+2025-12-17 01:16:15,531 | INFO | root | 已按 process_step 分组，不生成总的 Retest Bin Pareto 表
+2025-12-17 01:16:15,531 | INFO | prd_lot_automation.report_builder | 生成报表：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\reports\Bin_Pareto_Report_2025-12-17.xlsx
+2025-12-17 01:16:15,531 | INFO | prd_lot_automation.report_builder | 生成 2 个按 process_step 分组的 Functional_bin Pareto 表
+2025-12-17 01:16:15,627 | INFO | prd_lot_automation.report_builder | ✅ 已生成 CLASSHOT 的 Functional_bin Pareto 表
+2025-12-17 01:16:15,706 | INFO | prd_lot_automation.report_builder | ✅ 已生成 CSM 的 Functional_bin Pareto 表
+2025-12-17 01:16:15,722 | INFO | prd_lot_automation.report_builder | 生成 2 个按 process_step 分组的 Interface_bin Pareto 表
+2025-12-17 01:16:15,778 | INFO | prd_lot_automation.report_builder | ✅ 已生成 CLASSHOT 的 Interface_bin Pareto 表
+2025-12-17 01:16:15,817 | INFO | prd_lot_automation.report_builder | ✅ 已生成 CSM 的 Interface_bin Pareto 表
+2025-12-17 01:16:15,817 | INFO | prd_lot_automation.report_builder | 生成 2 个按 process_step 分组的 Retest Bin Pareto 表
+2025-12-17 01:16:15,871 | INFO | prd_lot_automation.report_builder | ✅ 已生成 CSM 的 Retest Bin Pareto 表
+2025-12-17 01:16:15,966 | INFO | prd_lot_automation.report_builder | ✅ 已生成 CLASSHOT 的 Retest Bin Pareto 表
+2025-12-17 01:16:17,544 | INFO | root | ✅ PRD LOT 自动化完成：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\reports\Bin_Pareto_Report_2025-12-17.xlsx
+2025-12-17 01:16:17,544 | INFO | root | 关闭 SQLPathFinder...
+2025-12-17 01:16:17,544 | INFO | prd_lot_automation.close_sqlpathfinder | 使用 win32gui 查找并关闭 SQLPathFinder 窗口...
+2025-12-17 01:16:17,544 | INFO | prd_lot_automation.close_sqlpathfinder | 找到 2 个 SQLPathFinder 窗口
+2025-12-17 01:16:17,559 | INFO | prd_lot_automation.close_sqlpathfinder | 关闭窗口: SQLPathFinder Query Log (18275)
+2025-12-17 01:16:17,968 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 已发送 Alt+F4
+2025-12-17 01:16:18,469 | INFO | prd_lot_automation.close_sqlpathfinder | 关闭窗口: SQLPathFinder 3 (Main - 18275) - [Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2 (L0)]
+2025-12-17 01:16:19,005 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 已发送 Alt+F4
+2025-12-17 01:16:19,575 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 成功关闭 2 个 SQLPathFinder 窗口/进程
+2025-12-17 01:16:19,585 | INFO | root | ================================================================================
+2025-12-17 01:16:19,596 | INFO | root | 发送统一邮件
+2025-12-17 01:16:19,596 | INFO | root | ================================================================================
+2025-12-17 01:16:19,606 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\Lot info.txt）
+2025-12-17 01:16:19,606 | INFO | root | 尝试加载 PHI 文件: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\Prod_PHI.xlsx
+2025-12-17 01:16:19,623 | INFO | root | 成功加载 PHI 数据: (12, 6)
+2025-12-17 01:16:19,623 | INFO | root | PHI 数据列名: ['Operation', 'Sub Flow Step', 'Devrevstep', 'Yield PHI', 'TTG PHI', 'RCS PHI']
+2025-12-17 01:16:19,638 | INFO | root | 处理合并单元格后的 PHI 数据:
+2025-12-17 01:16:19,638 | INFO | root | PHI 数据前5行:
+2025-12-17 01:16:19,638 | INFO | root |   行 0: {'Operation': 6248.0, 'Sub Flow Step': 'CLASSHOT', 'Devrevstep': '4PXA2VDB', 'Yield PHI': 0.753, 'TTG PHI': 368.0, 'RCS PHI': 0.2}
+2025-12-17 01:16:19,638 | INFO | root |   行 1: {'Operation': 6248.0, 'Sub Flow Step': 'CLASSHOT', 'Devrevstep': '4PXA4VDB', 'Yield PHI': 0.753, 'TTG PHI': 368.0, 'RCS PHI': 0.2}
+2025-12-17 01:16:19,638 | INFO | root |   行 2: {'Operation': 6248.0, 'Sub Flow Step': 'CLASSHOT', 'Devrevstep': '4PXA5VDB', 'Yield PHI': 0.753, 'TTG PHI': 368.0, 'RCS PHI': 0.2}
+2025-12-17 01:16:19,638 | INFO | root |   行 3: {'Operation': 6248.0, 'Sub Flow Step': 'CLASSHOT', 'Devrevstep': '4PXA6VDB', 'Yield PHI': 0.753, 'TTG PHI': 368.0, 'RCS PHI': 0.2}
+2025-12-17 01:16:19,638 | INFO | root |   行 4: {'Operation': 6248.0, 'Sub Flow Step': 'CLASSCOLD', 'Devrevstep': '4PXA2VDB', 'Yield PHI': nan, 'TTG PHI': nan, 'RCS PHI': 0.1009}
+2025-12-17 01:16:19,638 | INFO | root | ✅ PHI 数据加载成功，共 12 行
+2025-12-17 01:16:19,638 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:16:19,638 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:16:19,638 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:16:19,638 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:16:19,638 | INFO | root | 第一行 PHI 值: {'Yield PHI': None, 'TTG PHI': None, 'RCS PHI': None}
+2025-12-17 01:16:19,638 | INFO | root | 第一行数据: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:16:19,638 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:16:19,638 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:16:19,638 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:16:19,638 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:16:19,654 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:16:19,654 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:16:19,654 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:16:19,654 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:16:19,654 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:16:19,654 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:16:19,654 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:16:19,654 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:16:19,654 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:16:19,654 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:16:19,654 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:16:19,654 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:16:19,654 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:16:19,654 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:16:19,654 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:16:19,654 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:16:19,654 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH4VEB
+2025-12-17 01:16:19,654 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:16:19,670 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:16:19,670 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:16:19,670 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH5VEB
+2025-12-17 01:16:19,670 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:16:19,670 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:16:19,670 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:16:19,670 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CSM, Devrevstep=4PLH2VEB
+2025-12-17 01:16:19,670 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:16:19,670 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:16:19,670 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:16:19,670 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CSM, Devrevstep=4PLH2VEB
+2025-12-17 01:16:19,670 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:16:19,670 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:16:19,670 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:16:19,670 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CSM, Devrevstep=4PLH4VEB
+2025-12-17 01:16:19,670 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:16:19,670 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:16:19,670 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:16:19,670 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CSM, Devrevstep=4PLH5VEB
+2025-12-17 01:16:19,670 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:16:19,670 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:16:19,670 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:16:22,184 | INFO | prd_lot_automation.mailer | Outlook HTML 邮件已发送
+2025-12-17 01:16:22,246 | INFO | root | ================================================================================
+2025-12-17 01:16:22,282 | INFO | root | ✅ 统一自动化完成
+2025-12-17 01:16:22,282 | INFO | root |   Lab TP 报告: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\reports\Lab_TP_Performance_20251217.xlsx
+2025-12-17 01:16:22,293 | INFO | root |   PRD LOT 报告: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\reports\Bin_Pareto_Report_2025-12-17.xlsx
+2025-12-17 01:16:22,293 | INFO | root | ================================================================================
+2025-12-17 01:26:44,479 | INFO | root | ================================================================================
+2025-12-17 01:26:44,479 | INFO | root | 统一自动化开始
+2025-12-17 01:26:44,479 | INFO | root | ================================================================================
+2025-12-17 01:26:44,479 | INFO | root | ================================================================================
+2025-12-17 01:26:44,479 | INFO | root | 开始执行 Lab TP Performance 自动化
+2025-12-17 01:26:44,495 | INFO | root | ================================================================================
+2025-12-17 01:26:44,495 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\Lot info.txt）
+2025-12-17 01:26:44,495 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-12-17 01:26:44,526 | INFO | prd_lot_automation.spf_runner | 检查并关闭现有的 SQLPathFinder 窗口...
+2025-12-17 01:26:44,526 | INFO | prd_lot_automation.close_sqlpathfinder | 使用 win32gui 查找并关闭 SQLPathFinder 窗口...
+2025-12-17 01:26:44,526 | INFO | prd_lot_automation.close_sqlpathfinder | 找到 0 个 SQLPathFinder 窗口
+2025-12-17 01:26:44,526 | INFO | prd_lot_automation.close_sqlpathfinder | 尝试强制终止 SQLPathFinder 进程...
+2025-12-17 01:26:44,620 | INFO | prd_lot_automation.close_sqlpathfinder | 未找到需要关闭的 SQLPathFinder 窗口
+2025-12-17 01:26:45,636 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\Lab_Class_Data_Performance.VG2
+2025-12-17 01:26:50,935 | INFO | prd_lot_automation.spf_runner | 找到 14 个 SQLPathFinder 窗口
+2025-12-17 01:26:50,951 | INFO | prd_lot_automation.spf_runner | ✅ 找到匹配的窗口: SQLPathFinder 3 (Main - 31756) - [Lab_Class_Data_Performance.VG2 (L0)]
+2025-12-17 01:26:50,951 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-12-17 01:26:50,951 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-12-17 01:26:52,292 | INFO | prd_lot_automation.spf_runner | ✅ 已发送 F8 快捷键
+2025-12-17 01:26:54,798 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-12-17 01:26:54,798 | INFO | prd_lot_automation.spf_runner | 等待弹窗出现...
+2025-12-17 01:26:56,800 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-12-17 01:26:56,800 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-12-17 01:26:56,823 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-12-17 01:26:56,823 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-12-17 01:26:56,836 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-12-17 01:26:57,232 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮
+2025-12-17 01:26:58,497 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-12-17 01:26:59,136 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交，SQLPathFinder 开始执行查询...
+2025-12-17 01:26:59,136 | INFO | prd_lot_automation.spf_runner | 等待 Query Log 窗口出现（表明查询已开始执行）...
+2025-12-17 01:26:59,167 | INFO | prd_lot_automation.spf_runner | ✅ 检测到 Query Log 窗口: SQLPathFinder Query Log (31756)
+2025-12-17 01:26:59,167 | INFO | prd_lot_automation.spf_runner | ✅ Query Log 窗口已出现，查询正在执行中
+2025-12-17 01:26:59,183 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-12-17 01:26:59,183 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-12-17 01:26:59,276 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:26:59,308 | INFO | prd_lot_automation.spf_runner | 开始等待 SQLPathFinder 查询完成...
+2025-12-17 01:26:59,355 | INFO | prd_lot_automation.spf_runner | 输出文件路径: C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\Lot_Level_Data.csv
+2025-12-17 01:26:59,401 | INFO | prd_lot_automation.spf_runner | 超时时间: 900 秒
+2025-12-17 01:26:59,401 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:26:59,433 | INFO | prd_lot_automation.spf_runner | ✅ 检测到 CSV 文件已创建 (大小: 1,649 字节，已等待 0 秒)
+2025-12-17 01:27:01,440 | INFO | prd_lot_automation.spf_runner | ⏳ 文件正在更新中... (已等待 2 秒，稳定检查: 1/4)
+2025-12-17 01:27:05,469 | INFO | prd_lot_automation.spf_runner | ⏳ 文件正在更新中... (已等待 6 秒，稳定检查: 2/4)
+2025-12-17 01:27:09,475 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:27:09,475 | INFO | prd_lot_automation.spf_runner | ✅ CSV 文件已生成并稳定: C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\Lot_Level_Data.csv
+2025-12-17 01:27:09,475 | INFO | prd_lot_automation.spf_runner |    文件大小: 1,649 字节
+2025-12-17 01:27:09,475 | INFO | prd_lot_automation.spf_runner |    等待时间: 10 秒
+2025-12-17 01:27:09,475 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:27:09,496 | INFO | lab_tp_automation.lab_tp_main | 读取 Lab TP 数据：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\Lot_Level_Data.csv
+2025-12-17 01:27:09,512 | INFO | lab_tp_automation.lab_tp_main | 数据集形状: (16, 13)
+2025-12-17 01:27:09,528 | INFO | lab_tp_automation.lab_tp_main | 列名映射: {'LOT': 'LOT', 'OPERATION': 'Operation', 'DEVREVSTEP': 'Devrevstep', 'PROGRAM_NAME': 'Program Name', 'SUB_FLOW_STEP': 'Sub Flow Step', 'FACILITY': 'Facility', 'TOTAL_TESTED': 'Total Tested', 'TESTE_GOOD': 'Tested Good', 'YIELD': 'Yield', 'TTG': 'TTG', 'ETT': 'ETT', 'RCS': 'RCS', 'RECOVERY_RATE': 'Recovery Rate'}
+2025-12-17 01:27:09,528 | INFO | lab_tp_automation.lab_tp_main | ✅ 找到 LOT 列，将添加到报告中
+2025-12-17 01:27:09,544 | INFO | lab_tp_automation.lab_tp_main | 已排除 4 行 Sub Flow Step 为 'SCS' 的数据
+2025-12-17 01:27:09,576 | INFO | lab_tp_automation.lab_tp_main | 处理后数据形状: (12, 13)
+2025-12-17 01:27:09,602 | INFO | lab_tp_automation.lab_tp_main | 生成报表：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\reports\Lab_TP_Performance_20251217.xlsx
+2025-12-17 01:27:09,679 | INFO | root | ✅ Lab TP Performance 自动化完成：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\reports\Lab_TP_Performance_20251217.xlsx
+2025-12-17 01:27:09,682 | INFO | root | 关闭 SQLPathFinder...
+2025-12-17 01:27:09,682 | INFO | prd_lot_automation.close_sqlpathfinder | 使用 win32gui 查找并关闭 SQLPathFinder 窗口...
+2025-12-17 01:27:09,683 | INFO | prd_lot_automation.close_sqlpathfinder | 找到 2 个 SQLPathFinder 窗口
+2025-12-17 01:27:09,683 | INFO | prd_lot_automation.close_sqlpathfinder | 关闭窗口: SQLPathFinder Query Log (31756)
+2025-12-17 01:27:10,136 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 已发送 Alt+F4
+2025-12-17 01:27:10,641 | INFO | prd_lot_automation.close_sqlpathfinder | 关闭窗口: SQLPathFinder 3 (Pre/Post Query -  -  - 31756) - [Lab_Class_Data_Performance.VG2 (L0)]
+2025-12-17 01:27:11,049 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 已发送 Alt+F4
+2025-12-17 01:27:11,659 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 成功关闭 2 个 SQLPathFinder 窗口/进程
+2025-12-17 01:27:11,659 | INFO | root | ================================================================================
+2025-12-17 01:27:11,659 | INFO | root | 准备执行下一个 VG2，先关闭所有 SQLPathFinder 窗口
+2025-12-17 01:27:11,659 | INFO | root | ================================================================================
+2025-12-17 01:27:11,659 | INFO | prd_lot_automation.close_sqlpathfinder | 使用 win32gui 查找并关闭 SQLPathFinder 窗口...
+2025-12-17 01:27:11,659 | INFO | prd_lot_automation.close_sqlpathfinder | 找到 0 个 SQLPathFinder 窗口
+2025-12-17 01:27:11,659 | INFO | prd_lot_automation.close_sqlpathfinder | 尝试强制终止 SQLPathFinder 进程...
+2025-12-17 01:27:11,667 | INFO | prd_lot_automation.close_sqlpathfinder | 未找到需要关闭的 SQLPathFinder 窗口
+2025-12-17 01:27:13,679 | INFO | root | ================================================================================
+2025-12-17 01:27:13,679 | INFO | root | 开始执行 PRD LOT 自动化
+2025-12-17 01:27:13,683 | INFO | root | ================================================================================
+2025-12-17 01:27:13,700 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\Lot info.txt）
+2025-12-17 01:27:13,700 | INFO | root | 执行批次 1/1，LOT 数：8
+2025-12-17 01:27:13,700 | INFO | prd_lot_automation.spf_runner | 启动 SPF 运行，LOT 数：8
+2025-12-17 01:27:13,700 | INFO | prd_lot_automation.spf_runner | 检查并关闭现有的 SQLPathFinder 窗口...
+2025-12-17 01:27:13,700 | INFO | prd_lot_automation.close_sqlpathfinder | 使用 win32gui 查找并关闭 SQLPathFinder 窗口...
+2025-12-17 01:27:13,700 | INFO | prd_lot_automation.close_sqlpathfinder | 找到 0 个 SQLPathFinder 窗口
+2025-12-17 01:27:13,700 | INFO | prd_lot_automation.close_sqlpathfinder | 尝试强制终止 SQLPathFinder 进程...
+2025-12-17 01:27:13,715 | INFO | prd_lot_automation.close_sqlpathfinder | 未找到需要关闭的 SQLPathFinder 窗口
+2025-12-17 01:27:14,731 | INFO | prd_lot_automation.spf_runner | 直接打开 VG2：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2
+2025-12-17 01:27:19,932 | INFO | prd_lot_automation.spf_runner | 找到 14 个 SQLPathFinder 窗口
+2025-12-17 01:27:19,932 | INFO | prd_lot_automation.spf_runner | ✅ 找到匹配的窗口: SQLPathFinder 3 (Main - 18511) - [Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2 (L0)]
+2025-12-17 01:27:19,932 | INFO | prd_lot_automation.spf_runner | 已连接到 SQLPathFinder 主窗口 (win32 backend)
+2025-12-17 01:27:19,932 | INFO | prd_lot_automation.spf_runner | 使用 F8 快捷键触发 Run...
+2025-12-17 01:27:21,251 | INFO | prd_lot_automation.spf_runner | ✅ 已发送 F8 快捷键
+2025-12-17 01:27:23,760 | INFO | prd_lot_automation.spf_runner | 等待 LOT 输入弹窗：Prompt For Values
+2025-12-17 01:27:23,760 | INFO | prd_lot_automation.spf_runner | 等待弹窗出现...
+2025-12-17 01:27:25,763 | INFO | prd_lot_automation.spf_runner | 处理第一个参数弹窗...
+2025-12-17 01:27:25,763 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #1...
+2025-12-17 01:27:25,777 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #1: Prompt For Values (in)
+2025-12-17 01:27:25,777 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-12-17 01:27:25,777 | INFO | prd_lot_automation.spf_runner | 弹窗 #1: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-12-17 01:27:26,171 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 Paste 按钮
+2025-12-17 01:27:27,359 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: 已点击 OK 按钮
+2025-12-17 01:27:27,934 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #1: LOT 已提交，SQLPathFinder 开始执行查询...
+2025-12-17 01:27:27,934 | INFO | prd_lot_automation.spf_runner | 等待 Query Log 窗口出现（表明查询已开始执行）...
+2025-12-17 01:27:37,977 | INFO | prd_lot_automation.spf_runner | 未检测到 Query Log 窗口，检查是否有第二个参数弹窗...
+2025-12-17 01:27:39,979 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #2...
+2025-12-17 01:27:39,996 | INFO | prd_lot_automation.spf_runner | ✅ 找到弹窗 #2: Prompt For Values (in)
+2025-12-17 01:27:39,996 | INFO | prd_lot_automation.spf_runner |    使用模式: .*Prompt.*Values.*
+2025-12-17 01:27:39,996 | INFO | prd_lot_automation.spf_runner | 弹窗 #2: LOT 列表已复制到剪贴板 (8 个，使用 win32clipboard)
+2025-12-17 01:27:40,391 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 Paste 按钮
+2025-12-17 01:27:41,681 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: 已点击 OK 按钮
+2025-12-17 01:27:42,256 | INFO | prd_lot_automation.spf_runner | ✅ 弹窗 #2: LOT 已提交，SQLPathFinder 开始执行查询...
+2025-12-17 01:27:42,277 | INFO | prd_lot_automation.spf_runner | ✅ 第二个参数弹窗已处理
+2025-12-17 01:27:42,328 | INFO | prd_lot_automation.spf_runner | 检查是否有第三个参数弹窗...
+2025-12-17 01:27:44,346 | INFO | prd_lot_automation.spf_runner | 第 1 次尝试查找弹窗 #3...
+2025-12-17 01:27:49,405 | INFO | prd_lot_automation.spf_runner | 第 2 次尝试查找弹窗 #3...
+2025-12-17 01:27:54,463 | INFO | prd_lot_automation.spf_runner | 第 3 次尝试查找弹窗 #3...
+2025-12-17 01:27:59,516 | INFO | prd_lot_automation.spf_runner | 第 4 次尝试查找弹窗 #3...
+2025-12-17 01:28:04,571 | INFO | prd_lot_automation.spf_runner | 第 5 次尝试查找弹窗 #3...
+2025-12-17 01:28:09,625 | INFO | prd_lot_automation.spf_runner | 第 6 次尝试查找弹窗 #3...
+2025-12-17 01:28:14,682 | WARNING | prd_lot_automation.spf_runner | ❌ 超时后仍未找到弹窗 #3
+2025-12-17 01:28:14,682 | INFO | prd_lot_automation.spf_runner | 没有第三个参数弹窗
+2025-12-17 01:28:14,682 | INFO | prd_lot_automation.spf_runner | ✅ 所有参数弹窗已处理完成，LOT 数：8
+2025-12-17 01:28:14,682 | INFO | prd_lot_automation.spf_runner | LOT 已下发给 SQLPathFinder，等待 by_lot.csv 更新
+2025-12-17 01:28:14,682 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:28:14,682 | INFO | prd_lot_automation.spf_runner | 开始等待 SQLPathFinder 查询完成...
+2025-12-17 01:28:14,682 | INFO | prd_lot_automation.spf_runner | 输出文件路径: C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-12-17 01:28:14,682 | INFO | prd_lot_automation.spf_runner | 超时时间: 900 秒
+2025-12-17 01:28:14,682 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:28:22,686 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 8 秒)
+2025-12-17 01:28:32,689 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 18 秒)
+2025-12-17 01:28:42,697 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 28 秒)
+2025-12-17 01:28:52,700 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 38 秒)
+2025-12-17 01:29:02,704 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 48 秒)
+2025-12-17 01:29:12,707 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 58 秒)
+2025-12-17 01:29:22,710 | INFO | prd_lot_automation.spf_runner | ⏳ 等待 CSV 文件生成... (已等待 68 秒)
+2025-12-17 01:29:24,711 | INFO | prd_lot_automation.spf_runner | ✅ 检测到 CSV 文件已创建 (大小: 1,820,124 字节，已等待 70 秒)
+2025-12-17 01:29:28,717 | INFO | prd_lot_automation.spf_runner | ⏳ 文件正在更新中... (已等待 74 秒，稳定检查: 2/4)
+2025-12-17 01:29:32,719 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:29:32,719 | INFO | prd_lot_automation.spf_runner | ✅ CSV 文件已生成并稳定: C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-12-17 01:29:32,719 | INFO | prd_lot_automation.spf_runner |    文件大小: 1,820,124 字节
+2025-12-17 01:29:32,719 | INFO | prd_lot_automation.spf_runner |    等待时间: 78 秒
+2025-12-17 01:29:32,719 | INFO | prd_lot_automation.spf_runner | ============================================================
+2025-12-17 01:29:32,719 | INFO | prd_lot_automation.data_processing | 读取抓取结果：C:\Users\qibaiche\AppData\Local\Temp\SQLPathFinder_Temp\by_lot.csv
+2025-12-17 01:29:32,766 | INFO | prd_lot_automation.data_processing | 标准化前数据行数: 6075
+2025-12-17 01:29:32,766 | INFO | prd_lot_automation.data_processing | 应用过滤条件: mut_within_subflow_latest_flag = Y，从 6075 行过滤到 4527 行
+2025-12-17 01:29:32,766 | INFO | prd_lot_automation.data_processing | 应用过滤条件: SUBSTRUCTURE_ID = U1.U2，从 4527 行过滤到 1509 行
+2025-12-17 01:29:32,766 | INFO | prd_lot_automation.data_processing | 过滤完成：从原始 6075 行过滤到 1509 行
+2025-12-17 01:29:32,766 | INFO | prd_lot_automation.data_processing | 应用过滤条件后数据行数: 1509
+2025-12-17 01:29:32,782 | INFO | prd_lot_automation.data_processing | process_step 列已处理，唯一值: ['CLASSHOT', 'CSM']
+2025-12-17 01:29:32,782 | INFO | root | 找到 2 个 process_step 类型: ['CLASSHOT', 'CSM']
+2025-12-17 01:29:32,782 | INFO | root | 处理 process_step: CLASSHOT，数据行数: 1187
+2025-12-17 01:29:32,782 | INFO | prd_lot_automation.data_processing | 构建 FUNCTIONAL_BIN 数量表，数据行数: 1187
+2025-12-17 01:29:32,782 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-17 01:29:32,782 | INFO | prd_lot_automation.data_processing | ✅ FUNCTIONAL_BIN 数量表构建完成，形状: (67, 3)
+2025-12-17 01:29:32,798 | INFO | root | ✅ CLASSHOT 的 Functional_bin Pareto 生成完成
+2025-12-17 01:29:32,798 | INFO | root | 处理 process_step: CSM，数据行数: 322
+2025-12-17 01:29:32,798 | INFO | prd_lot_automation.data_processing | 构建 FUNCTIONAL_BIN 数量表，数据行数: 322
+2025-12-17 01:29:32,798 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-17 01:29:32,798 | INFO | prd_lot_automation.data_processing | ✅ FUNCTIONAL_BIN 数量表构建完成，形状: (22, 3)
+2025-12-17 01:29:32,813 | INFO | root | ✅ CSM 的 Functional_bin Pareto 生成完成
+2025-12-17 01:29:32,813 | INFO | root | 已按 process_step 分组，不生成总的 Functional_bin Pareto 表
+2025-12-17 01:29:32,813 | INFO | prd_lot_automation.data_processing | 构建 INTERFACE_BIN 数量表，数据行数: 1187
+2025-12-17 01:29:32,813 | WARNING | prd_lot_automation.data_processing | INTERFACE_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-17 01:29:32,813 | INFO | prd_lot_automation.data_processing | ✅ INTERFACE_BIN 数量表构建完成，形状: (26, 3)
+2025-12-17 01:29:32,829 | INFO | root | ✅ CLASSHOT 的 Interface_bin Pareto 生成完成
+2025-12-17 01:29:32,829 | INFO | prd_lot_automation.data_processing | 构建 INTERFACE_BIN 数量表，数据行数: 322
+2025-12-17 01:29:32,829 | WARNING | prd_lot_automation.data_processing | INTERFACE_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-17 01:29:32,829 | INFO | prd_lot_automation.data_processing | ✅ INTERFACE_BIN 数量表构建完成，形状: (11, 3)
+2025-12-17 01:29:32,845 | INFO | root | ✅ CSM 的 Interface_bin Pareto 生成完成
+2025-12-17 01:29:32,845 | INFO | root | 已按 process_step 分组，不生成总的 Interface_bin Pareto 表
+2025-12-17 01:29:32,845 | INFO | root | 开始生成 Retest Bin Pareto（mut_within_subflow_latest_flag = N）
+2025-12-17 01:29:32,845 | INFO | prd_lot_automation.data_processing | 应用过滤条件: mut_within_subflow_latest_flag = N，从 6075 行过滤到 1548 行
+2025-12-17 01:29:32,845 | INFO | prd_lot_automation.data_processing | 应用过滤条件: SUBSTRUCTURE_ID = U1.U2，从 1548 行过滤到 516 行
+2025-12-17 01:29:32,845 | INFO | prd_lot_automation.data_processing | 过滤完成：从原始 6075 行过滤到 516 行
+2025-12-17 01:29:32,845 | INFO | root | Retest 数据中找到 2 个 process_step 类型: ['CSM', 'CLASSHOT']
+2025-12-17 01:29:32,845 | INFO | prd_lot_automation.data_processing | 构建 FUNCTIONAL_BIN 数量表，数据行数: 191
+2025-12-17 01:29:32,845 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-17 01:29:32,861 | INFO | prd_lot_automation.data_processing | ✅ FUNCTIONAL_BIN 数量表构建完成，形状: (23, 3)
+2025-12-17 01:29:32,861 | INFO | root | ✅ CSM 的 Retest Bin Pareto 生成完成
+2025-12-17 01:29:32,861 | INFO | prd_lot_automation.data_processing | 构建 FUNCTIONAL_BIN 数量表，数据行数: 325
+2025-12-17 01:29:32,861 | WARNING | prd_lot_automation.data_processing | FUNCTIONAL_BIN: VISUAL_ID 存在非数值，使用去重计数
+2025-12-17 01:29:32,861 | INFO | prd_lot_automation.data_processing | ✅ FUNCTIONAL_BIN 数量表构建完成，形状: (67, 3)
+2025-12-17 01:29:32,877 | INFO | root | ✅ CLASSHOT 的 Retest Bin Pareto 生成完成
+2025-12-17 01:29:32,877 | INFO | root | 已按 process_step 分组，不生成总的 Retest Bin Pareto 表
+2025-12-17 01:29:32,877 | INFO | prd_lot_automation.report_builder | 生成报表：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\reports\Bin_Pareto_Report_2025-12-17.xlsx
+2025-12-17 01:29:32,893 | INFO | prd_lot_automation.report_builder | 生成 2 个按 process_step 分组的 Functional_bin Pareto 表
+2025-12-17 01:29:32,988 | INFO | prd_lot_automation.report_builder | ✅ 已生成 CLASSHOT 的 Functional_bin Pareto 表
+2025-12-17 01:29:33,067 | INFO | prd_lot_automation.report_builder | ✅ 已生成 CSM 的 Functional_bin Pareto 表
+2025-12-17 01:29:33,067 | INFO | prd_lot_automation.report_builder | 生成 2 个按 process_step 分组的 Interface_bin Pareto 表
+2025-12-17 01:29:33,115 | INFO | prd_lot_automation.report_builder | ✅ 已生成 CLASSHOT 的 Interface_bin Pareto 表
+2025-12-17 01:29:33,147 | INFO | prd_lot_automation.report_builder | ✅ 已生成 CSM 的 Interface_bin Pareto 表
+2025-12-17 01:29:33,147 | INFO | prd_lot_automation.report_builder | 生成 2 个按 process_step 分组的 Retest Bin Pareto 表
+2025-12-17 01:29:33,201 | INFO | prd_lot_automation.report_builder | ✅ 已生成 CSM 的 Retest Bin Pareto 表
+2025-12-17 01:29:33,306 | INFO | prd_lot_automation.report_builder | ✅ 已生成 CLASSHOT 的 Retest Bin Pareto 表
+2025-12-17 01:29:34,888 | INFO | root | ✅ PRD LOT 自动化完成：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\reports\Bin_Pareto_Report_2025-12-17.xlsx
+2025-12-17 01:29:34,888 | INFO | root | 关闭 SQLPathFinder...
+2025-12-17 01:29:34,888 | INFO | prd_lot_automation.close_sqlpathfinder | 使用 win32gui 查找并关闭 SQLPathFinder 窗口...
+2025-12-17 01:29:34,888 | INFO | prd_lot_automation.close_sqlpathfinder | 找到 2 个 SQLPathFinder 窗口
+2025-12-17 01:29:34,888 | INFO | prd_lot_automation.close_sqlpathfinder | 关闭窗口: SQLPathFinder Query Log (18511)
+2025-12-17 01:29:35,304 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 已发送 Alt+F4
+2025-12-17 01:29:35,810 | INFO | prd_lot_automation.close_sqlpathfinder | 关闭窗口: SQLPathFinder 3 (Main - 18511) - [Get_Sort_or_Test_Unit_Results_HBASE_By_Lot.VG2 (L0)]
+2025-12-17 01:29:36,248 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 已发送 Alt+F4
+2025-12-17 01:29:36,863 | INFO | prd_lot_automation.close_sqlpathfinder | ✅ 成功关闭 2 个 SQLPathFinder 窗口/进程
+2025-12-17 01:29:36,863 | INFO | root | ================================================================================
+2025-12-17 01:29:36,863 | INFO | root | 发送统一邮件
+2025-12-17 01:29:36,863 | INFO | root | ================================================================================
+2025-12-17 01:29:36,874 | INFO | prd_lot_automation.lot_reader | LOT 列表读取完成：8 个（原文件：C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\Lot info.txt）
+2025-12-17 01:29:36,874 | INFO | root | 尝试加载 PHI 文件: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\Prod_PHI.xlsx
+2025-12-17 01:29:36,905 | INFO | root | 成功加载 PHI 数据: (12, 6)
+2025-12-17 01:29:36,905 | INFO | root | PHI 数据列名: ['Operation', 'Sub Flow Step', 'Devrevstep', 'Yield PHI', 'TTG PHI', 'RCS PHI']
+2025-12-17 01:29:36,905 | INFO | root | 处理合并单元格后的 PHI 数据:
+2025-12-17 01:29:36,905 | INFO | root | PHI 数据前5行:
+2025-12-17 01:29:36,905 | INFO | root |   行 0: {'Operation': 6248.0, 'Sub Flow Step': 'CLASSHOT', 'Devrevstep': '4PXA2VDB', 'Yield PHI': 0.753, 'TTG PHI': 368.0, 'RCS PHI': 0.2}
+2025-12-17 01:29:36,905 | INFO | root |   行 1: {'Operation': 6248.0, 'Sub Flow Step': 'CLASSHOT', 'Devrevstep': '4PXA4VDB', 'Yield PHI': 0.753, 'TTG PHI': 368.0, 'RCS PHI': 0.2}
+2025-12-17 01:29:36,905 | INFO | root |   行 2: {'Operation': 6248.0, 'Sub Flow Step': 'CLASSHOT', 'Devrevstep': '4PXA5VDB', 'Yield PHI': 0.753, 'TTG PHI': 368.0, 'RCS PHI': 0.2}
+2025-12-17 01:29:36,905 | INFO | root |   行 3: {'Operation': 6248.0, 'Sub Flow Step': 'CLASSHOT', 'Devrevstep': '4PXA6VDB', 'Yield PHI': 0.753, 'TTG PHI': 368.0, 'RCS PHI': 0.2}
+2025-12-17 01:29:36,905 | INFO | root |   行 4: {'Operation': 6248.0, 'Sub Flow Step': 'CLASSCOLD', 'Devrevstep': '4PXA2VDB', 'Yield PHI': nan, 'TTG PHI': nan, 'RCS PHI': 0.1009}
+2025-12-17 01:29:36,905 | INFO | root | ✅ PHI 数据加载成功，共 12 行
+2025-12-17 01:29:36,922 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:29:36,922 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:29:36,922 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:29:36,922 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:29:36,922 | INFO | root | 第一行 PHI 值: {'Yield PHI': None, 'TTG PHI': None, 'RCS PHI': None}
+2025-12-17 01:29:36,922 | INFO | root | 第一行数据: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:29:36,922 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:29:36,922 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:29:36,922 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:29:36,922 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:29:36,937 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:29:36,937 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:29:36,937 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:29:36,937 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:29:36,937 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:29:36,937 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:29:36,937 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:29:36,937 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:29:36,937 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:29:36,937 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:29:36,937 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:29:36,937 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:29:36,937 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH2VEB
+2025-12-17 01:29:36,937 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:29:36,937 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:29:36,937 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:29:36,937 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH4VEB
+2025-12-17 01:29:36,937 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:29:36,937 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:29:36,937 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:29:36,953 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CLASSHOT, Devrevstep=4PLH5VEB
+2025-12-17 01:29:36,953 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:29:36,953 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:29:36,953 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:29:36,953 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CSM, Devrevstep=4PLH2VEB
+2025-12-17 01:29:36,953 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:29:36,953 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:29:36,953 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:29:36,953 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CSM, Devrevstep=4PLH2VEB
+2025-12-17 01:29:36,953 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:29:36,953 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:29:36,953 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:29:36,969 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CSM, Devrevstep=4PLH4VEB
+2025-12-17 01:29:36,969 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:29:36,969 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:29:36,969 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:29:36,969 | WARNING | root | ⚠️ 未找到匹配的 PHI 值: Operation=6248, Sub Flow Step=CSM, Devrevstep=4PLH5VEB
+2025-12-17 01:29:36,969 | INFO | root |   PHI 文件中的 Operation 值: [6248.0, 6274.0]
+2025-12-17 01:29:36,969 | INFO | root |   PHI 文件中的 Sub Flow Step 值: ['CLASSHOT', 'CLASSCOLD', 'PHMHOT']
+2025-12-17 01:29:36,969 | INFO | root |   PHI 文件中的 Devrevstep 值: ['4PXA2VDB', '4PXA4VDB', '4PXA5VDB', '4PXA6VDB']
+2025-12-17 01:29:40,076 | INFO | prd_lot_automation.mailer | Outlook HTML 邮件已发送
+2025-12-17 01:29:40,279 | INFO | root | ================================================================================
+2025-12-17 01:29:40,295 | INFO | root | ✅ 统一自动化完成
+2025-12-17 01:29:40,310 | INFO | root |   Lab TP 报告: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\reports\Lab_TP_Performance_20251217.xlsx
+2025-12-17 01:29:40,310 | INFO | root |   PRD LOT 报告: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\test-data-auto-analysis\reports\Bin_Pareto_Report_2025-12-17.xlsx
+2025-12-17 01:29:40,310 | INFO | root | ================================================================================
