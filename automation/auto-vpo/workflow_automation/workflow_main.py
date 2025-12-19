@@ -18,6 +18,7 @@ from .data_reader import read_excel_file, save_result_excel, validate_data
 from .mole_submitter import MoleSubmitter
 from .spark_submitter import SparkSubmitter
 from .gts_submitter import GTSSubmitter
+from .mole_config_ui import show_mole_config_ui
 
 LOGGER = logging.getLogger(__name__)
 
@@ -155,24 +156,46 @@ class WorkflowController:
         start_time = datetime.now()
         
         try:
+            # 步骤-1: 显示配置UI
+            LOGGER.info("\n" + "=" * 80)
+            LOGGER.info("步骤 -1/3: 配置Mole参数")
+            LOGGER.info("=" * 80)
+            
+            # 获取config.yaml路径
+            config_path = Path(__file__).parent / "config.yaml"
+            
+            # 显示配置UI
+            LOGGER.info("显示Mole配置界面...")
+            ui_config = show_mole_config_ui(config_path)
+            
+            if ui_config is None:
+                LOGGER.warning("用户取消了配置，工作流终止")
+                return None
+            
+            LOGGER.info(f"用户配置: {ui_config}")
+            
+            # 更新mole_submitter的配置
+            self.mole_submitter.config.search_mode = ui_config.get('search_mode', 'vpos')
+            self.mole_submitter.config.ui_config = ui_config
+            
             # 步骤0: 预先启动Mole工具
             LOGGER.info("\n" + "=" * 80)
-            LOGGER.info("步骤 0/2: 启动Mole工具")
+            LOGGER.info("步骤 0/3: 启动Mole工具")
             LOGGER.info("=" * 80)
             self._step_start_mole()
             
             # 步骤1: 读取文件（Excel或CSV）
             LOGGER.info("\n" + "=" * 80)
-            LOGGER.info("步骤 1/2: 读取source lot文件")
+            LOGGER.info("步骤 1/3: 读取source lot文件")
             LOGGER.info("=" * 80)
             df = self._step_read_excel(excel_file_path)
             
             # 步骤2: 提交MIR数据到Mole工具（循环处理所有行）
             LOGGER.info("\n" + "=" * 80)
-            LOGGER.info("步骤 2/2: 提交MIR数据到Mole工具（循环处理所有行）")
+            LOGGER.info("步骤 2/3: 提交MIR数据到Mole工具（循环处理所有行）")
             LOGGER.info("=" * 80)
             source_lot_file_path = self._get_source_lot_file_path(excel_file_path)
-            self._step_submit_to_mole(df, source_lot_file_path)
+            self._step_submit_to_mole(df, source_lot_file_path, ui_config)
             
             elapsed_time = (datetime.now() - start_time).total_seconds()
             output_path = self.last_mir_result_file
@@ -390,61 +413,218 @@ class WorkflowController:
         except Exception as e:
             raise WorkflowError(f"读取文件失败: {e}")
     
-    def _step_submit_to_mole(self, df: pd.DataFrame, source_lot_file_path: Path) -> None:
-        """步骤2: 提交MIR数据到Mole工具（循环处理所有行）"""
+    def _step_submit_to_mole(self, df: pd.DataFrame, source_lot_file_path: Path, ui_config: dict = None) -> None:
+        """步骤2: 提交MIR数据到Mole工具（循环处理所有行）
+        
+        Args:
+            df: DataFrame
+            source_lot_file_path: Source Lot文件路径（默认路径，可能被UI配置覆盖）
+            ui_config: UI配置数据（可选），包含搜索方式和参数
+        """
         try:
-            # 读取Source Lot文件
-            LOGGER.info("读取Source Lot文件...")
-            source_lot_df = read_excel_file(source_lot_file_path)
+            # 获取搜索模式
+            search_mode = ui_config.get('search_mode', 'vpos') if ui_config else 'vpos'
             
-            LOGGER.info(f"Source Lot文件列名: {source_lot_df.columns.tolist()}")
-            LOGGER.info(f"Source Lot文件共有 {len(source_lot_df)} 行数据")
-            
-            # 查找SourceLot列（不区分大小写）
-            source_lot_col = None
-            for col in source_lot_df.columns:
-                col_upper = str(col).strip().upper()
-                if col_upper in ['SOURCELOT', 'SOURCE LOT', 'SOURCE_LOT', 'SOURCELOTS', 'SOURCE LOTS']:
-                    source_lot_col = col
-                    LOGGER.info(f"找到SourceLot列: '{col}'")
-                    break
-            
-            if source_lot_col is None:
-                raise WorkflowError(f"在Source Lot文件中未找到SourceLot列。可用列: {source_lot_df.columns.tolist()}")
-            
-            if source_lot_df.empty:
-                raise WorkflowError("Source Lot文件为空")
-            
-            # 存储所有MIR结果
-            mir_results = []
-            
-            # 循环处理每一行
-            for row_index, row in source_lot_df.iterrows():
-                source_lot_value = row[source_lot_col]
+            # 根据搜索模式处理不同的数据源
+            if search_mode == 'vpos':
+                # VPOs 模式：从 Source Lot 文件读取
+                # 使用 UI 配置的文件路径，如果没有则使用默认路径
+                actual_source_lot_file_str = ui_config.get('source_lot_file', '') if ui_config else ''
+                if not actual_source_lot_file_str:
+                    actual_source_lot_file = source_lot_file_path
+                else:
+                    # 解析相对路径（基于 workflow_automation 目录的父目录）
+                    actual_source_lot_file = Path(actual_source_lot_file_str)
+                    if not actual_source_lot_file.is_absolute():
+                        # 相对路径：基于 auto-vpo 根目录
+                        base_dir = Path(__file__).parent.parent  # workflow_automation -> auto-vpo
+                        actual_source_lot_file = (base_dir / actual_source_lot_file_str).resolve()
                 
-                if pd.isna(source_lot_value):
-                    LOGGER.warning(f"第 {row_index + 1} 行的SourceLot值为空，跳过")
-                    continue
+                # 检查文件是否存在
+                if not actual_source_lot_file.exists():
+                    # 尝试查找文件的其他可能位置
+                    possible_paths = [
+                        actual_source_lot_file,
+                        Path(__file__).parent.parent / "input" / "Source Lot.csv",
+                        Path(__file__).parent.parent / "Source Lot.csv",
+                        source_lot_file_path,
+                    ]
+                    
+                    found_file = None
+                    for path in possible_paths:
+                        if path.exists():
+                            found_file = path
+                            LOGGER.warning(f"原始路径不存在: {actual_source_lot_file}，使用找到的文件: {found_file}")
+                            break
+                    
+                    if not found_file:
+                        error_msg = (
+                            f"Source Lot文件不存在: {actual_source_lot_file}\n"
+                            f"已尝试以下路径:\n"
+                            + "\n".join(f"  - {p}" for p in possible_paths)
+                        )
+                        raise WorkflowError(error_msg)
+                    
+                    actual_source_lot_file = found_file
                 
-                source_lot_value = str(source_lot_value).strip()
+                LOGGER.info(f"读取Source Lot文件: {actual_source_lot_file}")
+                source_lot_df = read_excel_file(actual_source_lot_file)
                 
-                LOGGER.info("=" * 80)
-                LOGGER.info(f"处理第 {row_index + 1}/{len(source_lot_df)} 行: SourceLot = {source_lot_value}")
-                LOGGER.info("=" * 80)
+                LOGGER.info(f"Source Lot文件列名: {source_lot_df.columns.tolist()}")
+                LOGGER.info(f"Source Lot文件共有 {len(source_lot_df)} 行数据")
                 
+                # 查找SourceLot列（不区分大小写）
+                source_lot_col = None
+                for col in source_lot_df.columns:
+                    col_upper = str(col).strip().upper()
+                    if col_upper in ['SOURCELOT', 'SOURCE LOT', 'SOURCE_LOT', 'SOURCELOTS', 'SOURCE LOTS']:
+                        source_lot_col = col
+                        LOGGER.info(f"找到SourceLot列: '{col}'")
+                        break
+                
+                if source_lot_col is None:
+                    raise WorkflowError(f"在Source Lot文件中未找到SourceLot列。可用列: {source_lot_df.columns.tolist()}")
+                
+                if source_lot_df.empty:
+                    raise WorkflowError("Source Lot文件为空")
+                
+                # 存储所有MIR结果
+                mir_results = []
+                
+                # 循环处理每一行
+                for row_index, row in source_lot_df.iterrows():
+                    source_lot_value = row[source_lot_col]
+                    
+                    if pd.isna(source_lot_value):
+                        LOGGER.warning(f"第 {row_index + 1} 行的SourceLot值为空，跳过")
+                        continue
+                    
+                    source_lot_value = str(source_lot_value).strip()
+                    
+                    LOGGER.info("=" * 80)
+                    LOGGER.info(f"处理第 {row_index + 1}/{len(source_lot_df)} 行: SourceLot = {source_lot_value}")
+                    LOGGER.info("=" * 80)
+                    
+                    try:
+                        # 打开File菜单 -> New MIR Request
+                        LOGGER.info("开始Mole工具操作流程...")
+                        success = self.mole_submitter.submit_mir_data({})
+                        
+                        if success:
+                            # Search By VPOs模式
+                            LOGGER.info("使用Search By VPOs模式...")
+                            # 点击Search By VPOs按钮
+                            self.mole_submitter._click_search_by_vpos_button()
+                            # 填写VPO搜索对话框
+                            LOGGER.info("填写VPO搜索对话框...")
+                            self.mole_submitter._fill_vpo_search_dialog(source_lot_value)
+                            
+                            # 检查搜索结果行状态并执行相应操作
+                            LOGGER.info("检查搜索结果行状态...")
+                            self.mole_submitter._check_row_status_and_select(ui_config)
+                            
+                            # 点击Submit按钮
+                            LOGGER.info("点击Submit按钮...")
+                            self.mole_submitter._click_submit_button()
+                            
+                            # 处理最终成功对话框并获取MIR号码
+                            LOGGER.info("处理最终成功对话框并获取MIR号码...")
+                            
+                            # 如果是最后一行，增加等待时间，确保copy MIR对话框完全弹出
+                            is_last_row = (row_index == len(source_lot_df) - 1)
+                            if is_last_row:
+                                LOGGER.info("这是最后一行，等待更长时间确保copy MIR对话框完全弹出...")
+                                time.sleep(3.0)  # 额外等待3秒
+                            
+                            mir_number = self.mole_submitter._handle_final_success_dialog_and_get_mir()
+                            
+                            # 如果是最后一行，再次等待确保对话框完全处理完成
+                            if is_last_row:
+                                LOGGER.info("最后一行处理完成，等待copy MIR对话框完全关闭...")
+                                time.sleep(2.0)  # 再等待2秒确保对话框关闭
+                            
+                            if mir_number:
+                                # 保存该行数据和MIR号码
+                                result_row = row.to_dict()
+                                result_row['MIR'] = mir_number
+                                mir_results.append(result_row)
+                                
+                                LOGGER.info(f"✅ 第 {row_index + 1} 行处理成功: SourceLot={source_lot_value}, MIR={mir_number}")
+                                
+                                self.results.append({
+                                    'row_index': row_index,
+                                    'step': 'Mole',
+                                    'status': 'success',
+                                    'source_lot': source_lot_value,
+                                    'mir': mir_number,
+                                    'timestamp': datetime.now().isoformat()
+                                })
+                            else:
+                                LOGGER.error(f"❌ 第 {row_index + 1} 行未能获取MIR号码")
+                                self.errors.append({
+                                    'row_index': row_index,
+                                    'step': 'Mole',
+                                    'error': '未能获取MIR号码',
+                                    'source_lot': source_lot_value,
+                                    'timestamp': datetime.now().isoformat()
+                                })
+                        else:
+                            error_msg = f"第 {row_index + 1} 行Mole工具操作失败"
+                            LOGGER.error(f"❌ {error_msg}")
+                            self.errors.append({
+                                'row_index': row_index,
+                                'step': 'Mole',
+                                'error': error_msg,
+                                'source_lot': source_lot_value,
+                                'timestamp': datetime.now().isoformat()
+                            })
+                    
+                    except Exception as e:
+                        error_msg = f"第 {row_index + 1} 行处理失败: {e}"
+                        LOGGER.error(f"❌ {error_msg}")
+                        LOGGER.error(traceback.format_exc())
+                        self.errors.append({
+                            'row_index': row_index,
+                            'step': 'Mole',
+                            'error': str(e),
+                            'source_lot': source_lot_value,
+                            'timestamp': datetime.now().isoformat()
+                        })
+                        # 继续处理下一行，不中断整个流程
+                    
+                    # 在处理下一行之前，等待一下，确保界面准备好
+                    if row_index < len(source_lot_df) - 1:
+                        LOGGER.info("等待2秒后处理下一行...")
+                        time.sleep(2.0)
+            
+            elif search_mode == 'units':
+                # Units 模式：使用粘贴的 units 信息
+                units_info = ui_config.get('units_info', '') if ui_config else ''
+                if not units_info:
+                    raise WorkflowError("Units 模式下必须提供 units_info（请在配置UI中粘贴Units信息）")
+                
+                LOGGER.info("使用Search By Units模式...")
+                LOGGER.info(f"Units信息: {units_info[:100]}...")
+                
+                # 存储所有MIR结果
+                mir_results = []
+                
+                # 对于 Units 模式，通常只处理一次（不是循环）
                 try:
                     # 打开File菜单 -> New MIR Request
                     LOGGER.info("开始Mole工具操作流程...")
                     success = self.mole_submitter.submit_mir_data({})
                     
                     if success:
-                        # 填写VPO搜索对话框
-                        LOGGER.info("填写VPO搜索对话框...")
-                        self.mole_submitter._fill_vpo_search_dialog(source_lot_value)
+                        # 点击Search By Units按钮
+                        self.mole_submitter._click_search_by_units_button()
+                        # 填写Units搜索对话框
+                        LOGGER.info("填写Units搜索对话框...")
+                        self.mole_submitter._fill_units_search_dialog(ui_config)
                         
                         # 检查搜索结果行状态并执行相应操作
                         LOGGER.info("检查搜索结果行状态...")
-                        self.mole_submitter._check_row_status_and_select()
+                        self.mole_submitter._check_row_status_and_select(ui_config)
                         
                         # 点击Submit按钮
                         LOGGER.info("点击Submit按钮...")
@@ -452,95 +632,86 @@ class WorkflowController:
                         
                         # 处理最终成功对话框并获取MIR号码
                         LOGGER.info("处理最终成功对话框并获取MIR号码...")
-                        
-                        # 如果是最后一行，增加等待时间，确保copy MIR对话框完全弹出
-                        is_last_row = (row_index == len(source_lot_df) - 1)
-                        if is_last_row:
-                            LOGGER.info("这是最后一行，等待更长时间确保copy MIR对话框完全弹出...")
-                            time.sleep(3.0)  # 额外等待3秒
-                        
+                        # 增加等待时间，确保对话框完全弹出
+                        LOGGER.info("等待copy MIR对话框完全弹出...")
+                        time.sleep(4.0)  # 增加等待时间到4秒
                         mir_number = self.mole_submitter._handle_final_success_dialog_and_get_mir()
-                        
-                        # 如果是最后一行，再次等待确保对话框完全处理完成
-                        if is_last_row:
-                            LOGGER.info("最后一行处理完成，等待copy MIR对话框完全关闭...")
-                            time.sleep(2.0)  # 再等待2秒确保对话框关闭
-                            
-                            # 验证对话框是否已关闭
-                            if win32gui:
-                                try:
-                                    def check_dialog(hwnd, dialogs):
-                                        try:
-                                            if not win32gui.IsWindowVisible(hwnd):
-                                                return True
-                                            window_text = win32gui.GetWindowText(hwnd)
-                                            if window_text == "Submit MIR Request":
-                                                dialogs.append(hwnd)
-                                        except:
-                                            pass
-                                        return True
-                                    
-                                    remaining_dialogs = []
-                                    win32gui.EnumWindows(check_dialog, remaining_dialogs)
-                                    if remaining_dialogs:
-                                        LOGGER.warning(f"检测到仍有 {len(remaining_dialogs)} 个成功对话框未关闭，等待5秒...")
-                                        time.sleep(5.0)
-                                except:
-                                    pass
+                        # 等待对话框关闭和剪贴板更新
+                        time.sleep(2.0)  # 等待对话框关闭
                         
                         if mir_number:
-                            # 保存该行数据和MIR号码
-                            result_row = row.to_dict()
-                            result_row['MIR'] = mir_number
-                            mir_results.append(result_row)
+                            mir_results.append({
+                                'units_info': units_info[:50] + '...' if len(units_info) > 50 else units_info,
+                                'MIR': mir_number
+                            })
                             
-                            LOGGER.info(f"✅ 第 {row_index + 1} 行处理成功: SourceLot={source_lot_value}, MIR={mir_number}")
+                            LOGGER.info(f"✅ Units处理成功: MIR={mir_number}")
                             
                             self.results.append({
-                                'row_index': row_index,
                                 'step': 'Mole',
                                 'status': 'success',
-                                'source_lot': source_lot_value,
+                                'units_info': units_info[:50] + '...' if len(units_info) > 50 else units_info,
                                 'mir': mir_number,
                                 'timestamp': datetime.now().isoformat()
                             })
                         else:
-                            LOGGER.error(f"❌ 第 {row_index + 1} 行未能获取MIR号码")
+                            LOGGER.error("❌ 未能获取MIR号码")
                             self.errors.append({
-                                'row_index': row_index,
                                 'step': 'Mole',
                                 'error': '未能获取MIR号码',
-                                'source_lot': source_lot_value,
                                 'timestamp': datetime.now().isoformat()
                             })
                     else:
-                        error_msg = f"第 {row_index + 1} 行Mole工具操作失败"
+                        error_msg = "Mole工具操作失败"
                         LOGGER.error(f"❌ {error_msg}")
                         self.errors.append({
-                            'row_index': row_index,
                             'step': 'Mole',
                             'error': error_msg,
-                            'source_lot': source_lot_value,
                             'timestamp': datetime.now().isoformat()
                         })
                 
                 except Exception as e:
-                    error_msg = f"第 {row_index + 1} 行处理失败: {e}"
+                    error_msg = f"Units处理失败: {e}"
                     LOGGER.error(f"❌ {error_msg}")
                     LOGGER.error(traceback.format_exc())
                     self.errors.append({
-                        'row_index': row_index,
                         'step': 'Mole',
                         'error': str(e),
-                        'source_lot': source_lot_value,
                         'timestamp': datetime.now().isoformat()
                     })
-                    # 继续处理下一行，不中断整个流程
                 
-                # 在处理下一行之前，等待一下，确保界面准备好
-                if row_index < len(source_lot_df) - 1:
-                    LOGGER.info("等待2秒后处理下一行...")
-                    time.sleep(2.0)
+                # 保存 Units 模式的 MIR 结果
+                if mir_results:
+                    LOGGER.info(f"保存Units模式的MIR结果...")
+                    self._save_all_mir_results(source_lot_file_path, mir_results)
+                    # 注意：_save_all_mir_results 方法已经设置了 self.last_mir_result_file，不需要重复设置
+            
+            else:
+                raise WorkflowError(f"不支持的搜索模式: {search_mode}")
+            
+            # 保存 VPOs 模式的 MIR 结果（如果有）
+            if search_mode == 'vpos' and mir_results:
+                LOGGER.info(f"保存VPOs模式的MIR结果...")
+                self._save_all_mir_results(source_lot_file_path, mir_results)
+                # 注意：_save_all_mir_results 方法已经设置了 self.last_mir_result_file，不需要重复设置
+            
+            # 显示处理结果统计
+            LOGGER.info("=" * 80)
+            LOGGER.info("Mole处理完成")
+            LOGGER.info("=" * 80)
+            if search_mode == 'vpos':
+                LOGGER.info(f"  成功处理: {len(mir_results)} 行")
+                LOGGER.info(f"  失败: {len(self.errors)} 行")
+            else:
+                LOGGER.info(f"  Units模式处理完成")
+                if mir_results:
+                    LOGGER.info(f"  成功: 1 个MIR")
+                else:
+                    LOGGER.info(f"  失败: 未能获取MIR")
+            
+            if mir_results:
+                LOGGER.info(f"  结果文件: {self.last_mir_result_file}")
+            LOGGER.info("=" * 80)
             
             # 所有行处理完后，等待所有对话框关闭，然后关闭MOLE
             LOGGER.info("=" * 80)
@@ -585,20 +756,19 @@ class WorkflowController:
             except Exception as e:
                 LOGGER.warning(f"⚠️ 关闭MOLE工具时出错: {e}，继续执行...")
             
-            # 保存结果到CSV
-            if mir_results:
-                LOGGER.info("=" * 80)
-                LOGGER.info(f"所有行处理完成，保存结果...")
-                self._save_all_mir_results(source_lot_file_path, mir_results)
-            else:
-                LOGGER.warning("没有成功获取任何MIR号码")
+            # 注意：MIR结果已经在第686行（Units模式）或第695行（VPOs模式）保存过了，不需要重复保存
             
             # 输出汇总信息
             LOGGER.info("=" * 80)
-            LOGGER.info(f"处理汇总:")
-            LOGGER.info(f"  总行数: {len(source_lot_df)}")
-            LOGGER.info(f"  成功: {len(mir_results)}")
-            LOGGER.info(f"  失败: {len(self.errors)}")
+            if search_mode == 'vpos':
+                LOGGER.info(f"处理汇总:")
+                LOGGER.info(f"  总行数: {len(source_lot_df) if 'source_lot_df' in locals() else 'N/A'}")
+                LOGGER.info(f"  成功: {len(mir_results)}")
+                LOGGER.info(f"  失败: {len(self.errors)}")
+            else:
+                LOGGER.info(f"处理汇总:")
+                LOGGER.info(f"  成功: {len(mir_results)}")
+                LOGGER.info(f"  失败: {len(self.errors)}")
             LOGGER.info("=" * 80)
                 
         except Exception as e:

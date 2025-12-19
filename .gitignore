@@ -5,3 +5,7 @@ __pycache__/
 .vscode/
 .idea/
 outputs/
+
+# Test Data Auto Analysis - Reports and Logs
+automation/test-data-auto-analysis/reports/
+automation/test-data-auto-analysis/logs/

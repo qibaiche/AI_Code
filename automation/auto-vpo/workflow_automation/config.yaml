@@ -1,81 +1,60 @@
-# ========================================================================
-# 🔧 常用配置 - 请在运行前检查以下配置是否正确
-# ========================================================================
-
-# ⚠️ 重要：Test Program 路径（运行前请确认此路径正确）
-# 格式：使用双反斜杠 \\ 或正斜杠 /
-# 示例：\\\\server\\path\\to\\tp 或 //server/path/to/tp
-paths:
-  tp_path: "\\\\gar.corp.intel.com\\ec\\proj\\mdl\\pg\\intel\\hdmxprogs\\ptl\\PTLP484BXH24X00S549\\POR_TP\\PTL_P_CLASS"
-  
-  # 其他路径配置（一般不需要修改）
-  input_dir: ".."  # 输入文件目录（Auto VPO根目录）
-  source_lot_file: "../input/Source Lot.csv"  # Source Lot文件路径（优先在input目录查找）
-  output_dir: "../output"  # 输出文件目录
-  log_dir: "./logs"  # 日志目录
-
-# Mole工具配置
-mole:
-  executable_path: "C:/Users/qibaiche/Desktop/Mole 2.0.appref-ms"  # Mole工具可执行文件路径（.appref-ms文件）
-  window_title: ".*MOLE.*"  # Mole工具窗口标题（支持正则表达式，匹配包含MOLE的窗口）
-  login_dialog_title: "MOLE LOGIN"  # 登录对话框标题
-  timeout: 60  # 操作超时时间（秒）
-  retry_count: 3  # 重试次数
-  retry_delay: 2  # 重试延迟（秒）
-
-# ========================================================================
-# Spark 自动化配置
-# ========================================================================
-spark:
-  url: "https://spark.app.intel.com/dashboard"
-  
-  # 实验信息配置（根据需要修改）
-  vpo_category: "correlation"  # VPO类别: correlation, engineering, walk the lot
-  step: "B5"  # Step选项: B0, B4, B5, B6等
-  tags: "CCG_24X00"  # Tags标签
-  
-  # 高级配置（一般不需要修改）
-  timeout: 60  # 页面加载超时时间（秒）
-  retry_count: 3  # 重试次数
-  retry_delay: 2  # 重试延迟（秒）
-  wait_after_submit: 5  # 提交后等待时间（秒）
-  headless: false  # 是否使用无头模式（false=显示浏览器）
-  implicit_wait: 10  # 隐式等待时间（秒）
-  explicit_wait: 20  # 显式等待时间（秒）
-
-# GTS网站配置（全新版本）
 gts:
-  # GTS 新建 ticket 页面 URL
-  url: "https://hsdes.intel.com/appstore/gts/#/newticket?ticket_category=Lab%20Support&site=Penang&service_type=lab&service_sub_type=request&lab=PG12%20MPE%20Lab&priority=2-high&notify=nbin240x,PDL-PG%20Test%20Ops&site_lab_org=Pen-ang&org_unit=External.IOTG&lab_org=MPE&category=Planner&component=lab.Planner.Vpo%20Scheduling.class&title=%5BPTL%5D%20WW34.1:%20Day%20Loading%20@%20X10%20HDMX5279_L2&program=PTL%20H"
-  
-  # Title 文本（会覆盖 URL 参数中的 title）
-  title_text: "[PTL] WW51.2: Night Loading @ X10 HDMX2524_L4/L5"
-  
-  # CSS 选择器配置（通常不需要修改）
-  title_selector: "input.ui-inputtext[pinputtext][type='text']"  # Title 输入框
-  description_iframe_selector: "iframe.fr-iframe"  # Description 的 iframe
-  description_body_selector: "body.fr-view[contenteditable='true']"  # iframe 里的富文本编辑器
-  
-  # 超时与重试配置
-  timeout: 60  # 页面加载超时时间（秒）
-  retry_count: 3  # 重试次数
-  retry_delay: 2  # 重试延迟（秒）
-  
-  # Selenium WebDriver 配置
-  headless: false  # 是否使用无头模式（false=显示浏览器）
-  implicit_wait: 5  # 隐式等待时间（秒）
-  explicit_wait: 20  # 显式等待时间（秒）
-
-# 通用超时配置
-timeouts:
-  excel_read: 30  # Excel读取超时
-  excel_write: 30  # Excel写入超时
-  step_execution: 300  # 每个步骤执行超时（秒）
-  overall: 900  # 整体工作流超时（秒）
-
-# 日志配置
+  description_body_selector: body.fr-view[contenteditable='true']
+  description_iframe_selector: iframe.fr-iframe
+  explicit_wait: 20
+  headless: false
+  implicit_wait: 5
+  retry_count: 3
+  retry_delay: 2
+  timeout: 60
+  title_selector: input.ui-inputtext[pinputtext][type='text']
+  title_text: '[PTL] WW51.2: Night Loading @ X10 HDMX2524_L4/L5'
+  url: https://hsdes.intel.com/appstore/gts/#/newticket?ticket_category=Lab%20Support&site=Penang&service_type=lab&service_sub_type=request&lab=PG12%20MPE%20Lab&priority=2-high&notify=nbin240x,PDL-PG%20Test%20Ops&site_lab_org=Pen-ang&org_unit=External.IOTG&lab_org=MPE&category=Planner&component=lab.Planner.Vpo%20Scheduling.class&title=%5BPTL%5D%20WW34.1:%20Day%20Loading%20@%20X10%20HDMX5279_L2&program=PTL%20H
 logging:
-  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
-  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-  file: "workflow_automation.log"
+  file: workflow_automation.log
+  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  level: INFO
+mole:
+  executable_path: C:/Users/qibaiche/Desktop/Mole 2.0.appref-ms
+  login_dialog_title: MOLE LOGIN
+  retry_count: 3
+  retry_delay: 2
+  timeout: 60
+  window_title: .*MOLE.*
+mole_history:
+  mir_comments: Please bring this lot to 2524 level4
+  search_mode: units
+  units_info: 'M5361NQ700226
 
+    M5361NQ700227
+
+    M5361NQ700229
+
+    M5361NQ700230
+
+    M5361NQ700232
+
+    M5361NQ700234'
+paths:
+  input_dir: ..
+  log_dir: ./logs
+  output_dir: ../output
+  source_lot_file: ../input/Source Lot.csv
+  tp_path: \\gar.corp.intel.com\ec\proj\mdl\pg\intel\tpvalidation\hdmxprogs\ptl\PTLP484BXG24W1AS551\POR_TP\PTL_P_CLASS
+spark:
+  explicit_wait: 20
+  headless: false
+  implicit_wait: 10
+  retry_count: 3
+  retry_delay: 2
+  step: B5
+  tags: ECG_24W1A
+  timeout: 60
+  url: https://spark.app.intel.com/dashboard
+  vpo_category: correlation
+  wait_after_submit: 5
+timeouts:
+  excel_read: 30
+  excel_write: 30
+  overall: 900
+  step_execution: 300

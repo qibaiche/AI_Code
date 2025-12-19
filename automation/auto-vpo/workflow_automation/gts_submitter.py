@@ -277,6 +277,7 @@ class GTSSubmitter:
     def __init__(self, config: GTSConfig):
         self.config = config
         self.driver: Optional[webdriver.Chrome] = None
+        self._keep_browser_open = False  # 标志：是否保持浏览器打开（用户取消时）
     
     # ------------------------------------------------------------------------
     # 浏览器管理
@@ -294,6 +295,8 @@ class GTSSubmitter:
         options.add_argument("--disable-blink-features=AutomationControlled")
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--no-sandbox")
+        # 添加 detach 选项，让浏览器在 Python 程序退出后保持打开
+        options.add_experimental_option("detach", True)
         
         try:
             if WEBDRIVER_AVAILABLE:
@@ -308,6 +311,11 @@ class GTSSubmitter:
     
     def _close_browser(self):
         """关闭浏览器（保留供外部调用）"""
+        # 如果用户取消了，不关闭浏览器
+        if self._keep_browser_open:
+            print("💡 浏览器将保持打开（用户取消了自动提交）")
+            return
+        
         if self.driver:
             try:
                 self.driver.quit()
@@ -655,6 +663,21 @@ class GTSSubmitter:
         else:
             print("❌ 用户取消了自动提交")
             print("请手动在浏览器中点击 Submit 按钮")
+            print("💡 浏览器将保持打开，您可以手动操作")
+            # 设置标志，防止自动关闭浏览器
+            self._keep_browser_open = True
+            # 等待用户确认，防止程序立即退出导致浏览器关闭
+            print()
+            print("=" * 80)
+            print("⏸️  程序将等待，浏览器保持打开")
+            print("   完成操作后，请关闭此窗口或按 Ctrl+C 退出")
+            print("=" * 80)
+            print()
+            try:
+                # 等待用户输入，保持程序运行
+                input("按 Enter 键退出程序（浏览器将保持打开）...")
+            except (KeyboardInterrupt, EOFError):
+                print("\n程序退出，浏览器保持打开")
     
     def _click_submit_button(self):
         """点击页面右下角的 Submit 按钮"""
@@ -775,8 +798,11 @@ class GTSSubmitter:
             raise
         
         finally:
-            # 不自动关闭浏览器，让用户可以手动提交
-            pass
+            # 如果用户取消了，不关闭浏览器
+            if self._keep_browser_open:
+                print("💡 浏览器保持打开，您可以手动操作或关闭")
+            # 否则，浏览器会在 __exit__ 中关闭（如果使用了上下文管理器）
+            # 但这里不使用上下文管理器，所以浏览器会保持打开
     
     # ------------------------------------------------------------------------
     # 兼容旧接口
