@@ -2,12 +2,20 @@
 import sys
 import time
 from pathlib import Path
-import pandas as pd
+
+import pytest
 
 # 添加父目录到路径（workflow_automation在父目录）
 current_dir = Path(__file__).parent
 parent_dir = current_dir.parent  # automation/auto-vpo/
 sys.path.insert(0, str(parent_dir))
+
+# Optional dependency: when pandas is unavailable (e.g., in lightweight test
+# environments), skip importing this helper script instead of failing
+# collection.
+pytest.importorskip("pandas")
+
+import pandas as pd
 
 from workflow_automation.config_loader import load_config
 from workflow_automation.spark_submitter import SparkSubmitter
