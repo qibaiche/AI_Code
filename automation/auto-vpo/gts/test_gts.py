@@ -7,10 +7,16 @@
 import sys
 from pathlib import Path
 
+import pytest
+
 # 将 auto-vpo 根目录加入 sys.path，方便导入 workflow_automation 模块
 current_dir = Path(__file__).parent
 parent_dir = current_dir.parent  # automation/auto-vpo/
 sys.path.insert(0, str(parent_dir))
+
+# Optional dependency: if PyYAML is not installed, skip this helper script when
+# collected by pytest instead of erroring during import.
+pytest.importorskip("yaml")
 
 from workflow_automation.config_loader import load_config  # noqa: E402
 from workflow_automation.gts_submitter import GTSSubmitter  # noqa: E402
