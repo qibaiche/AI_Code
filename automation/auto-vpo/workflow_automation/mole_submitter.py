@@ -2121,25 +2121,28 @@ class MoleSubmitter:
             
             LOGGER.info("开始填写Units搜索对话框...")
             
-            # 获取units信息
-            units_info = ui_config.get('units_info', '').strip()
-            if not units_info:
-                raise RuntimeError("units_info 为空，请在配置UI中粘贴Units信息")
-            
+        # 获取units信息
+        units_info = ui_config.get('units_info', '').strip()
+        if not units_info:
+            raise RuntimeError("units_info 为空，请在配置UI中粘贴Units信息")
+
+        # Mole 的多行输入控件对 CRLF 的兼容性更好，确保换行格式统一
+        normalized_units_info = units_info.replace("\r\n", "\n").replace("\n", "\r\n")
+
             LOGGER.info(f"Units信息长度: {len(units_info)} 字符")
             LOGGER.debug(f"Units信息预览: {units_info[:100]}...")
-            
+
             # 复制units信息到剪贴板
             try:
                 import pyperclip
-                pyperclip.copy(units_info)
+                pyperclip.copy(normalized_units_info)
                 LOGGER.info("已复制Units信息到剪贴板")
             except ImportError:
                 try:
                     import win32clipboard
                     win32clipboard.OpenClipboard()
                     win32clipboard.EmptyClipboard()
-                    win32clipboard.SetClipboardText(units_info, win32clipboard.CF_UNICODETEXT)
+                    win32clipboard.SetClipboardText(normalized_units_info, win32clipboard.CF_UNICODETEXT)
                     win32clipboard.CloseClipboard()
                     LOGGER.info("已复制Units信息到剪贴板（使用win32clipboard）")
                 except ImportError:
@@ -2227,25 +2230,66 @@ class MoleSubmitter:
                         except:
                             pass
                         
-                        # 粘贴内容
-                        LOGGER.info("粘贴Units信息...")
-                        pyautogui.hotkey('ctrl', 'v')
-                        time.sleep(1.0)  # 增加等待时间，确保粘贴完成
-                        
-                        # 验证粘贴是否成功（尝试读取文本框内容）
-                        try:
-                            # 尝试使用pywinauto读取文本框内容
-                            current_text = target_edit.window_text()
-                            if current_text:
-                                LOGGER.info(f"✅ 文本框内容已更新，长度: {len(current_text)} 字符")
-                                LOGGER.debug(f"内容预览: {current_text[:100]}...")
-                            else:
-                                LOGGER.warning("⚠️ 文本框内容为空，粘贴可能失败")
-                        except:
-                            LOGGER.debug("无法读取文本框内容进行验证")
-                        
-                        text_field_filled = True
+                    # 为后续多次写入准备一个可靠的文本写入辅助方法
+                    def _force_write_text(edit_control) -> bool:
+                        """确保文本框包含Units文本，无论粘贴是否被拦截"""
+                        write_attempts = [
+                            ("set_edit_text", lambda: edit_control.set_edit_text(normalized_units_info)),
+                            ("set_value", lambda: edit_control.set_value(normalized_units_info)),
+                            ("type_keys", lambda: (
+                                edit_control.set_focus(),
+                                time.sleep(0.3),
+                                edit_control.type_keys("^a{BACKSPACE}"),
+                                time.sleep(0.3),
+                                edit_control.type_keys(normalized_units_info, with_spaces=True, pause=0.01)
+                            )),
+                        ]
+
+                        for write_name, write_action in write_attempts:
+                            try:
+                                write_action()
+                                time.sleep(0.5)
+                                try:
+                                    current_text = edit_control.window_text()
+                                    if current_text:
+                                        LOGGER.info(
+                                            f"✅ 通过 {write_name} 写入Units文本，长度: {len(current_text)} 字符"
+                                        )
+                                        LOGGER.debug(f"内容预览: {current_text[:100]}...")
+                                        return True
+                                except Exception as read_exc:
+                                    LOGGER.debug(f"读取文本内容以验证失败（{write_name}）：{read_exc}")
+                                    return True
+                            except Exception as write_exc:
+                                LOGGER.debug(f"通过 {write_name} 写入失败: {write_exc}")
+                        return False
+
+                    # 粘贴内容
+                    LOGGER.info("粘贴Units信息...")
+                    pyautogui.hotkey('ctrl', 'v')
+                    time.sleep(1.0)  # 增加等待时间，确保粘贴完成
+
+                    # 验证粘贴是否成功（尝试读取文本框内容），失败则强制写入
+                    paste_success = False
+                    try:
+                        current_text = target_edit.window_text()
+                        if current_text:
+                            paste_success = True
+                            LOGGER.info(f"✅ 文本框内容已更新，长度: {len(current_text)} 字符")
+                            LOGGER.debug(f"内容预览: {current_text[:100]}...")
+                        else:
+                            LOGGER.warning("⚠️ 文本框内容为空，粘贴可能失败，尝试直接写入文本")
+                    except Exception as read_exc:
+                        LOGGER.debug(f"无法读取文本框内容进行验证: {read_exc}")
+
+                    if not paste_success:
+                        paste_success = _force_write_text(target_edit)
+
+                    text_field_filled = paste_success
+                    if paste_success:
                         LOGGER.info("✅ 已通过鼠标点击填写Serial Numbers文本框")
+                    else:
+                        LOGGER.warning("粘贴和直接写入都未确认成功，将继续尝试其他方法")
                     except ImportError:
                         LOGGER.warning("pyautogui未安装，尝试使用pywinauto")
                         # 回退到pywinauto方法
@@ -2263,7 +2307,7 @@ class MoleSubmitter:
                             else:
                                 # 如果没有剪贴板，直接输入（可能很慢）
                                 LOGGER.warning("没有剪贴板库，将直接输入文本（可能很慢）")
-                                target_edit.type_keys(units_info)
+                                target_edit.type_keys(normalized_units_info)
                             
                             time.sleep(0.5)
                             text_field_filled = True
