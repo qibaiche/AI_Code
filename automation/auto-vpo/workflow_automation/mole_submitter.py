@@ -1,6 +1,7 @@
 """Mole工具提交MIR数据模块"""
 import logging
 import time
+import threading
 import subprocess
 import os
 from pathlib import Path
@@ -823,32 +824,62 @@ class MoleSubmitter:
                     elif button_list:
                         button_hwnd = button_list[0]
                         LOGGER.info(f"找到'Search By Units'按钮（句柄: {button_hwnd}）")
-                        try:
-                            # 先尝试使用SendMessage
-                            win32gui.SendMessage(button_hwnd, win32con.BM_CLICK, 0, 0)
+
+                        # SendMessage 可能阻塞，使用线程和超时保护
+                        send_result = {"success": False, "error": None}
+
+                        def send_click():
+                            try:
+                                win32gui.SendMessage(button_hwnd, win32con.BM_CLICK, 0, 0)
+                                send_result["success"] = True
+                            except Exception as exc:
+                                send_result["error"] = exc
+
+                        send_thread = threading.Thread(target=send_click, daemon=True)
+                        send_thread.start()
+                        send_thread.join(timeout=2.0)
+
+                        if send_thread.is_alive():
+                            LOGGER.warning("SendMessage 点击'Search By Units'超时，尝试其他方法...")
+                        elif send_result["success"]:
                             time.sleep(0.5)
-                            LOGGER.info("✅ 已通过Windows API点击'Search By Units'按钮（SendMessage）")
+                            LOGGER.info("✅ 已通过Windows API点击'Search By Units'按钮（SendMessage, 带超时保护）")
                             button_clicked = True
-                        except Exception as e:
-                            LOGGER.warning(f"SendMessage失败: {e}，尝试PostMessage...")
+                        else:
+                            LOGGER.warning(f"SendMessage失败: {send_result['error']}，尝试其他方法...")
+
+                        if not button_clicked:
                             try:
                                 win32gui.PostMessage(button_hwnd, win32con.BM_CLICK, 0, 0)
                                 time.sleep(0.5)
                                 LOGGER.info("✅ 已通过Windows API点击'Search By Units'按钮（PostMessage）")
                                 button_clicked = True
                             except Exception as e2:
-                                LOGGER.warning(f"PostMessage也失败: {e2}，尝试鼠标点击...")
-                                try:
-                                    import pyautogui
-                                    rect = win32gui.GetWindowRect(button_hwnd)
-                                    center_x = (rect[0] + rect[2]) // 2
-                                    center_y = (rect[1] + rect[3]) // 2
-                                    pyautogui.click(center_x, center_y)
-                                    time.sleep(0.5)
-                                    LOGGER.info(f"✅ 已通过鼠标点击'Search By Units'按钮（坐标: {center_x}, {center_y}）")
-                                    button_clicked = True
-                                except Exception as e3:
-                                    LOGGER.warning(f"鼠标点击也失败: {e3}")
+                                LOGGER.warning(f"PostMessage也失败: {e2}，尝试pywinauto包装器...")
+
+                        if not button_clicked:
+                            try:
+                                from pywinauto.controls.hwndwrapper import HwndWrapper
+
+                                HwndWrapper(button_hwnd).click_input()
+                                time.sleep(0.5)
+                                LOGGER.info("✅ 已通过pywinauto包装器点击'Search By Units'按钮")
+                                button_clicked = True
+                            except Exception as e3:
+                                LOGGER.warning(f"pywinauto包装器点击失败: {e3}，尝试鼠标点击...")
+
+                        if not button_clicked:
+                            try:
+                                import pyautogui
+                                rect = win32gui.GetWindowRect(button_hwnd)
+                                center_x = (rect[0] + rect[2]) // 2
+                                center_y = (rect[1] + rect[3]) // 2
+                                pyautogui.click(center_x, center_y)
+                                time.sleep(0.5)
+                                LOGGER.info(f"✅ 已通过鼠标点击'Search By Units'按钮（坐标: {center_x}, {center_y}）")
+                                button_clicked = True
+                            except Exception as e4:
+                                LOGGER.warning(f"鼠标点击也失败: {e4}")
                     else:
                         LOGGER.debug("Windows API未找到'Search By Units'按钮")
                 except Exception as e3:
@@ -2118,32 +2149,37 @@ class MoleSubmitter:
             # 激活对话框
             units_dialog.set_focus()
             time.sleep(0.5)
-            
-            LOGGER.info("开始填写Units搜索对话框...")
-            
-            # 获取units信息
-            units_info = ui_config.get('units_info', '').strip()
-            if not units_info:
-                raise RuntimeError("units_info 为空，请在配置UI中粘贴Units信息")
-            
-            LOGGER.info(f"Units信息长度: {len(units_info)} 字符")
-            LOGGER.debug(f"Units信息预览: {units_info[:100]}...")
-            
-            # 复制units信息到剪贴板
+        except Exception as focus_exc:
+            LOGGER.warning(f"设置Units对话框焦点失败: {focus_exc}")
+
+        LOGGER.info("开始填写Units搜索对话框...")
+
+        # 获取units信息
+        units_info = ui_config.get('units_info', '').strip()
+        if not units_info:
+            raise RuntimeError("units_info 为空，请在配置UI中粘贴Units信息")
+
+        # Mole 的多行输入控件对 CRLF 的兼容性更好，确保换行格式统一
+        normalized_units_info = units_info.replace("\r\n", "\n").replace("\n", "\r\n")
+
+        LOGGER.info(f"Units信息长度: {len(units_info)} 字符")
+        LOGGER.debug(f"Units信息预览: {units_info[:100]}...")
+
+        # 复制units信息到剪贴板
+        try:
+            import pyperclip
+            pyperclip.copy(normalized_units_info)
+            LOGGER.info("已复制Units信息到剪贴板")
+        except ImportError:
             try:
-                import pyperclip
-                pyperclip.copy(units_info)
-                LOGGER.info("已复制Units信息到剪贴板")
+                import win32clipboard
+                win32clipboard.OpenClipboard()
+                win32clipboard.EmptyClipboard()
+                win32clipboard.SetClipboardText(normalized_units_info, win32clipboard.CF_UNICODETEXT)
+                win32clipboard.CloseClipboard()
+                LOGGER.info("已复制Units信息到剪贴板（使用win32clipboard）")
             except ImportError:
-                try:
-                    import win32clipboard
-                    win32clipboard.OpenClipboard()
-                    win32clipboard.EmptyClipboard()
-                    win32clipboard.SetClipboardText(units_info, win32clipboard.CF_UNICODETEXT)
-                    win32clipboard.CloseClipboard()
-                    LOGGER.info("已复制Units信息到剪贴板（使用win32clipboard）")
-                except ImportError:
-                    LOGGER.warning("无法复制到剪贴板，将直接输入文本")
+                LOGGER.warning("无法复制到剪贴板，将直接输入文本")
             
             # 先点击对话框空白处，确保对话框有焦点（用户反馈需要这一步）
             try:
@@ -2204,67 +2240,108 @@ class MoleSubmitter:
                         import pyautogui
                         center_x = target_rect.left + target_rect.width() // 2
                         center_y = target_rect.top + target_rect.height() // 2
-                        
+
                         # 先点击文本框，确保获得焦点
                         LOGGER.info(f"点击文本框中心位置: ({center_x}, {center_y})")
                         pyautogui.click(center_x, center_y)
                         time.sleep(0.8)  # 增加等待时间，确保焦点切换
-                        
+
                         # 再次点击，确保文本框获得焦点
                         pyautogui.click(center_x, center_y)
                         time.sleep(0.5)
-                        
+
                         # 清除现有内容
                         LOGGER.info("清除现有内容...")
                         pyautogui.hotkey('ctrl', 'a')
                         time.sleep(0.3)
-                        
+
                         # 验证剪贴板内容
                         try:
                             import pyperclip
                             clipboard_content = pyperclip.paste()
                             LOGGER.info(f"剪贴板内容预览: {clipboard_content[:50]}... (长度: {len(clipboard_content)})")
-                        except:
+                        except Exception:
                             pass
-                        
+
+                        # 为后续多次写入准备一个可靠的文本写入辅助方法
+                        def _force_write_text(edit_control) -> bool:
+                            """确保文本框包含Units文本，无论粘贴是否被拦截"""
+                            write_attempts = [
+                                ("set_edit_text", lambda: edit_control.set_edit_text(normalized_units_info)),
+                                ("set_value", lambda: edit_control.set_value(normalized_units_info)),
+                                ("type_keys", lambda: (
+                                    edit_control.set_focus(),
+                                    time.sleep(0.3),
+                                    edit_control.type_keys("^a{BACKSPACE}"),
+                                    time.sleep(0.3),
+                                    edit_control.type_keys(normalized_units_info, with_spaces=True, pause=0.01)
+                                )),
+                            ]
+
+                            for write_name, write_action in write_attempts:
+                                try:
+                                    write_action()
+                                    time.sleep(0.5)
+                                    try:
+                                        current_text = edit_control.window_text()
+                                        if current_text:
+                                            LOGGER.info(
+                                                f"✅ 通过 {write_name} 写入Units文本，长度: {len(current_text)} 字符"
+                                            )
+                                            LOGGER.debug(f"内容预览: {current_text[:100]}...")
+                                            return True
+                                    except Exception as read_exc:
+                                        LOGGER.debug(f"读取文本内容以验证失败（{write_name}）：{read_exc}")
+                                        return True
+                                except Exception as write_exc:
+                                    LOGGER.debug(f"通过 {write_name} 写入失败: {write_exc}")
+                            return False
+
                         # 粘贴内容
                         LOGGER.info("粘贴Units信息...")
                         pyautogui.hotkey('ctrl', 'v')
                         time.sleep(1.0)  # 增加等待时间，确保粘贴完成
-                        
-                        # 验证粘贴是否成功（尝试读取文本框内容）
+
+                        # 验证粘贴是否成功（尝试读取文本框内容），失败则强制写入
+                        paste_success = False
                         try:
-                            # 尝试使用pywinauto读取文本框内容
                             current_text = target_edit.window_text()
                             if current_text:
+                                paste_success = True
                                 LOGGER.info(f"✅ 文本框内容已更新，长度: {len(current_text)} 字符")
                                 LOGGER.debug(f"内容预览: {current_text[:100]}...")
                             else:
-                                LOGGER.warning("⚠️ 文本框内容为空，粘贴可能失败")
-                        except:
-                            LOGGER.debug("无法读取文本框内容进行验证")
-                        
-                        text_field_filled = True
-                        LOGGER.info("✅ 已通过鼠标点击填写Serial Numbers文本框")
+                                LOGGER.warning("⚠️ 文本框内容为空，粘贴可能失败，尝试直接写入文本")
+                        except Exception as read_exc:
+                            LOGGER.debug(f"无法读取文本框内容进行验证: {read_exc}")
+
+                        if not paste_success:
+                            paste_success = _force_write_text(target_edit)
+
+                        text_field_filled = paste_success
+                        if paste_success:
+                            LOGGER.info("✅ 已通过鼠标点击填写Serial Numbers文本框")
+                        else:
+                            LOGGER.warning("粘贴和直接写入都未确认成功，将继续尝试其他方法")
                     except ImportError:
                         LOGGER.warning("pyautogui未安装，尝试使用pywinauto")
                         # 回退到pywinauto方法
                         try:
                             target_edit.set_focus()
                             time.sleep(0.8)
-                            
+
                             # 清除现有内容
                             target_edit.type_keys("^a")
                             time.sleep(0.3)
-                            
+
                             # 粘贴内容
                             if pyperclip or win32clipboard:
                                 target_edit.type_keys("^v")
                             else:
                                 # 如果没有剪贴板，直接输入（可能很慢）
                                 LOGGER.warning("没有剪贴板库，将直接输入文本（可能很慢）")
-                                target_edit.type_keys(units_info)
-                            
+                                target_edit.type_keys(normalized_units_info)
+
                             time.sleep(0.5)
                             text_field_filled = True
                             LOGGER.info("✅ 已填写Serial Numbers文本框（pywinauto）")
