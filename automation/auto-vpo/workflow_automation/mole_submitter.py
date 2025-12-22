@@ -1,6 +1,7 @@
 """Mole工具提交MIR数据模块"""
 import logging
 import time
+import threading
 import subprocess
 import os
 from pathlib import Path
@@ -823,32 +824,62 @@ class MoleSubmitter:
                     elif button_list:
                         button_hwnd = button_list[0]
                         LOGGER.info(f"找到'Search By Units'按钮（句柄: {button_hwnd}）")
-                        try:
-                            # 先尝试使用SendMessage
-                            win32gui.SendMessage(button_hwnd, win32con.BM_CLICK, 0, 0)
+
+                        # SendMessage 可能阻塞，使用线程和超时保护
+                        send_result = {"success": False, "error": None}
+
+                        def send_click():
+                            try:
+                                win32gui.SendMessage(button_hwnd, win32con.BM_CLICK, 0, 0)
+                                send_result["success"] = True
+                            except Exception as exc:
+                                send_result["error"] = exc
+
+                        send_thread = threading.Thread(target=send_click, daemon=True)
+                        send_thread.start()
+                        send_thread.join(timeout=2.0)
+
+                        if send_thread.is_alive():
+                            LOGGER.warning("SendMessage 点击'Search By Units'超时，尝试其他方法...")
+                        elif send_result["success"]:
                             time.sleep(0.5)
-                            LOGGER.info("✅ 已通过Windows API点击'Search By Units'按钮（SendMessage）")
+                            LOGGER.info("✅ 已通过Windows API点击'Search By Units'按钮（SendMessage, 带超时保护）")
                             button_clicked = True
-                        except Exception as e:
-                            LOGGER.warning(f"SendMessage失败: {e}，尝试PostMessage...")
+                        else:
+                            LOGGER.warning(f"SendMessage失败: {send_result['error']}，尝试其他方法...")
+
+                        if not button_clicked:
                             try:
                                 win32gui.PostMessage(button_hwnd, win32con.BM_CLICK, 0, 0)
                                 time.sleep(0.5)
                                 LOGGER.info("✅ 已通过Windows API点击'Search By Units'按钮（PostMessage）")
                                 button_clicked = True
                             except Exception as e2:
-                                LOGGER.warning(f"PostMessage也失败: {e2}，尝试鼠标点击...")
-                                try:
-                                    import pyautogui
-                                    rect = win32gui.GetWindowRect(button_hwnd)
-                                    center_x = (rect[0] + rect[2]) // 2
-                                    center_y = (rect[1] + rect[3]) // 2
-                                    pyautogui.click(center_x, center_y)
-                                    time.sleep(0.5)
-                                    LOGGER.info(f"✅ 已通过鼠标点击'Search By Units'按钮（坐标: {center_x}, {center_y}）")
-                                    button_clicked = True
-                                except Exception as e3:
-                                    LOGGER.warning(f"鼠标点击也失败: {e3}")
+                                LOGGER.warning(f"PostMessage也失败: {e2}，尝试pywinauto包装器...")
+
+                        if not button_clicked:
+                            try:
+                                from pywinauto.controls.hwndwrapper import HwndWrapper
+
+                                HwndWrapper(button_hwnd).click_input()
+                                time.sleep(0.5)
+                                LOGGER.info("✅ 已通过pywinauto包装器点击'Search By Units'按钮")
+                                button_clicked = True
+                            except Exception as e3:
+                                LOGGER.warning(f"pywinauto包装器点击失败: {e3}，尝试鼠标点击...")
+
+                        if not button_clicked:
+                            try:
+                                import pyautogui
+                                rect = win32gui.GetWindowRect(button_hwnd)
+                                center_x = (rect[0] + rect[2]) // 2
+                                center_y = (rect[1] + rect[3]) // 2
+                                pyautogui.click(center_x, center_y)
+                                time.sleep(0.5)
+                                LOGGER.info(f"✅ 已通过鼠标点击'Search By Units'按钮（坐标: {center_x}, {center_y}）")
+                                button_clicked = True
+                            except Exception as e4:
+                                LOGGER.warning(f"鼠标点击也失败: {e4}")
                     else:
                         LOGGER.debug("Windows API未找到'Search By Units'按钮")
                 except Exception as e3:
