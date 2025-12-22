@@ -5001,3 +5001,232 @@ M5361NQ700234...
 2025-12-19 03:36:39,466 - workflow_automation.mole_submitter - INFO - 尝试估算位置 #1: (378, 273)
 2025-12-19 03:36:40,561 - workflow_automation.mole_submitter - INFO - 已点击估算位置 #1，等待对话框出现...
 2025-12-19 03:36:41,562 - workflow_automation.mole_submitter - INFO - 等待'MOLE - Import List Of Serial Numbers'对话框出现...
+2025-12-19 03:50:27,457 - __main__ - INFO - ================================================================================
+2025-12-19 03:50:27,458 - __main__ - INFO - 自动化工作流启动
+2025-12-19 03:50:27,459 - __main__ - INFO - ================================================================================
+2025-12-19 03:50:27,460 - __main__ - INFO - 当前模式: 仅运行Mole步骤（Spark/GTS已跳过）
+2025-12-19 03:50:27,460 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-19 03:50:27,466 - workflow_automation.workflow_main - INFO - 开始执行Mole-only工作流（Spark/GTS已跳过）
+2025-12-19 03:50:27,467 - workflow_automation.workflow_main - INFO - 输入文件: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\auto-vpo\input\Source Lot.csv
+2025-12-19 03:50:27,467 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-19 03:50:27,468 - workflow_automation.workflow_main - INFO - 
+================================================================================
+2025-12-19 03:50:27,468 - workflow_automation.workflow_main - INFO - 步骤 -1/3: 配置Mole参数
+2025-12-19 03:50:27,468 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-19 03:50:27,469 - workflow_automation.workflow_main - INFO - 显示Mole配置界面...
+2025-12-19 03:50:30,058 - workflow_automation.mole_config_ui - INFO - 配置已保存到: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\auto-vpo\workflow_automation\config.yaml
+2025-12-19 03:50:30,167 - workflow_automation.workflow_main - INFO - 用户配置: {'search_mode': 'units', 'mir_comments': 'Please bring this lot to 2524 level4', 'units_info': 'M5361NQ700226\nM5361NQ700227\nM5361NQ700229\nM5361NQ700230\nM5361NQ700232\nM5361NQ700234'}
+2025-12-19 03:50:30,185 - workflow_automation.workflow_main - INFO - 
+================================================================================
+2025-12-19 03:50:30,187 - workflow_automation.workflow_main - INFO - 步骤 0/3: 启动Mole工具
+2025-12-19 03:50:30,187 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-19 03:50:30,188 - workflow_automation.workflow_main - INFO - 正在启动Mole工具...
+2025-12-19 03:50:30,204 - workflow_automation.mole_submitter - INFO - 启动Mole工具: C:\Users\qibaiche\Desktop\Mole 2.0.appref-ms
+2025-12-19 03:50:30,419 - workflow_automation.mole_submitter - INFO - 已通过os.startfile启动.appref-ms文件
+2025-12-19 03:50:30,436 - workflow_automation.mole_submitter - INFO - 等待Mole登录对话框...
+2025-12-19 03:50:30,437 - workflow_automation.mole_submitter - INFO - 等待MOLE LOGIN对话框出现...
+2025-12-19 03:50:40,163 - workflow_automation.mole_submitter - INFO - 找到登录对话框: MOLE LOGIN (backend: uia)
+2025-12-19 03:50:40,722 - workflow_automation.mole_submitter - INFO - 正在分析登录对话框的控件结构...
+2025-12-19 03:50:41,545 - workflow_automation.mole_submitter - INFO - 查找所有可用的控件...
+2025-12-19 03:50:41,664 - workflow_automation.mole_submitter - INFO - 通过children找到 3 个Button控件
+2025-12-19 03:50:41,665 - workflow_automation.mole_submitter - INFO - 总共找到 3 个可能的按钮控件
+2025-12-19 03:50:41,666 - workflow_automation.mole_submitter - INFO -   按钮 1: 'Password'
+2025-12-19 03:50:41,667 - workflow_automation.mole_submitter - INFO -   按钮 2: 'OK'
+2025-12-19 03:50:41,669 - workflow_automation.mole_submitter - INFO -   按钮 3: 'Cancel'
+2025-12-19 03:50:41,672 - workflow_automation.mole_submitter - INFO - 找到OK按钮（从按钮列表中: 'OK'）
+2025-12-19 03:50:41,820 - workflow_automation.mole_submitter - INFO - ✅ 已点击OK按钮（从按钮列表）
+2025-12-19 03:50:42,862 - workflow_automation.mole_submitter - INFO - 登录对话框已处理
+2025-12-19 03:50:47,995 - workflow_automation.mole_submitter - INFO - 已通过进程句柄连接到Mole窗口: MOLE v4.9.12.21  [Chen, Qibai (PNG-CPU - Convergence Site)] - 202551 (backend: win32)
+2025-12-19 03:50:47,998 - workflow_automation.workflow_main - INFO - ✅ Mole工具已启动
+2025-12-19 03:50:47,999 - workflow_automation.workflow_main - INFO - 
+================================================================================
+2025-12-19 03:50:47,999 - workflow_automation.workflow_main - INFO - 步骤 1/3: 读取source lot文件
+2025-12-19 03:50:47,999 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-19 03:50:48,000 - workflow_automation.data_reader - INFO - 正在读取CSV文件: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\auto-vpo\input\Source Lot.csv
+2025-12-19 03:50:48,005 - workflow_automation.data_reader - INFO - 成功使用 utf-8 编码读取CSV文件: 1 行，8 列
+2025-12-19 03:50:48,005 - workflow_automation.workflow_main - INFO - ✅ 成功读取CSV文件: 1 行，8 列
+2025-12-19 03:50:48,005 - workflow_automation.workflow_main - INFO - 
+================================================================================
+2025-12-19 03:50:48,005 - workflow_automation.workflow_main - INFO - 步骤 2/3: 提交MIR数据到Mole工具（循环处理所有行）
+2025-12-19 03:50:48,006 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-19 03:50:48,006 - workflow_automation.workflow_main - INFO - 使用Search By Units模式...
+2025-12-19 03:50:48,006 - workflow_automation.workflow_main - INFO - Units信息: M5361NQ700226
+M5361NQ700227
+M5361NQ700229
+M5361NQ700230
+M5361NQ700232
+M5361NQ700234...
+2025-12-19 03:50:48,006 - workflow_automation.workflow_main - INFO - 开始Mole工具操作流程...
+2025-12-19 03:50:48,007 - workflow_automation.mole_submitter - INFO - 开始提交MIR数据到Mole工具
+2025-12-19 03:50:48,007 - workflow_automation.mole_submitter - INFO - 尝试提交MIR数据 (第1/3次)
+2025-12-19 03:50:48,007 - workflow_automation.mole_submitter - INFO - 点击File菜单（全屏模式，左上角菜单栏）...
+2025-12-19 03:50:48,508 - workflow_automation.mole_submitter - INFO - 窗口位置: left=-8, top=-8, right=2568, bottom=1400
+2025-12-19 03:50:48,508 - workflow_automation.mole_submitter - INFO - 使用Windows API点击File菜单...
+2025-12-19 03:50:48,509 - workflow_automation.mole_submitter - WARNING - 未找到菜单句柄，尝试其他方法
+2025-12-19 03:50:48,509 - workflow_automation.mole_submitter - INFO - 使用Alt+F快捷键打开File菜单
+2025-12-19 03:50:48,544 - workflow_automation.mole_submitter - INFO - ✅ 已使用Alt+F打开File菜单
+2025-12-19 03:50:49,745 - workflow_automation.mole_submitter - INFO - 在下拉菜单中选择'New MIR Request'（第5个菜单项）...
+2025-12-19 03:50:49,745 - workflow_automation.mole_submitter - INFO - 使用Windows API精确查找'New MIR Request'菜单项...
+2025-12-19 03:50:49,745 - workflow_automation.mole_submitter - INFO - 使用键盘导航选择第5个菜单项'New MIR Request'...
+2025-12-19 03:50:49,946 - workflow_automation.mole_submitter - INFO - 按4次下箭头键...
+2025-12-19 03:50:50,908 - workflow_automation.mole_submitter - INFO - 按Enter键确认选择...
+2025-12-19 03:50:50,923 - workflow_automation.mole_submitter - INFO - ✅ 已使用键盘导航选择'New MIR Request'（下箭头4次+Enter）
+2025-12-19 03:50:51,924 - workflow_automation.mole_submitter - INFO - ✅ 已成功打开New MIR Request
+2025-12-19 03:50:51,924 - workflow_automation.mole_submitter - INFO - 检查是否有'MIR is now MRS!'信息对话框...
+2025-12-19 03:50:51,947 - workflow_automation.mole_submitter - INFO - 找到信息对话框: MIR is now MRS! (backend: win32)
+2025-12-19 03:50:52,760 - workflow_automation.mole_submitter - INFO - 找到 0 个按钮
+2025-12-19 03:50:52,760 - workflow_automation.mole_submitter - INFO - 尝试使用Enter键点击OK按钮
+2025-12-19 03:50:52,776 - workflow_automation.mole_submitter - INFO - ✅ 已使用Enter键点击OK按钮
+2025-12-19 03:50:53,280 - workflow_automation.mole_submitter - INFO - ✅ 信息对话框已处理
+2025-12-19 03:50:55,255 - workflow_automation.mole_submitter - INFO - ✅ MIR数据提交成功
+2025-12-19 03:50:55,258 - workflow_automation.mole_submitter - INFO - 点击'Search By Units'按钮...
+2025-12-19 03:50:55,918 - workflow_automation.mole_submitter - INFO - 使用Windows API查找'Search By Units'按钮...
+2025-12-19 03:50:55,920 - workflow_automation.mole_submitter - INFO - 找到'Search By Units'按钮（句柄: 1312574）
+2025-12-19 03:51:06,196 - workflow_automation.mole_submitter - INFO - ✅ 已通过Windows API点击'Search By Units'按钮（SendMessage）
+2025-12-19 03:51:07,197 - workflow_automation.mole_submitter - INFO - 等待'MOLE - Import List Of Serial Numbers'对话框出现...
+2025-12-19 03:51:09,711 - workflow_automation.mole_submitter - INFO - ✅ 找到Units搜索对话框（句柄: 1837270）
+2025-12-19 03:51:09,715 - workflow_automation.mole_submitter - INFO - ✅ 对话框已出现，可以继续填写Units信息
+2025-12-19 03:51:09,715 - workflow_automation.workflow_main - INFO - 填写Units搜索对话框...
+2025-12-19 03:51:09,715 - workflow_automation.mole_submitter - INFO - 等待Units搜索对话框出现（标题: MOLE - Import List Of Serial Numbers）...
+2025-12-19 03:51:09,715 - workflow_automation.mole_submitter - INFO - 使用Windows API枚举所有窗口...
+2025-12-19 03:51:09,719 - workflow_automation.mole_submitter - INFO - 找到Units搜索对话框（Windows API）: 'MOLE - Import List Of Serial Numbers', hwnd=1837270, 大小=550x601
+2025-12-19 03:51:09,721 - workflow_automation.mole_submitter - INFO - 已通过pywinauto连接到Units搜索对话框
+2025-12-19 03:51:10,223 - workflow_automation.mole_submitter - INFO - 开始填写Units搜索对话框...
+2025-12-19 03:51:10,224 - workflow_automation.mole_submitter - INFO - Units信息长度: 83 字符
+2025-12-19 03:51:10,285 - workflow_automation.mole_submitter - INFO - 已复制Units信息到剪贴板
+2025-12-19 03:51:10,832 - workflow_automation.mole_submitter - INFO - 已点击对话框空白处，确保对话框有焦点
+2025-12-19 03:51:10,842 - workflow_automation.mole_submitter - INFO - 找到 0 个Edit控件
+2025-12-19 03:51:10,842 - workflow_automation.mole_submitter - WARNING - 未找到足够大的Edit控件（最大: 0，阈值: 5000）
+2025-12-19 03:51:10,842 - workflow_automation.mole_submitter - INFO - 使用Windows API查找Serial Numbers文本框...
+2025-12-19 03:51:10,843 - workflow_automation.mole_submitter - INFO - Windows API找到 1 个Edit控件
+2025-12-19 03:51:10,844 - workflow_automation.mole_submitter - INFO -   Edit 1: hwnd=918628, 大小=522x397, 位置=(1019,585)
+2025-12-19 03:51:10,844 - workflow_automation.mole_submitter - INFO - 选择最大的文本框（Windows API）: 522x397, hwnd=918628
+2025-12-19 03:51:10,844 - workflow_automation.mole_submitter - INFO - 点击文本框中心: (1280, 783)
+2025-12-19 03:51:12,394 - workflow_automation.mole_submitter - INFO - 清除现有内容...
+2025-12-19 03:51:12,823 - workflow_automation.mole_submitter - INFO - 粘贴Units信息...
+2025-12-19 03:51:13,932 - workflow_automation.mole_submitter - INFO - ✅ 已通过Windows API + 鼠标点击填写Serial Numbers文本框
+2025-12-19 03:51:14,435 - workflow_automation.mole_submitter - INFO - 点击Search按钮...
+2025-12-19 03:51:14,967 - workflow_automation.mole_submitter - INFO - 找到 0 个按钮
+2025-12-19 03:51:14,971 - workflow_automation.mole_submitter - ERROR - 填写Units搜索对话框失败: 无法点击Search按钮，已尝试所有方法
+2025-12-19 03:51:14,971 - workflow_automation.workflow_main - ERROR - ❌ Units处理失败: 无法填写Units搜索对话框: 无法点击Search按钮，已尝试所有方法
+2025-12-19 03:51:14,979 - workflow_automation.workflow_main - ERROR - Traceback (most recent call last):
+  File "C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\auto-vpo\workflow_automation\mole_submitter.py", line 2490, in _fill_units_search_dialog
+    raise RuntimeError("无法点击Search按钮，已尝试所有方法")
+RuntimeError: 无法点击Search按钮，已尝试所有方法
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\auto-vpo\workflow_automation\workflow_main.py", line 623, in _step_submit_to_mole
+    self.mole_submitter._fill_units_search_dialog(ui_config)
+  File "C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\auto-vpo\workflow_automation\mole_submitter.py", line 2498, in _fill_units_search_dialog
+    raise RuntimeError(f"无法填写Units搜索对话框: {e}")
+RuntimeError: 无法填写Units搜索对话框: 无法点击Search按钮，已尝试所有方法
+
+2025-12-19 03:51:14,980 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-19 03:51:14,981 - workflow_automation.workflow_main - INFO - Mole处理完成
+2025-12-19 03:51:14,981 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-19 03:51:14,981 - workflow_automation.workflow_main - INFO -   Units模式处理完成
+2025-12-19 03:51:14,981 - workflow_automation.workflow_main - INFO -   失败: 未能获取MIR
+2025-12-19 03:51:14,982 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-19 03:51:14,982 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-19 03:51:14,982 - workflow_automation.workflow_main - INFO - 所有MIR提交完成，等待所有对话框关闭...
+2025-12-19 03:51:14,982 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-19 03:51:14,983 - workflow_automation.workflow_main - INFO - ✅ 所有对话框已关闭
+2025-12-19 03:51:14,983 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-19 03:51:14,983 - workflow_automation.workflow_main - INFO - 关闭MOLE工具...
+2025-12-19 03:51:14,983 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-19 03:51:17,025 - workflow_automation.workflow_main - WARNING - 关闭Mole窗口失败: timed out，尝试其他方法...
+2025-12-19 03:51:18,272 - workflow_automation.workflow_main - INFO - ✅ MOLE工具已关闭
+2025-12-19 03:51:18,508 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-19 03:51:18,635 - workflow_automation.workflow_main - INFO - 处理汇总:
+2025-12-19 03:51:18,875 - workflow_automation.workflow_main - INFO -   成功: 0
+2025-12-19 03:51:19,026 - workflow_automation.workflow_main - INFO -   失败: 1
+2025-12-19 03:51:19,185 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-19 03:51:19,462 - workflow_automation.workflow_main - INFO - 
+================================================================================
+2025-12-19 03:51:19,649 - workflow_automation.workflow_main - INFO - ✅ Mole-only工作流执行成功（已跳过Spark/GTS）
+2025-12-19 03:51:19,824 - workflow_automation.workflow_main - INFO - 执行时间: 51.99 秒
+2025-12-19 03:51:19,872 - workflow_automation.workflow_main - INFO - 注意: 未获取到MIR结果文件路径
+2025-12-19 03:51:19,983 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-21 19:09:25,244 - __main__ - INFO - ================================================================================
+2025-12-21 19:09:25,253 - __main__ - INFO - 自动化工作流启动
+2025-12-21 19:09:25,257 - __main__ - INFO - ================================================================================
+2025-12-21 19:09:25,257 - __main__ - INFO - 当前模式: 仅运行Mole步骤（Spark/GTS已跳过）
+2025-12-21 19:09:25,258 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-21 19:09:25,258 - workflow_automation.workflow_main - INFO - 开始执行Mole-only工作流（Spark/GTS已跳过）
+2025-12-21 19:09:25,259 - workflow_automation.workflow_main - INFO - 输入文件: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\auto-vpo\input\Source Lot.csv
+2025-12-21 19:09:25,259 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-21 19:09:25,260 - workflow_automation.workflow_main - INFO - 
+================================================================================
+2025-12-21 19:09:25,260 - workflow_automation.workflow_main - INFO - 步骤 -1/3: 配置Mole参数
+2025-12-21 19:09:25,260 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-21 19:09:25,261 - workflow_automation.workflow_main - INFO - 显示Mole配置界面...
+2025-12-21 19:09:29,883 - workflow_automation.mole_config_ui - INFO - 配置已保存到: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\auto-vpo\workflow_automation\config.yaml
+2025-12-21 19:09:29,952 - workflow_automation.workflow_main - INFO - 用户配置: {'search_mode': 'units', 'mir_comments': 'Please bring this lot to 2524 level4', 'units_info': 'M5361NQ700226\nM5361NQ700227\nM5361NQ700229\nM5361NQ700230\nM5361NQ700232\nM5361NQ700234'}
+2025-12-21 19:09:29,994 - workflow_automation.workflow_main - INFO - 
+================================================================================
+2025-12-21 19:09:30,057 - workflow_automation.workflow_main - INFO - 步骤 0/3: 启动Mole工具
+2025-12-21 19:09:30,085 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-21 19:09:30,085 - workflow_automation.workflow_main - INFO - 正在启动Mole工具...
+2025-12-21 19:09:30,103 - workflow_automation.mole_submitter - INFO - 启动Mole工具: C:\Users\qibaiche\Desktop\Mole 2.0.appref-ms
+2025-12-21 19:09:30,423 - workflow_automation.mole_submitter - INFO - 已通过os.startfile启动.appref-ms文件
+2025-12-21 19:09:30,435 - workflow_automation.mole_submitter - INFO - 等待Mole登录对话框...
+2025-12-21 19:09:30,436 - workflow_automation.mole_submitter - INFO - 等待MOLE LOGIN对话框出现...
+2025-12-21 19:09:41,522 - workflow_automation.mole_submitter - INFO - 找到登录对话框: MOLE LOGIN (backend: uia)
+2025-12-21 19:09:42,086 - workflow_automation.mole_submitter - INFO - 正在分析登录对话框的控件结构...
+2025-12-21 19:09:43,062 - workflow_automation.mole_submitter - INFO - 查找所有可用的控件...
+2025-12-21 19:09:43,178 - workflow_automation.mole_submitter - INFO - 通过children找到 3 个Button控件
+2025-12-21 19:09:43,182 - workflow_automation.mole_submitter - INFO - 总共找到 3 个可能的按钮控件
+2025-12-21 19:09:43,185 - workflow_automation.mole_submitter - INFO -   按钮 1: 'Password'
+2025-12-21 19:09:43,186 - workflow_automation.mole_submitter - INFO -   按钮 2: 'OK'
+2025-12-21 19:09:43,202 - workflow_automation.mole_submitter - INFO -   按钮 3: 'Cancel'
+2025-12-21 19:09:43,205 - workflow_automation.mole_submitter - INFO - 找到OK按钮（从按钮列表中: 'OK'）
+2025-12-21 19:09:43,401 - workflow_automation.mole_submitter - INFO - ✅ 已点击OK按钮（从按钮列表）
+2025-12-21 19:09:44,450 - workflow_automation.mole_submitter - INFO - 登录对话框已处理
+2025-12-21 19:09:49,456 - workflow_automation.mole_submitter - INFO - 已通过进程句柄连接到Mole窗口: MOLE v4.9.12.21  [Chen, Qibai (PNG-CPU - Convergence Site)] - 202552 (backend: win32)
+2025-12-21 19:09:49,461 - workflow_automation.workflow_main - INFO - ✅ Mole工具已启动
+2025-12-21 19:09:49,462 - workflow_automation.workflow_main - INFO - 
+================================================================================
+2025-12-21 19:09:49,462 - workflow_automation.workflow_main - INFO - 步骤 1/3: 读取source lot文件
+2025-12-21 19:09:49,464 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-21 19:09:49,464 - workflow_automation.data_reader - INFO - 正在读取CSV文件: C:\Users\qibaiche\OneDrive - Intel Corporation\Documents\AI_Code\automation\auto-vpo\input\Source Lot.csv
+2025-12-21 19:09:49,470 - workflow_automation.data_reader - INFO - 成功使用 utf-8 编码读取CSV文件: 1 行，8 列
+2025-12-21 19:09:49,492 - workflow_automation.workflow_main - INFO - ✅ 成功读取CSV文件: 1 行，8 列
+2025-12-21 19:09:49,492 - workflow_automation.workflow_main - INFO - 
+================================================================================
+2025-12-21 19:09:49,492 - workflow_automation.workflow_main - INFO - 步骤 2/3: 提交MIR数据到Mole工具（循环处理所有行）
+2025-12-21 19:09:49,493 - workflow_automation.workflow_main - INFO - ================================================================================
+2025-12-21 19:09:49,493 - workflow_automation.workflow_main - INFO - 使用Search By Units模式...
+2025-12-21 19:09:49,493 - workflow_automation.workflow_main - INFO - Units信息: M5361NQ700226
+M5361NQ700227
+M5361NQ700229
+M5361NQ700230
+M5361NQ700232
+M5361NQ700234...
+2025-12-21 19:09:49,493 - workflow_automation.workflow_main - INFO - 开始Mole工具操作流程...
+2025-12-21 19:09:49,494 - workflow_automation.mole_submitter - INFO - 开始提交MIR数据到Mole工具
+2025-12-21 19:09:49,494 - workflow_automation.mole_submitter - INFO - 尝试提交MIR数据 (第1/3次)
+2025-12-21 19:09:49,494 - workflow_automation.mole_submitter - INFO - 点击File菜单（全屏模式，左上角菜单栏）...
+2025-12-21 19:09:49,996 - workflow_automation.mole_submitter - INFO - 窗口位置: left=-10, top=-10, right=2570, bottom=1390
+2025-12-21 19:09:49,998 - workflow_automation.mole_submitter - INFO - 使用Windows API点击File菜单...
+2025-12-21 19:09:49,998 - workflow_automation.mole_submitter - WARNING - 未找到菜单句柄，尝试其他方法
+2025-12-21 19:09:49,998 - workflow_automation.mole_submitter - INFO - 使用Alt+F快捷键打开File菜单
+2025-12-21 19:09:50,044 - workflow_automation.mole_submitter - INFO - ✅ 已使用Alt+F打开File菜单
+2025-12-21 19:09:51,297 - workflow_automation.mole_submitter - INFO - 在下拉菜单中选择'New MIR Request'（第5个菜单项）...
+2025-12-21 19:09:51,297 - workflow_automation.mole_submitter - INFO - 使用Windows API精确查找'New MIR Request'菜单项...
+2025-12-21 19:09:51,298 - workflow_automation.mole_submitter - INFO - 使用键盘导航选择第5个菜单项'New MIR Request'...
+2025-12-21 19:09:51,499 - workflow_automation.mole_submitter - INFO - 按4次下箭头键...
+2025-12-21 19:09:52,460 - workflow_automation.mole_submitter - INFO - 按Enter键确认选择...
+2025-12-21 19:09:52,474 - workflow_automation.mole_submitter - INFO - ✅ 已使用键盘导航选择'New MIR Request'（下箭头4次+Enter）
+2025-12-21 19:09:53,475 - workflow_automation.mole_submitter - INFO - ✅ 已成功打开New MIR Request
+2025-12-21 19:09:53,476 - workflow_automation.mole_submitter - INFO - 检查是否有'MIR is now MRS!'信息对话框...
+2025-12-21 19:09:53,499 - workflow_automation.mole_submitter - INFO - 找到信息对话框: MIR is now MRS! (backend: win32)
+2025-12-21 19:09:54,313 - workflow_automation.mole_submitter - INFO - 找到 0 个按钮
+2025-12-21 19:09:54,314 - workflow_automation.mole_submitter - INFO - 尝试使用Enter键点击OK按钮
+2025-12-21 19:09:54,329 - workflow_automation.mole_submitter - INFO - ✅ 已使用Enter键点击OK按钮
+2025-12-21 19:09:54,830 - workflow_automation.mole_submitter - INFO - ✅ 信息对话框已处理
+2025-12-21 19:09:56,776 - workflow_automation.mole_submitter - INFO - ✅ MIR数据提交成功
+2025-12-21 19:09:56,878 - workflow_automation.mole_submitter - INFO - 点击'Search By Units'按钮...
+2025-12-21 19:09:57,529 - workflow_automation.mole_submitter - INFO - 使用Windows API查找'Search By Units'按钮...
+2025-12-21 19:09:57,541 - workflow_automation.mole_submitter - INFO - 找到'Search By Units'按钮（句柄: 854124）
