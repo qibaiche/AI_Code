@@ -8,7 +8,7 @@ gts:
   retry_delay: 2
   timeout: 60
   title_selector: input.ui-inputtext[pinputtext][type='text']
-  title_text: '[PTL] WW51.2: Night Loading @ X10 HDMX2524_L4/L5'
+  title_text: '[PTL] WW52.5: Night Loading @ X10 HDMX2524_L4'
   url: https://hsdes.intel.com/appstore/gts/#/newticket?ticket_category=Lab%20Support&site=Penang&service_type=lab&service_sub_type=request&lab=PG12%20MPE%20Lab&priority=2-high&notify=nbin240x,PDL-PG%20Test%20Ops&site_lab_org=Pen-ang&org_unit=External.IOTG&lab_org=MPE&category=Planner&component=lab.Planner.Vpo%20Scheduling.class&title=%5BPTL%5D%20WW34.1:%20Day%20Loading%20@%20X10%20HDMX5279_L2&program=PTL%20H
 logging:
   file: workflow_automation.log
@@ -23,24 +23,14 @@ mole:
   window_title: .*MOLE.*
 mole_history:
   mir_comments: Please bring this lot to 2524 level4
-  search_mode: units
-  units_info: 'M5361NQ700226
-
-    M5361NQ700227
-
-    M5361NQ700229
-
-    M5361NQ700230
-
-    M5361NQ700232
-
-    M5361NQ700234'
+  search_mode: units_by_source_lot
+  units_file: input/Failure_untis.xls
 paths:
   input_dir: ..
   log_dir: ./logs
   output_dir: ../output
   source_lot_file: ../input/Source Lot.csv
-  tp_path: \\gar.corp.intel.com\ec\proj\mdl\pg\intel\tpvalidation\hdmxprogs\ptl\PTLP484BXG24W1AS551\POR_TP\PTL_P_CLASS
+  tp_path: \\gar.corp.intel.com\ec\proj\mdl\pg\intel\hdmxprogs\ptl\PTLP484BXH24W10S547\POR_TP\PTL_P_CLASS
 spark:
   explicit_wait: 20
   headless: false
@@ -48,7 +38,7 @@ spark:
   retry_count: 3
   retry_delay: 2
   step: B5
-  tags: ECG_24W1A
+  tags: CCG_24W10_Retest
   timeout: 60
   url: https://spark.app.intel.com/dashboard
   vpo_category: correlation

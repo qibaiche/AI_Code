@@ -20,9 +20,13 @@ except ImportError:  # pragma: no cover
 try:
     import win32gui
     import win32con
+    import win32process
+    import win32api
 except ImportError:  # pragma: no cover
     win32gui = None
     win32con = None
+    win32process = None
+    win32api = None
 
 from .config_loader import AppConfig
 
@@ -189,12 +193,19 @@ class SQLPathFinderRunner:
                                     center_y = (btn_rect.top + btn_rect.bottom) // 2
                                     LOGGER.info(f"按钮位置: ({center_x}, {center_y})")
                                     
-                                    # 移动鼠标并点击
-                                    pyautogui.moveTo(center_x, center_y)
-                                    time.sleep(0.2)
-                                    pyautogui.click()
-                                    LOGGER.info("✅ 已通过 pyautogui 点击 Yes 按钮")
-                                    yes_clicked = True
+                                    # 在远程桌面环境中，临时禁用 fail-safe
+                                    original_failsafe = pyautogui.FAILSAFE
+                                    try:
+                                        pyautogui.FAILSAFE = False
+                                        # 移动鼠标并点击
+                                        pyautogui.moveTo(center_x, center_y)
+                                        time.sleep(0.2)
+                                        pyautogui.click()
+                                        LOGGER.info("✅ 已通过 pyautogui 点击 Yes 按钮（已禁用 fail-safe）")
+                                        yes_clicked = True
+                                    finally:
+                                        # 恢复原始设置
+                                        pyautogui.FAILSAFE = original_failsafe
                             except Exception as e:
                                 LOGGER.warning(f"pyautogui 点击失败: {e}")
                         
@@ -473,41 +484,120 @@ class SQLPathFinderRunner:
         LOGGER.info("使用 F8 快捷键触发 Run...")
         
         # 确保窗口在前台
+        hwnd = None
         try:
             if not self._window.is_visible():
                 self._window.restore()
+                time.sleep(0.5)
             
             if win32gui and win32con:
                 try:
                     hwnd = self._window.handle
-                    win32gui.SetForegroundWindow(hwnd)
+                    # 使用多种方法确保窗口获得焦点
+                    # 方法1: 基本的窗口激活
+                    win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
                     win32gui.BringWindowToTop(hwnd)
-                except:
-                    pass
+                    win32gui.SetForegroundWindow(hwnd)
+                    
+                    # 方法2: 使用 AttachThreadInput 强制获得焦点（在远程桌面中更可靠）
+                    if win32process and win32api:
+                        try:
+                            # 获取当前线程ID和窗口线程ID
+                            current_thread_id = win32api.GetCurrentThreadId()
+                            window_thread_id = win32process.GetWindowThreadProcessId(hwnd)[0]
+                            
+                            # 如果线程不同，附加线程输入
+                            if current_thread_id != window_thread_id:
+                                win32process.AttachThreadInput(current_thread_id, window_thread_id, True)
+                                try:
+                                    win32gui.SetForegroundWindow(hwnd)
+                                    win32gui.BringWindowToTop(hwnd)
+                                finally:
+                                    win32process.AttachThreadInput(current_thread_id, window_thread_id, False)
+                        except Exception as e:
+                            LOGGER.debug(f"AttachThreadInput 失败（可能不需要）: {e}")
+                    
+                    time.sleep(0.5)  # 等待窗口激活
+                except Exception as e:
+                    LOGGER.warning(f"Windows API 设置焦点失败: {e}")
             
-            self._window.set_focus()
-            time.sleep(0.3)
+            # 尝试使用 pywinauto 设置焦点（可能在远程桌面中失败）
+            try:
+                self._window.set_focus()
+                time.sleep(0.3)
+            except Exception as e:
+                LOGGER.warning(f"设置窗口焦点失败（可能在远程桌面中）: {e}")
+                # 在远程桌面中，set_focus 可能失败，但不影响后续操作
         except Exception as e:
             LOGGER.warning(f"设置窗口焦点失败: {e}")
         
-        # 等待1秒后发送 F8
+        # 等待窗口完全激活后再发送 F8
         time.sleep(1)
         
-        # 发送 F8 键
-        try:
-            self._window.type_keys("{F8}")
-            LOGGER.info("✅ 已发送 F8 快捷键")
-        except Exception as e:
-            if pyautogui:
-                try:
-                    pyautogui.press('f8')
-                    LOGGER.info("✅ 已通过 pyautogui 发送 F8")
-                except Exception as e2:
-                    raise RuntimeError(f"F8 发送失败: {e2}")
-            else:
-                raise RuntimeError(f"F8 发送失败: {e}")
+        # 方法1: 使用 PostMessage 发送键盘消息（异步，更适合远程桌面）
+        f8_sent = False
+        if win32gui and win32con and hwnd:
+            try:
+                # F8 键的虚拟键码
+                VK_F8 = 0x77
+                WM_KEYDOWN = 0x0100
+                WM_KEYUP = 0x0101
+                
+                # 使用 PostMessage 而不是 SendMessage（异步消息，更可靠）
+                # 先发送按下消息
+                win32gui.PostMessage(hwnd, WM_KEYDOWN, VK_F8, 0)
+                time.sleep(0.1)
+                # 再发送释放消息
+                win32gui.PostMessage(hwnd, WM_KEYUP, VK_F8, 0)
+                LOGGER.info("✅ 已通过 Windows API PostMessage 发送 F8 快捷键")
+                f8_sent = True
+                time.sleep(0.2)  # 等待消息处理
+            except Exception as e:
+                LOGGER.warning(f"Windows API PostMessage 发送 F8 失败: {e}")
         
-        # 等待弹窗出现
+        # 方法2: 如果 PostMessage 失败，尝试 SendMessage
+        if not f8_sent and win32gui and win32con and hwnd:
+            try:
+                VK_F8 = 0x77
+                WM_KEYDOWN = 0x0100
+                WM_KEYUP = 0x0101
+                win32gui.SendMessage(hwnd, WM_KEYDOWN, VK_F8, 0)
+                time.sleep(0.05)
+                win32gui.SendMessage(hwnd, WM_KEYUP, VK_F8, 0)
+                LOGGER.info("✅ 已通过 Windows API SendMessage 发送 F8 快捷键")
+                f8_sent = True
+            except Exception as e:
+                LOGGER.warning(f"Windows API SendMessage 发送 F8 失败: {e}")
+        
+        # 方法3: 使用 pywinauto type_keys（备用方案）
+        if not f8_sent:
+            try:
+                self._window.type_keys("{F8}")
+                LOGGER.info("✅ 已通过 pywinauto 发送 F8 快捷键")
+                f8_sent = True
+            except Exception as e:
+                LOGGER.warning(f"pywinauto 发送 F8 失败: {e}")
+        
+        # 方法4: 使用 pyautogui（最后备用，需要禁用 fail-safe）
+        if not f8_sent and pyautogui:
+            try:
+                # 在远程桌面环境中，临时禁用 fail-safe
+                original_failsafe = pyautogui.FAILSAFE
+                try:
+                    pyautogui.FAILSAFE = False
+                    pyautogui.press('f8')
+                    LOGGER.info("✅ 已通过 pyautogui 发送 F8（已禁用 fail-safe）")
+                    f8_sent = True
+                finally:
+                    # 恢复原始设置
+                    pyautogui.FAILSAFE = original_failsafe
+            except Exception as e2:
+                LOGGER.warning(f"pyautogui 发送 F8 失败: {e2}")
+        
+        if not f8_sent:
+            raise RuntimeError("所有方法都无法发送 F8 快捷键")
+        
+        # 等待弹窗出现（增加等待时间，确保弹窗有时间出现）
         time.sleep(2.5)
 
     def _process_single_popup(self, lots: Sequence[str], popup_index: int = 1) -> bool:

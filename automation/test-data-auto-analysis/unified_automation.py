@@ -539,7 +539,13 @@ def generate_lab_tp_html_table(df) -> str:
         
         # 创建临时排序列
         df['_sort_key'] = df['Sub Flow Step'].apply(get_sort_key)
-        df_sorted = df.sort_values('_sort_key').reset_index(drop=True)
+        # 按 Sub Flow Step 排序后，再按 Devrevstep 和 Program Name A-Z 排序
+        sort_cols = ['_sort_key']
+        if 'Devrevstep' in df.columns:
+            sort_cols.append('Devrevstep')
+        if 'Program Name' in df.columns:
+            sort_cols.append('Program Name')
+        df_sorted = df.sort_values(sort_cols).reset_index(drop=True)
         df_sorted = df_sorted.drop(columns=['_sort_key'])
     else:
         df_sorted = df.copy()

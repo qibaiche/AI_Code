@@ -32,26 +32,36 @@ def configure_logging(log_dir: Path) -> None:
     )
 
 
-def run_pipeline(config_path: Path) -> Path:
+def run_pipeline(config_path: Path, skip_fetch: bool = False) -> Path:
     config = load_config(config_path)
     configure_logging(config.paths.log_dir)
     logging.info("PRD LOT 自动化开始")
 
-    lots = read_lots(config.paths.lots_file)
-    batches = split_batches(lots, config.processing.max_lots_per_batch)
-
-    runner = SQLPathFinderRunner(config)
-    all_data = []
-    for idx, batch in enumerate(batches, start=1):
-        logging.info("执行批次 %s/%s，LOT 数：%s", idx, len(batches), len(batch))
-        runner.execute(batch)
-        csv_path = runner.wait_for_output()
-        df = load_dataset(csv_path)
-        all_data.append(df)
-
     import pandas as pd
 
-    merged_df = pd.concat(all_data).reset_index(drop=True)
+    if skip_fetch:
+        # 跳过数据抓取，直接使用已有的CSV文件
+        logging.info("⚠️ 跳过数据抓取步骤，使用已有的CSV文件")
+        csv_path = Path(config.paths.output_csv)
+        if not csv_path.exists():
+            raise FileNotFoundError(f"找不到已有的CSV文件: {csv_path}，请先运行完整流程或检查文件路径")
+        logging.info(f"从已有文件加载数据: {csv_path}")
+        merged_df = load_dataset(csv_path)
+    else:
+        # 正常流程：抓取数据
+        lots = read_lots(config.paths.lots_file)
+        batches = split_batches(lots, config.processing.max_lots_per_batch)
+
+        runner = SQLPathFinderRunner(config)
+        all_data = []
+        for idx, batch in enumerate(batches, start=1):
+            logging.info("执行批次 %s/%s，LOT 数：%s", idx, len(batches), len(batch))
+            runner.execute(batch)
+            csv_path = runner.wait_for_output()
+            df = load_dataset(csv_path)
+            all_data.append(df)
+
+        merged_df = pd.concat(all_data).reset_index(drop=True)
     normalized_df = normalize_columns(merged_df, config)
     
     # 按 process_step 分组统计 Functional_bin Pareto
@@ -61,36 +71,36 @@ def run_pipeline(config_path: Path) -> Path:
     if process_step_col in normalized_df.columns:
         # 获取所有 process_step 类型
         process_steps = normalized_df[process_step_col].dropna().unique()
-        LOGGER.info(f"找到 {len(process_steps)} 个 process_step 类型: {list(process_steps)}")
+        logging.info(f"找到 {len(process_steps)} 个 process_step 类型: {list(process_steps)}")
         
         # 为每个 process_step 生成 Pareto 表
         for step in process_steps:
             step_df = normalized_df[normalized_df[process_step_col] == step].copy()
             if not step_df.empty:
-                LOGGER.info(f"处理 process_step: {step}，数据行数: {len(step_df)}")
+                logging.info(f"处理 process_step: {step}，数据行数: {len(step_df)}")
                 quantity, _ = build_quantity_table(step_df, config, bin_type="functional")
                 if not quantity.empty:
                     percentages, row_totals, total_percentage = build_pareto(quantity)
                     pareto_table = build_pareto_table(quantity, percentages, row_totals, total_percentage)
                     functional_pareto_by_step[str(step)] = pareto_table
-                    LOGGER.info(f"✅ {step} 的 Functional_bin Pareto 生成完成")
+                    logging.info(f"✅ {step} 的 Functional_bin Pareto 生成完成")
                 else:
-                    LOGGER.warning(f"⚠️ {step} 的数量表为空，跳过")
+                    logging.warning(f"⚠️ {step} 的数量表为空，跳过")
             else:
-                LOGGER.warning(f"⚠️ {step} 的数据为空，跳过")
+                logging.warning(f"⚠️ {step} 的数据为空，跳过")
         
         # 如果没有 process_step 数据，生成一个总的 Pareto 表
         if not functional_pareto_by_step:
-            LOGGER.warning("所有 process_step 的数据都为空，生成总的 Functional_bin Pareto")
+            logging.warning("所有 process_step 的数据都为空，生成总的 Functional_bin Pareto")
             quantity, _ = build_quantity_table(normalized_df, config, bin_type="functional")
             percentages, row_totals, total_percentage = build_pareto(quantity)
             functional_pareto = build_pareto_table(quantity, percentages, row_totals, total_percentage)
         else:
             # 如果按 process_step 分组成功，不生成总的 Pareto 表
             functional_pareto = None
-            LOGGER.info("已按 process_step 分组，不生成总的 Functional_bin Pareto 表")
+            logging.info("已按 process_step 分组，不生成总的 Functional_bin Pareto 表")
     else:
-        LOGGER.warning(f"⚠️ 未找到 process_step 列（{process_step_col}），生成总的 Functional_bin Pareto")
+        logging.warning(f"⚠️ 未找到 process_step 列（{process_step_col}），生成总的 Functional_bin Pareto")
         # Functional_bin Pareto（使用配置中的过滤条件，通常是 mut_within_subflow_latest_flag = Y）
         quantity, _ = build_quantity_table(normalized_df, config, bin_type="functional")
         percentages, row_totals, total_percentage = build_pareto(quantity)
@@ -113,12 +123,12 @@ def run_pipeline(config_path: Path) -> Path:
                             interface_quantity, interface_percentages, interface_row_totals, interface_total_percentage
                         )
                         interface_pareto_by_step[str(step)] = pareto_table
-                        LOGGER.info(f"✅ {step} 的 Interface_bin Pareto 生成完成")
+                        logging.info(f"✅ {step} 的 Interface_bin Pareto 生成完成")
             
             if interface_pareto_by_step:
                 # 如果按 process_step 分组成功，不生成总的 Pareto 表
                 interface_pareto = None
-                LOGGER.info("已按 process_step 分组，不生成总的 Interface_bin Pareto 表")
+                logging.info("已按 process_step 分组，不生成总的 Interface_bin Pareto 表")
         else:
             # 没有 process_step 列，生成总的 Interface_bin Pareto
             interface_quantity, _ = build_quantity_table(normalized_df, config, bin_type="interface")
@@ -150,7 +160,7 @@ def run_pipeline(config_path: Path) -> Path:
             retest_df[config.fields.process_step] = retest_df[config.fields.process_step].fillna("UNKNOWN")
             # 按 process_step 分组
             process_steps = retest_df[config.fields.process_step].dropna().unique()
-            LOGGER.info(f"Retest 数据中找到 {len(process_steps)} 个 process_step 类型: {list(process_steps)}")
+            logging.info(f"Retest 数据中找到 {len(process_steps)} 个 process_step 类型: {list(process_steps)}")
             
             for step in process_steps:
                 step_df = retest_df[retest_df[config.fields.process_step] == step].copy()
@@ -162,7 +172,7 @@ def run_pipeline(config_path: Path) -> Path:
                             retest_quantity, retest_percentages, retest_row_totals, retest_total_percentage
                         )
                         retest_pareto_by_step[str(step)] = pareto_table
-                        LOGGER.info(f"✅ {step} 的 Retest Bin Pareto 生成完成")
+                        logging.info(f"✅ {step} 的 Retest Bin Pareto 生成完成")
             
             if retest_pareto_by_step:
                 # 如果按 process_step 分组成功，不生成总的 Pareto 表
@@ -206,19 +216,26 @@ def run_pipeline(config_path: Path) -> Path:
     elif functional_pareto is not None:
         summary_pareto = functional_pareto
     
-    summary = {
-        "date": f"{datetime.now():%Y-%m-%d}",
-        "lot_count": len(lots),
-        "top_bins": summary_pareto.index[:3].tolist() if summary_pareto is not None and not summary_pareto.empty else [],
-        "exception_count": len(exceptions_df),
-        "grand_total": float(summary_pareto[('Grand Total', 'Quantity')].sum()) if summary_pareto is not None and not summary_pareto.empty else 0.0,
-    }
-    send_report_email(config, summary, [report_path])
-    logging.info("流程完成：%s", report_path)
+    # 只有在非跳过模式下才发送邮件和关闭SQLPathFinder
+    if not skip_fetch:
+        # 读取lots用于邮件摘要
+        lots = read_lots(config.paths.lots_file)
+        summary = {
+            "date": f"{datetime.now():%Y-%m-%d}",
+            "lot_count": len(lots),
+            "top_bins": summary_pareto.index[:3].tolist() if summary_pareto is not None and not summary_pareto.empty else [],
+            "exception_count": len(exceptions_df),
+            "grand_total": float(summary_pareto[('Grand Total', 'Quantity')].sum()) if summary_pareto is not None and not summary_pareto.empty else 0.0,
+        }
+        send_report_email(config, summary, [report_path])
+        
+        # 关闭 SQLPathFinder
+        logging.info("关闭 SQLPathFinder...")
+        close_sqlpathfinder(config.ui.main_window_title)
+    else:
+        logging.info("调试模式：跳过邮件发送和SQLPathFinder关闭")
     
-    # 关闭 SQLPathFinder
-    logging.info("关闭 SQLPathFinder...")
-    close_sqlpathfinder(config.ui.main_window_title)
+    logging.info("流程完成：%s", report_path)
     
     return report_path
 
@@ -231,8 +248,13 @@ def main() -> None:
         default=Path(__file__).parent / "config.yaml",
         help="配置文件路径",
     )
+    parser.add_argument(
+        "--skip-fetch",
+        action="store_true",
+        help="跳过数据抓取步骤，直接使用已有的CSV文件（用于调试）",
+    )
     args = parser.parse_args()
-    run_pipeline(args.config)
+    run_pipeline(args.config, skip_fetch=args.skip_fetch)
 
 
 if __name__ == "__main__":

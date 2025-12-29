@@ -190,14 +190,96 @@ def get_latest_csv(output_dir: Path) -> Path:
     return files[-1]
 
 
+def get_latest_spark_file(output_dir: Path) -> Path:
+    """在 output 目录下查找 SPARK 文件夹中最新的 MIR_Results_For_Spark 文件。
+    
+    支持以下目录结构：
+    - output/02_SPARK/ (旧结构)
+    - output/run_*/Spark/ (新结构)
+    
+    Returns:
+        最新的文件路径（支持 .xlsx 和 .csv 格式）
+    """
+    output_dir = Path(output_dir)
+    spark_files = []
+    
+    # 查找新结构：output/run_*/Spark/
+    work_dirs = sorted(output_dir.glob("run_*"), reverse=True)
+    for work_dir in work_dirs:
+        spark_dir = work_dir / "Spark"
+        if spark_dir.exists():
+            found_files = list(spark_dir.glob("MIR_Results_For_Spark_*.xlsx"))
+            found_files.extend(list(spark_dir.glob("MIR_Results_For_Spark_*.csv")))
+            if found_files:
+                spark_files.extend(found_files)
+                break
+    
+    # 向后兼容：旧结构 output/02_SPARK/
+    if not spark_files:
+        spark_dir = output_dir / "02_SPARK"
+        if spark_dir.exists():
+            found_files = list(spark_dir.glob("MIR_Results_For_Spark_*.xlsx"))
+            found_files.extend(list(spark_dir.glob("MIR_Results_For_Spark_*.csv")))
+            if found_files:
+                spark_files.extend(found_files)
+    
+    if not spark_files:
+        raise FileNotFoundError(
+            f"未在 {output_dir} 找到 SPARK 文件夹中的 MIR_Results_For_Spark 文件\n"
+            f"请检查以下位置：\n"
+            f"  - {output_dir / '02_SPARK'}\n"
+            f"  - {output_dir / 'run_*/Spark'}"
+        )
+    
+    # 按修改时间排序，返回最新的文件
+    return max(spark_files, key=lambda p: p.stat().st_mtime)
+
+
 if __name__ == "__main__":
     base_dir = Path(__file__).resolve().parent.parent
-    latest_csv = get_latest_csv(base_dir / "output")
+    output_dir = base_dir / "output"
+    
+    # 从 SPARK 文件夹读取最新文件
+    print("=" * 80)
+    print("📝 GTS 填充调试 - 使用 SPARK 文件夹最新文件")
+    print("=" * 80)
+    print()
+    print(f"📁 查找 SPARK 文件夹中的最新文件...")
+    
+    try:
+        latest_spark_file = get_latest_spark_file(output_dir)
+        print(f"✅ 找到文件: {latest_spark_file.name}")
+        print(f"   路径: {latest_spark_file}")
+    except FileNotFoundError as e:
+        print(f"❌ 错误: {e}")
+        import sys
+        sys.exit(1)
+    
+    # 模板文件
     template = base_dir / "input" / "GTS_Submit.xlsx"
-    output_file = fill_gts_template_from_csv(
-        latest_csv,
-        template,
-        base_dir / "output",
-    )
-    print(f"✅ 已生成: {output_file}")
+    if not template.exists():
+        print(f"❌ 错误: 模板文件不存在: {template}")
+        import sys
+        sys.exit(1)
+    
+    # 输出到 03_GTS 文件夹
+    gts_output_dir = output_dir / "03_GTS"
+    print()
+    print(f"📁 输出目录: {gts_output_dir}")
+    
+    try:
+        output_file = fill_gts_template_from_csv(
+            latest_spark_file,
+            template,
+            gts_output_dir,
+        )
+        print()
+        print(f"✅ 已生成: {output_file}")
+        print(f"   完整路径: {output_file.absolute()}")
+    except Exception as e:
+        print(f"❌ 错误: {e}")
+        import traceback
+        traceback.print_exc()
+        import sys
+        sys.exit(1)
 

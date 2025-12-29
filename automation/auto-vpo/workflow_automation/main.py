@@ -15,19 +15,110 @@ from .config_loader import load_config
 from .workflow_main import WorkflowController, WorkflowError
 
 
+class RobustFileHandler(logging.FileHandler):
+    """增强的FileHandler，能够处理日志文件被删除的情况"""
+    
+    def __init__(self, filename, mode='a', encoding=None, delay=False):
+        self._filename = Path(filename)
+        self._encoding = encoding
+        super().__init__(filename, mode, encoding, delay)
+    
+    def emit(self, record):
+        """发送日志记录，如果文件被删除则重新创建"""
+        try:
+            # 检查文件是否存在，如果不存在则重新创建
+            if not self._filename.exists():
+                # 确保目录存在
+                self._filename.parent.mkdir(parents=True, exist_ok=True)
+                # 重新打开文件
+                if self.stream:
+                    self.stream.close()
+                self.stream = self._open()
+            
+            super().emit(record)
+        except (OSError, IOError) as e:
+            # 如果写入失败，尝试重新创建文件
+            try:
+                if self.stream:
+                    self.stream.close()
+                self.stream = None
+                # 确保目录存在
+                self._filename.parent.mkdir(parents=True, exist_ok=True)
+                self.stream = self._open()
+                super().emit(record)
+            except Exception:
+                # 如果仍然失败，至少确保不会崩溃
+                self.handleError(record)
+
+
 def configure_logging(config):
     """配置日志"""
     log_file = config.paths.log_dir / config.logging.file
     log_file.parent.mkdir(parents=True, exist_ok=True)
     
-    logging.basicConfig(
-        level=getattr(logging, config.logging.level.upper()),
-        format=config.logging.format,
-        handlers=[
-            logging.FileHandler(log_file, encoding='utf-8'),
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
+    # 确保日志文件存在（即使为空）
+    # 这样可以验证文件是否可以创建
+    try:
+        if not log_file.exists():
+            log_file.touch()
+    except (OSError, IOError, PermissionError) as e:
+        print(f"警告: 无法创建日志文件 {log_file}: {e}")
+        print("将仅使用控制台输出日志")
+        # 只配置控制台输出
+        logging.basicConfig(
+            level=getattr(logging, config.logging.level.upper()),
+            format=config.logging.format,
+            handlers=[logging.StreamHandler(sys.stdout)],
+            force=True  # Python 3.8+ 支持强制重新配置
+        )
+        return
+    
+    # 清除已有的处理器（如果存在）
+    root_logger = logging.getLogger()
+    for handler in root_logger.handlers[:]:
+        root_logger.removeHandler(handler)
+    
+    try:
+        # 创建文件处理器和控制台处理器
+        file_handler = RobustFileHandler(log_file, encoding='utf-8')
+        console_handler = logging.StreamHandler(sys.stdout)
+        
+        # 设置格式
+        formatter = logging.Formatter(config.logging.format)
+        file_handler.setFormatter(formatter)
+        console_handler.setFormatter(formatter)
+        
+        # 设置日志级别
+        log_level = getattr(logging, config.logging.level.upper())
+        root_logger.setLevel(log_level)
+        file_handler.setLevel(log_level)
+        console_handler.setLevel(log_level)
+        
+        # 添加处理器
+        root_logger.addHandler(file_handler)
+        root_logger.addHandler(console_handler)
+        
+        # 验证日志文件是否可以写入
+        test_logger = logging.getLogger(__name__)
+        test_logger.info("日志系统初始化成功")
+        
+    except (OSError, IOError, PermissionError) as e:
+        # 如果日志文件创建失败（例如权限问题、磁盘空间不足等），
+        # 至少确保控制台输出仍然可用
+        root_logger = logging.getLogger()
+        for handler in root_logger.handlers[:]:
+            root_logger.removeHandler(handler)
+        
+        console_handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter(config.logging.format)
+        console_handler.setFormatter(formatter)
+        log_level = getattr(logging, config.logging.level.upper())
+        root_logger.setLevel(log_level)
+        root_logger.addHandler(console_handler)
+        
+        # 记录警告到控制台
+        print(f"警告: 无法创建日志文件 {log_file}: {e}")
+        print("将仅使用控制台输出日志")
 
 
 def select_excel_file_gui() -> Path | None:

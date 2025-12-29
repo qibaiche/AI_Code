@@ -31,6 +31,8 @@ try:
 except ImportError:
     WEBDRIVER_AVAILABLE = False
 
+from .utils.screenshot_helper import log_error_with_screenshot, capture_debug_screenshot
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -60,10 +62,85 @@ class GTSConfig:
 # ============================================================================
 
 def find_latest_excel(output_dir: Path) -> Path:
-    """查找最新的 GTS_Submit_filled_*.xlsx 文件"""
-    files = sorted(output_dir.glob("GTS_Submit_filled_*.xlsx"))
+    """查找最新的 GTS_Submit_filled_*.xlsx 文件
+    
+    搜索策略：
+    1. 首先在给定的 output_dir 中查找（通常是 03_GTS 目录）
+    2. 如果未找到，查找基础 output 目录
+    3. 在 03_GTS/ 子目录中搜索（新结构）
+    4. 在所有 run_*/03_GTS/ 子目录中搜索（向后兼容旧结构）
+    5. 在所有 run_*/02_GTS_Files/ 子目录中搜索（向后兼容）
+    6. 返回按修改时间排序的最新文件
+    """
+    files = []
+    
+    # 1. 首先在给定目录中查找
+    files.extend(output_dir.glob("GTS_Submit_filled_*.xlsx"))
+    
+    # 2. 如果未找到，查找基础 output 目录并搜索
     if not files:
-        raise FileNotFoundError(f"未找到文件: {output_dir}/GTS_Submit_filled_*.xlsx")
+        # 找到基础 output 目录
+        current = output_dir
+        base_output = None
+        
+        # 向上查找，直到找到 output 目录（最多查找3层）
+        for _ in range(3):
+            # 如果当前目录是 03_GTS 或 02_GTS_Files，则父级是 output
+            if current.name in ["03_GTS", "GTS", "02_GTS_Files"]:
+                parent = current.parent
+                if parent.exists():
+                    base_output = parent
+                    break
+            
+            # 检查当前目录是否包含 03_GTS 或 01_MIR 子目录（说明是 output 目录）
+            try:
+                if any(d.is_dir() and d.name in ["01_MIR", "02_SPARK", "03_GTS"] for d in current.iterdir()):
+                    base_output = current
+                    break
+            except (OSError, PermissionError):
+                pass
+            
+            # 向上移动一层
+            parent = current.parent
+            if not parent or parent == current:  # 到达根目录
+                break
+            current = parent
+        
+        # 如果找到了基础 output 目录，进行搜索
+        if base_output and base_output.exists():
+            try:
+                # 3. 在 03_GTS/ 子目录中搜索（新结构）
+                gts_dir = base_output / "03_GTS"
+                if gts_dir.exists() and gts_dir.is_dir() and gts_dir != output_dir:
+                    found_files = list(gts_dir.glob("GTS_Submit_filled_*.xlsx"))
+                    files.extend(found_files)
+                
+                # 4. 向后兼容：在所有 run_*/03_GTS/ 子目录中搜索（旧结构）
+                for run_dir in base_output.glob("run_*/03_GTS"):
+                    if run_dir.is_dir() and run_dir != output_dir:
+                        found_files = list(run_dir.glob("GTS_Submit_filled_*.xlsx"))
+                        files.extend(found_files)
+                # 向后兼容：也搜索 run_*/GTS/ 目录
+                for run_dir in base_output.glob("run_*/GTS"):
+                    if run_dir.is_dir() and run_dir != output_dir:
+                        found_files = list(run_dir.glob("GTS_Submit_filled_*.xlsx"))
+                        files.extend(found_files)
+                
+                # 5. 向后兼容：在所有 run_*/02_GTS_Files/ 子目录中搜索
+                for run_dir in base_output.glob("run_*/02_GTS_Files"):
+                    if run_dir.is_dir() and run_dir != output_dir:
+                        found_files = list(run_dir.glob("GTS_Submit_filled_*.xlsx"))
+                        files.extend(found_files)
+            except (OSError, PermissionError):
+                pass
+    
+    if not files:
+        raise FileNotFoundError(
+            f"未找到文件: 在 {output_dir} 及其父级 output 目录中未找到 GTS_Submit_filled_*.xlsx"
+        )
+    
+    # 按修改时间排序，返回最新的文件
+    files.sort(key=lambda f: f.stat().st_mtime)
     return files[-1]
 
 
@@ -274,10 +351,22 @@ def excel_to_html_table(excel_path: Path) -> str:
 class GTSSubmitter:
     """GTS 自动填充器（全新重写）"""
     
-    def __init__(self, config: GTSConfig):
+    def __init__(self, config: GTSConfig, debug_dir: Optional[Path] = None):
         self.config = config
         self.driver: Optional[webdriver.Chrome] = None
         self._keep_browser_open = False  # 标志：是否保持浏览器打开（用户取消时）
+        self.debug_dir = debug_dir or Path.cwd() / "output" / "05_Debug"
+    
+    def _log_error_with_screenshot(self, error_message: str, exception: Optional[Exception] = None, prefix: str = "gts_error") -> None:
+        """记录错误并自动截图"""
+        if self.driver:
+            log_error_with_screenshot(self.driver, error_message, self.debug_dir, exception, prefix)
+        else:
+            LOGGER.error(f"❌ {error_message}")
+            if exception:
+                import traceback
+                LOGGER.error(f"异常详情: {str(exception)}")
+                LOGGER.debug(traceback.format_exc())
     
     # ------------------------------------------------------------------------
     # 浏览器管理

@@ -473,6 +473,18 @@ def save_report(
         
         # Exceptions
         exceptions.to_excel(writer, sheet_name="Exceptions", index=False)
+        
+        # Correlation_UnitLevel
+        correlation_table = build_correlation_unitlevel_table(df, config)
+        if correlation_table is not None and not correlation_table.empty:
+            correlation_table.to_excel(writer, sheet_name="Correlation_UnitLevel", index=False)
+            # 格式化Correlation_UnitLevel表
+            workbook = writer.book
+            ws = workbook["Correlation_UnitLevel"]
+            _format_correlation_sheet(ws, correlation_table)
+            LOGGER.info("✅ Correlation_UnitLevel表已生成并格式化")
+        else:
+            LOGGER.warning("⚠️ Correlation_UnitLevel表为空，跳过生成")
 
     return report_path
 
@@ -485,3 +497,466 @@ def build_pareto_table(
 ) -> pd.DataFrame:
     """构建Pareto表格"""
     return _assemble_pareto_table(quantity, percentages, row_totals, total_percentage)
+
+
+def build_correlation_unitlevel_table(df: pd.DataFrame, config: AppConfig) -> Optional[pd.DataFrame]:
+    """
+    构建Correlation_UnitLevel表
+    按process_step分组，每个process_step有独立的列、BINSWITCH和COMMENTS
+    
+    BINSWITCH三种情况：
+    1. NO（绿色）：任意ECG与任意CCG比较，有相同的functional bin
+    2. YES（黄色）：没有相同的functional bin 且没有任意ECG或CCG出现Bin 100
+    3. YES（红色）：没有相同的functional bin 且有任意ECG或CCG出现Bin 100
+    """
+    # 检查必要的列
+    required_cols = [config.fields.visual_id, config.fields.functional_bin, config.fields.lot, config.fields.process_step]
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    
+    if missing_cols:
+        LOGGER.warning(f"⚠️ 缺少必要的列来生成Correlation_UnitLevel表: {missing_cols}")
+        return None
+    
+    # 检查ECG_OR_CCG列是否存在
+    ecg_col = None
+    possible_ecg_cols = ["ECG_OR_CCG", "ecg_or_ccg", "ECG", "CCG"]
+    for col_name in possible_ecg_cols:
+        if col_name in df.columns:
+            ecg_col = col_name
+            break
+    
+    if ecg_col is None:
+        LOGGER.warning("⚠️ 未找到ECG_OR_CCG列，尝试查找包含'ECG'或'CCG'的列")
+        for col in df.columns:
+            if 'ECG' in str(col).upper() or 'CCG' in str(col).upper():
+                ecg_col = col
+                LOGGER.info(f"使用列: {ecg_col} 作为ECG_OR_CCG")
+                break
+    
+    if ecg_col is None:
+        LOGGER.error("❌ 无法找到ECG_OR_CCG相关列，跳过Correlation_UnitLevel表生成")
+        return None
+    
+    LOGGER.info(f"开始生成Correlation_UnitLevel表，使用ECG列: {ecg_col}")
+    
+    # 按process_step分组处理
+    process_step_col = config.fields.process_step
+    visual_id_col = config.fields.visual_id
+    functional_bin_col = config.fields.functional_bin
+    lot_col = config.fields.lot
+    
+    # 获取所有process_step，并按照指定顺序排序
+    all_process_steps = df[process_step_col].dropna().unique().tolist()
+    process_step_priority = {'CLASSHOT': 1, 'CLASSCOLD': 2}
+    
+    def get_process_step_sort_key(step):
+        step_str = str(step).upper()
+        priority = process_step_priority.get(step_str, 999)
+        return (priority, step_str)
+    
+    process_steps = sorted(all_process_steps, key=get_process_step_sort_key)
+    
+    if len(process_steps) == 0:
+        LOGGER.warning("⚠️ 没有有效的process_step数据，无法生成Correlation_UnitLevel表")
+        return None
+    
+    # 获取所有唯一的VID
+    all_vids = sorted(df[visual_id_col].dropna().unique())
+    
+    if len(all_vids) == 0:
+        LOGGER.warning("⚠️ 没有有效的VID数据，无法生成Correlation_UnitLevel表")
+        return None
+    
+    # 为每个process_step收集数据
+    process_step_data = {}
+    
+    for step in process_steps:
+        step_df = df[df[process_step_col] == step].copy()
+        if step_df.empty:
+            continue
+        
+        LOGGER.info(f"处理process_step: {step}，数据行数: {len(step_df)}")
+        
+        # 创建ECG_OR_CCG + Lot的组合列
+        step_df['_ecg_lot'] = step_df[ecg_col].astype(str) + '_' + step_df[lot_col].astype(str)
+        
+        # 获取所有唯一的ECG_Lot组合
+        all_ecg_lots = sorted(step_df['_ecg_lot'].dropna().unique())
+        
+        if len(all_ecg_lots) == 0:
+            LOGGER.warning(f"process_step {step} 没有有效的ECG_Lot组合，跳过")
+            continue
+        
+        # 为每个VID收集数据
+        vid_data_dict = {}
+        for vid in all_vids:
+            vid_bins = {}  # 存储每个ECG_Lot对应的functional_bin值
+            
+            vid_df = step_df[step_df[visual_id_col] == vid]
+            
+            for _, row in vid_df.iterrows():
+                ecg_lot = row['_ecg_lot']
+                func_bin = row[functional_bin_col]
+                if ecg_lot not in vid_bins:
+                    vid_bins[ecg_lot] = func_bin
+            
+            # 分离CCG和ECG开头的列
+            ccg_lots = [ecg_lot for ecg_lot in all_ecg_lots if str(ecg_lot).upper().startswith('CCG_')]
+            ecg_lots = [ecg_lot for ecg_lot in all_ecg_lots if str(ecg_lot).upper().startswith('ECG_')]
+            
+            # 获取CCG和ECG列的bin值（排除空值和NaN）
+            ccg_bin_values = []
+            for ecg_lot in ccg_lots:
+                bin_val = vid_bins.get(ecg_lot, '')
+                # 检查是否为空值或NaN
+                if bin_val != '' and not (isinstance(bin_val, float) and pd.isna(bin_val)):
+                    ccg_bin_values.append(bin_val)
+            
+            ecg_bin_values = []
+            for ecg_lot in ecg_lots:
+                bin_val = vid_bins.get(ecg_lot, '')
+                # 检查是否为空值或NaN
+                if bin_val != '' and not (isinstance(bin_val, float) and pd.isna(bin_val)):
+                    ecg_bin_values.append(bin_val)
+            
+            # 如果CCG或ECG列中任何一个为空，无法比较，设为NO
+            if len(ccg_bin_values) == 0 or len(ecg_bin_values) == 0:
+                binswitch = 'NO'
+                LOGGER.debug(f"BINSWITCH=NO: VID={vid}, step={step}, 无数据比较")
+            else:
+                # 检查CCG的bin值是否与ECG的bin值有相同的
+                has_match = False
+                matched_pairs = []
+                
+                # 调试日志：显示所有bin值
+                LOGGER.debug(f"VID={vid}, step={step}")
+                LOGGER.debug(f"  CCG bin值: {ccg_bin_values} (类型: {[type(v).__name__ for v in ccg_bin_values]})")
+                LOGGER.debug(f"  ECG bin值: {ecg_bin_values} (类型: {[type(v).__name__ for v in ecg_bin_values]})")
+                
+                for ccg_bin in ccg_bin_values:
+                    for ecg_bin in ecg_bin_values:
+                        # 统一转换为字符串进行比较
+                        ccg_str = str(ccg_bin).strip()
+                        ecg_str = str(ecg_bin).strip()
+                        
+                        LOGGER.debug(f"    比较: CCG='{ccg_str}' vs ECG='{ecg_str}'")
+                        
+                        if ccg_str == ecg_str:
+                            has_match = True
+                            matched_pairs.append((ccg_str, ecg_str))
+                            LOGGER.debug(f"    ✓ 找到匹配!")
+                            break
+                    if has_match:
+                        break
+                
+                if has_match:
+                    # 情况1：有相同的functional bin → NO（绿色）
+                    binswitch = 'NO'
+                    LOGGER.info(f"✓ BINSWITCH=NO: VID={vid}, step={step}, 匹配的bin值: {matched_pairs}")
+                else:
+                    # 没有匹配，检查是否有Bin 100
+                    has_bin_100 = any(str(bin_val).strip() == '100' for bin_val in ccg_bin_values + ecg_bin_values)
+                    
+                    if has_bin_100:
+                        # 情况3：没有匹配且有Bin 100 → YES_RED（红色）
+                        binswitch = 'YES_RED'
+                        LOGGER.warning(f"✗ BINSWITCH=YES_RED: VID={vid}, step={step}")
+                        LOGGER.warning(f"    CCG bin值: {ccg_bin_values}")
+                        LOGGER.warning(f"    ECG bin值: {ecg_bin_values}")
+                        LOGGER.warning(f"    无匹配，但有Bin 100")
+                    else:
+                        # 情况2：没有匹配且没有Bin 100 → YES_YELLOW（黄色）
+                        binswitch = 'YES_YELLOW'
+                        LOGGER.info(f"BINSWITCH=YES_YELLOW: VID={vid}, step={step}, 无匹配且无Bin 100")
+            
+            vid_data_dict[vid] = {
+                'bins': vid_bins,
+                'binswitch': binswitch
+            }
+        
+        process_step_data[step] = {
+            'ecg_lots': all_ecg_lots,
+            'vid_data': vid_data_dict
+        }
+        LOGGER.info(f"✅ process_step {step} 数据处理完成，ECG_Lot列数: {len(all_ecg_lots)}")
+    
+    if not process_step_data:
+        LOGGER.warning("⚠️ 所有process_step的数据都为空，无法生成Correlation_UnitLevel表")
+        return None
+    
+    # 构建最终的表结构
+    # 列顺序：VID, [process_step1的列], BINSWITCH(step1), COMMENTS(step1), ...
+    result_data = []
+    ordered_columns = ['VID']
+    # 创建列名到step的映射，避免同一个ECG_Lot在多个step中时取错数据
+    col_to_step = {}
+    # 创建唯一列名到原始列名的映射（用于格式化Excel时显示）
+    unique_col_to_original = {}
+    
+    # 为每个process_step添加列
+    for step in process_steps:
+        if step not in process_step_data:
+            continue
+        
+        step_info = process_step_data[step]
+        ecg_lots = step_info['ecg_lots']
+        
+        # 添加该process_step的所有ECG_Lot列，并记录它们属于哪个step
+        # 为了支持重复的列名，我们为每个列添加step前缀使其唯一
+        for ecg_lot in ecg_lots:
+            unique_col_name = f"{step}_{ecg_lot}"  # 创建唯一列名
+            ordered_columns.append(unique_col_name)
+            col_to_step[unique_col_name] = step  # 记录每个列属于哪个step
+            unique_col_to_original[unique_col_name] = ecg_lot  # 记录原始列名
+        
+        # 添加该process_step的BINSWITCH列
+        ordered_columns.append(f'BINSWITCH_{step}')
+        # 添加该process_step的COMMENTS列
+        ordered_columns.append(f'COMMENTS_{step}')
+    
+    # 构建数据行
+    for vid in all_vids:
+        row_data = {}
+        
+        for col_name in ordered_columns:
+            if col_name == 'VID':
+                row_data[col_name] = vid
+            elif col_name.startswith('COMMENTS_'):
+                row_data[col_name] = ''
+            elif col_name.startswith('BINSWITCH_'):
+                step = col_name.replace('BINSWITCH_', '')
+                if step in process_step_data:
+                    vid_info = process_step_data[step]['vid_data'].get(vid, {'binswitch': 'NO'})
+                    row_data[col_name] = vid_info['binswitch']
+                else:
+                    row_data[col_name] = 'NO'
+            else:
+                # 这是ECG_Lot列（可能是带step前缀的唯一列名），使用映射找到正确的step和原始列名
+                if col_name in col_to_step:
+                    step = col_to_step[col_name]
+                    original_col_name = unique_col_to_original.get(col_name, col_name)
+                    if step in process_step_data:
+                        vid_info = process_step_data[step]['vid_data'].get(vid, {'bins': {}})
+                        bin_value = vid_info['bins'].get(original_col_name, '')
+                        row_data[col_name] = bin_value
+                    else:
+                        row_data[col_name] = ''
+                else:
+                    row_data[col_name] = ''
+        
+        result_data.append(row_data)
+    
+    # 创建DataFrame
+    result_table = pd.DataFrame(result_data, columns=ordered_columns)
+    
+    LOGGER.info(f"✅ Correlation_UnitLevel表生成完成，总行数: {len(result_table)}，总列数: {len(result_table.columns)}")
+    return result_table
+
+
+def _format_correlation_sheet(ws, correlation_table: pd.DataFrame) -> None:
+    """格式化Correlation_UnitLevel表，支持多级表头"""
+    max_row = ws.max_row
+    max_col = ws.max_column
+    
+    # 定义样式
+    header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
+    header_font = Font(bold=True, color="FFFFFF", size=11)
+    
+    process_step_colors = {
+        'CLASSHOT': PatternFill(start_color="FFEB9C", end_color="FFEB9C", fill_type="solid"),
+        'CLASSCOLD': PatternFill(start_color="BDD7EE", end_color="BDD7EE", fill_type="solid"),
+    }
+    default_process_step_fill = PatternFill(start_color="D9E1F2", end_color="D9E1F2", fill_type="solid")
+    
+    ecg_header_fill = PatternFill(start_color="5B9BD5", end_color="5B9BD5", fill_type="solid")
+    ccg_header_fill = PatternFill(start_color="70AD47", end_color="70AD47", fill_type="solid")
+    
+    border = Border(
+        left=Side(style="thin"),
+        right=Side(style="thin"),
+        top=Side(style="thin"),
+        bottom=Side(style="thin"),
+    )
+    center_align = Alignment(horizontal="center", vertical="center")
+    left_align = Alignment(horizontal="left", vertical="center")
+    
+    # 三种填充颜色
+    green_fill = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")
+    yellow_fill = PatternFill(start_color="FFEB9C", end_color="FFEB9C", fill_type="solid")
+    red_fill = PatternFill(start_color="FF9999", end_color="FF9999", fill_type="solid")
+    
+    # 分析列结构
+    columns = correlation_table.columns.tolist()
+    
+    # 识别BINSWITCH列和COMMENTS列，重新构建process_step_groups
+    binswitch_cols = {}
+    comments_cols = {}
+    process_step_groups = {}
+    
+    # 第一遍：找到所有BINSWITCH和COMMENTS列的位置
+    for idx, col_name in enumerate(columns):
+        col_name_str = str(col_name)
+        
+        if col_name_str.startswith('BINSWITCH_'):
+            process_step = col_name_str.replace('BINSWITCH_', '')
+            binswitch_col = idx + 1
+            binswitch_cols[binswitch_col] = process_step
+        
+        elif col_name_str.startswith('COMMENTS_'):
+            process_step = col_name_str.replace('COMMENTS_', '')
+            comments_col = idx + 1
+            comments_cols[comments_col] = process_step
+    
+    # 第二遍：根据BINSWITCH列的位置确定每个process_step的列范围
+    prev_end_col = 1  # VID列
+    for binswitch_col in sorted(binswitch_cols.keys()):
+        process_step = binswitch_cols[binswitch_col]
+        start_col = prev_end_col + 1
+        end_col = binswitch_col - 1
+        
+        if start_col <= end_col:
+            process_step_groups[process_step] = [start_col, end_col]
+        
+        # 更新prev_end_col为当前process_step的COMMENTS列
+        # 找到对应的COMMENTS列
+        for comments_col in comments_cols.keys():
+            if comments_cols[comments_col] == process_step:
+                prev_end_col = comments_col
+                break
+    
+    # 删除pandas写入的表头，然后插入两行新表头
+    ws.delete_rows(1, 1)
+    ws.insert_rows(1, 2)  # 在第1行位置插入2行
+    
+    # 创建两行表头
+    row1 = 1
+    row2 = 2
+    max_row = ws.max_row  # 更新max_row
+    
+    # VID列（跨2行）
+    vid_cell = ws.cell(row=row1, column=1)
+    vid_cell.value = "VID"
+    vid_cell.fill = header_fill
+    vid_cell.font = header_font
+    vid_cell.alignment = center_align
+    vid_cell.border = border
+    ws.merge_cells(f"A{row1}:A{row2}")
+    
+    # 获取process_step顺序
+    process_step_order = []
+    for idx, col_name in enumerate(columns):
+        if str(col_name).startswith('BINSWITCH_'):
+            process_step = str(col_name).replace('BINSWITCH_', '')
+            if process_step not in process_step_order:
+                process_step_order.append(process_step)
+    
+    # 为每个process_step创建表头
+    for process_step in process_step_order:
+        if process_step not in process_step_groups:
+            continue
+        
+        start_col, end_col = process_step_groups[process_step]
+        
+        # process_step表头（第1行）
+        step_fill = process_step_colors.get(process_step.upper(), default_process_step_fill)
+        step_cell = ws.cell(row=row1, column=start_col)
+        step_cell.value = process_step
+        step_cell.fill = step_fill
+        step_cell.font = Font(bold=True, color="000000", size=11)
+        step_cell.alignment = center_align
+        step_cell.border = border
+        
+        # 合并process_step单元格
+        if start_col < end_col:
+            ws.merge_cells(f"{get_column_letter(start_col)}{row1}:{get_column_letter(end_col)}{row1}")
+        
+        # 找到对应的BINSWITCH列和COMMENTS列
+        binswitch_col = None
+        comments_col = None
+        for col_idx, col_name in enumerate(columns):
+            if str(col_name) == f'BINSWITCH_{process_step}':
+                binswitch_col = col_idx + 1
+            elif str(col_name) == f'COMMENTS_{process_step}':
+                comments_col = col_idx + 1
+        
+        # BINSWITCH列（跨2行）
+        if binswitch_col:
+            binswitch_cell = ws.cell(row=row1, column=binswitch_col)
+            binswitch_cell.value = "BINSWITCH"
+            binswitch_cell.fill = step_fill
+            binswitch_cell.font = Font(bold=True, color="000000", size=11)
+            binswitch_cell.alignment = center_align
+            binswitch_cell.border = border
+            ws.merge_cells(f"{get_column_letter(binswitch_col)}{row1}:{get_column_letter(binswitch_col)}{row2}")
+        
+        # COMMENTS列（跨2行）
+        if comments_col:
+            comments_cell = ws.cell(row=row1, column=comments_col)
+            comments_cell.value = "COMMENTS"
+            comments_cell.fill = header_fill
+            comments_cell.font = header_font
+            comments_cell.alignment = center_align
+            comments_cell.border = border
+            ws.merge_cells(f"{get_column_letter(comments_col)}{row1}:{get_column_letter(comments_col)}{row2}")
+    
+    # 创建第2行：具体列名
+    for col_idx, col_name in enumerate(columns):
+        col_num = col_idx + 1
+        cell = ws.cell(row=row2, column=col_num)
+        
+        if col_name == 'VID' or str(col_name).startswith('BINSWITCH_') or str(col_name).startswith('COMMENTS_'):
+            continue
+        else:
+            # ECG_Lot列名（可能是带step前缀的唯一列名，需要提取原始列名）
+            col_name_str = str(col_name)
+            # 检查是否是带step前缀的列名（格式：STEP_ECG_LOT）
+            original_col_name = col_name_str
+            for step in process_step_order:
+                if col_name_str.startswith(f"{step}_"):
+                    original_col_name = col_name_str[len(f"{step}_"):]
+                    break
+            
+            cell.value = original_col_name
+            original_col_name_upper = original_col_name.upper()
+            if original_col_name_upper.startswith('ECG_'):
+                cell.fill = ecg_header_fill
+            elif original_col_name_upper.startswith('CCG_'):
+                cell.fill = ccg_header_fill
+            else:
+                cell.fill = header_fill
+            cell.font = header_font
+            cell.alignment = center_align
+            cell.border = border
+    
+    # 格式化数据行
+    data_start_row = 3
+    for row in range(data_start_row, max_row + 1):
+        for col in range(1, max_col + 1):
+            cell = ws.cell(row=row, column=col)
+            cell.border = border
+            
+            if col == 1:  # VID列
+                cell.alignment = left_align
+            else:
+                cell.alignment = center_align
+            
+            # 如果是BINSWITCH列，根据值设置颜色
+            if col in binswitch_cols:
+                cell_value = str(cell.value).strip().upper() if cell.value else ''
+                if cell_value == 'NO':
+                    cell.fill = green_fill
+                    cell.value = 'NO'
+                elif cell_value == 'YES_YELLOW':
+                    cell.fill = yellow_fill
+                    cell.value = 'YES'
+                elif cell_value == 'YES_RED':
+                    cell.fill = red_fill
+                    cell.value = 'YES'
+    
+    # 设置列宽
+    ws.column_dimensions["A"].width = 20
+    for col in range(2, max_col + 1):
+        ws.column_dimensions[get_column_letter(col)].width = 15
+    
+    # 冻结第一列和前两行
+    ws.freeze_panes = "B3"

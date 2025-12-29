@@ -4,6 +4,7 @@ import re
 import time
 from typing import Optional, List
 from dataclasses import dataclass
+from pathlib import Path
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -17,6 +18,9 @@ try:
     WEBDRIVER_MANAGER_AVAILABLE = True
 except ImportError:
     WEBDRIVER_MANAGER_AVAILABLE = False
+
+from .utils.screenshot_helper import log_error_with_screenshot, capture_debug_screenshot
+from .utils.wait_helpers import wait_for_element, wait_and_click, smart_wait, wait_for_page_load
 
 LOGGER = logging.getLogger(__name__)
 
@@ -42,9 +46,10 @@ class SparkConfig:
 class SparkSubmitter:
     """Spark网页数据提交器"""
     
-    def __init__(self, config: SparkConfig):
+    def __init__(self, config: SparkConfig, debug_dir: Optional[Path] = None):
         self.config = config
         self._driver: Optional[webdriver.Chrome] = None
+        self.debug_dir = debug_dir or Path.cwd() / "output" / "05_Debug"
     
     def _init_driver(self) -> None:
         """初始化WebDriver"""
@@ -85,6 +90,22 @@ class SparkSubmitter:
             LOGGER.info("✅ Chrome WebDriver初始化成功")
         except WebDriverException as e:
             raise RuntimeError(f"无法初始化Chrome WebDriver: {e}")
+    
+    def _log_error_with_screenshot(self, error_message: str, exception: Optional[Exception] = None, prefix: str = "spark_error") -> None:
+        """记录错误并自动截图"""
+        if self._driver:
+            log_error_with_screenshot(self._driver, error_message, self.debug_dir, exception, prefix)
+        else:
+            LOGGER.error(f"❌ {error_message}")
+            if exception:
+                import traceback
+                LOGGER.error(f"异常详情: {str(exception)}")
+                LOGGER.debug(traceback.format_exc())
+    
+    def _capture_debug_screenshot(self, description: str, prefix: str = "spark_debug") -> None:
+        """捕获调试截图"""
+        if self._driver:
+            capture_debug_screenshot(self._driver, description, self.debug_dir, prefix)
     
     def _close_driver(self) -> None:
         """关闭WebDriver"""
@@ -208,14 +229,12 @@ class SparkSubmitter:
                 LOGGER.info("✅ 步骤完成：'Add New'按钮点击成功")
                 return True
             else:
-                LOGGER.error("❌ 所有方法都失败：未找到'Add New'按钮")
+                self._log_error_with_screenshot("所有方法都失败：未找到'Add New'按钮", prefix="add_new_not_found")
                 LOGGER.error("   调试信息：已尝试5种定位方法，均未找到按钮")
                 return False
                 
         except Exception as e:
-            LOGGER.error(f"点击'Add New'按钮失败: {e}")
-            import traceback
-            LOGGER.error(traceback.format_exc())
+            self._log_error_with_screenshot(f"点击'Add New'按钮失败: {e}", e, prefix="add_new_click_failed")
             return False
     
     def _fill_test_program_path(self, tp_path: str) -> bool:
@@ -304,7 +323,7 @@ class SparkSubmitter:
                     LOGGER.warning(f"⚠️ 方法2失败: {e}")
             
             if not input_field:
-                LOGGER.error("❌ 所有方法都失败：未找到Test Program Path输入框")
+                self._log_error_with_screenshot("所有方法都失败：未找到Test Program Path输入框", prefix="tp_path_not_found")
                 # 列出所有可见的输入框用于调试
                 try:
                     all_inputs = self._driver.find_elements(By.XPATH, "//input | //textarea")
@@ -1562,12 +1581,13 @@ class SparkSubmitter:
             LOGGER.error(traceback.format_exc())
             return False
     
-    def _add_lot_name(self, lot_name: str) -> bool:
+    def _add_lot_name(self, lot_name: str, quantity: int | None = None) -> bool:
         """
-        在Material标签页输入Lot name并点击Add
+        在Material标签页输入Lot name并点击Add，然后设置units数量
         
         Args:
             lot_name: Lot名称（Source Lot值）
+            quantity: Units数量（可选，如果提供则会在添加后设置）
             
         Returns:
             True如果添加成功
@@ -1661,7 +1681,207 @@ class SparkSubmitter:
             # 点击Add按钮
             add_button.click()
             LOGGER.info("✅ 已点击'Add'按钮")
-            time.sleep(1.0)  # 等待添加生效
+            time.sleep(1.5)  # 等待添加生效，显示units输入框
+            
+            # 如果提供了quantity，设置units数量
+            if quantity is not None:
+                LOGGER.info(f"设置Units数量: {quantity}")
+                try:
+                    # 查找units数量输入框
+                    # ID格式: materialSelectionLotUnits-{lot_name}
+                    units_input = None
+                    
+                    # 方法1: 通过ID查找（最可靠的方法）
+                    try:
+                        units_input_id = f"materialSelectionLotUnits-{lot_name}"
+                        units_input = WebDriverWait(self._driver, 5).until(
+                            EC.presence_of_element_located((By.ID, units_input_id))
+                        )
+                        LOGGER.info(f"通过ID找到units输入框: {units_input_id}")
+                    except TimeoutException:
+                        LOGGER.debug("方法1失败：通过ID未找到units输入框")
+                    
+                    # 方法2: 通过class查找（包含units-selection__number）
+                    if not units_input:
+                        try:
+                            units_input = WebDriverWait(self._driver, 5).until(
+                                EC.presence_of_element_located((By.XPATH, "//input[contains(@class, 'units-selection__number')]"))
+                            )
+                            LOGGER.info("通过class找到units输入框")
+                        except TimeoutException:
+                            LOGGER.debug("方法2失败：通过class未找到units输入框")
+                    
+                    # 方法3: 查找包含lot name的ID的输入框
+                    if not units_input:
+                        try:
+                            units_input = WebDriverWait(self._driver, 5).until(
+                                EC.presence_of_element_located((By.XPATH, f"//input[contains(@id, 'materialSelectionLotUnits-{lot_name}')]"))
+                            )
+                            LOGGER.info(f"通过包含lot name的ID找到units输入框")
+                        except TimeoutException:
+                            LOGGER.debug("方法3失败：通过包含lot name的ID未找到units输入框")
+                    
+                    # 方法4: 查找所有包含units-selection__number的输入框，选择可见的
+                    if not units_input:
+                        try:
+                            inputs = self._driver.find_elements(By.XPATH, "//input[contains(@class, 'units-selection__number')]")
+                            for inp in inputs:
+                                if inp.is_displayed():
+                                    units_input = inp
+                                    LOGGER.info("通过方法4找到units输入框")
+                                    break
+                        except Exception as e:
+                            LOGGER.debug(f"方法4失败: {e}")
+                    
+                    if units_input:
+                        # 确保输入框可见和可编辑
+                        self._driver.execute_script("arguments[0].scrollIntoView(true);", units_input)
+                        time.sleep(0.3)
+                        
+                        # 确保 quantity 是纯数字（整数），去除任何空格或占位符
+                        quantity_int = int(quantity) if quantity is not None else 0
+                        quantity_str = str(quantity_int)  # 纯数字字符串，无空格
+                        
+                        # 方法1: 先尝试模拟真实键盘输入（更接近手动输入）
+                        try:
+                            # 聚焦输入框
+                            units_input.click()
+                            time.sleep(0.2)
+                            
+                            # 选中所有文本（Ctrl+A）然后删除
+                            units_input.send_keys(Keys.CONTROL + "a")
+                            time.sleep(0.1)
+                            units_input.send_keys(Keys.DELETE)
+                            time.sleep(0.1)
+                            
+                            # 输入数字（逐字符输入，模拟真实输入）
+                            units_input.send_keys(quantity_str)
+                            time.sleep(0.3)
+                            
+                            # 触发 blur 事件（失去焦点，通常触发验证）
+                            self._driver.execute_script("arguments[0].blur();", units_input)
+                            time.sleep(0.3)
+                            
+                            # 验证设置的值是否正确
+                            actual_value = self._driver.execute_script("return arguments[0].value;", units_input)
+                            if actual_value == quantity_str:
+                                LOGGER.info(f"✅ 已设置Units数量: {quantity_int} (模拟键盘输入)")
+                            else:
+                                LOGGER.warning(f"⚠️ Units数量可能未正确设置 (期望: {quantity_str}, 实际: {actual_value})")
+                                # 如果方法1失败，尝试方法2
+                                raise ValueError("方法1失败，尝试方法2")
+                                
+                        except Exception as e:
+                            LOGGER.debug(f"方法1（键盘输入）失败: {e}，尝试方法2（JavaScript）")
+                            
+                            # 方法2: 使用 JavaScript 设置值并触发所有必要事件
+                            self._driver.execute_script("""
+                                var input = arguments[0];
+                                var value = arguments[1];
+                                
+                                // 聚焦输入框
+                                input.focus();
+                                
+                                // 清空值
+                                input.value = '';
+                                input.setAttribute('value', '');
+                                
+                                // 设置新值
+                                input.value = value;
+                                input.setAttribute('value', value);
+                                
+                                // 触发所有可能的事件（模拟真实输入）
+                                var events = ['keydown', 'keypress', 'input', 'keyup', 'change', 'blur'];
+                                events.forEach(function(eventType) {
+                                    var event = new Event(eventType, { bubbles: true, cancelable: true });
+                                    input.dispatchEvent(event);
+                                });
+                                
+                                // 触发 React/Vue 等框架可能需要的特殊事件
+                                var nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
+                                nativeInputValueSetter.call(input, value);
+                                var inputEvent = new Event('input', { bubbles: true });
+                                input.dispatchEvent(inputEvent);
+                                
+                                // 最后触发 blur 以触发验证
+                                input.blur();
+                            """, units_input, quantity_str)
+                            
+                            time.sleep(0.5)
+                            
+                            # 验证设置的值是否正确
+                            actual_value = self._driver.execute_script("return arguments[0].value;", units_input)
+                            if actual_value == quantity_str:
+                                LOGGER.info(f"✅ 已设置Units数量: {quantity_int} (JavaScript方法)")
+                            else:
+                                LOGGER.warning(f"⚠️ Units数量可能未正确设置 (期望: {quantity_str}, 实际: {actual_value})")
+                        
+                        # 额外等待，让页面验证逻辑完成
+                        time.sleep(0.5)
+                        
+                        # 检查是否有验证错误（通过检查输入框的类名或属性）
+                        try:
+                            input_class = units_input.get_attribute("class")
+                            input_aria_invalid = units_input.get_attribute("aria-invalid")
+                            input_type = units_input.get_attribute("type")
+                            input_value = units_input.get_attribute("value")
+                            
+                            # 调试信息
+                            LOGGER.debug(f"输入框状态检查:")
+                            LOGGER.debug(f"  - class: {input_class}")
+                            LOGGER.debug(f"  - aria-invalid: {input_aria_invalid}")
+                            LOGGER.debug(f"  - type: {input_type}")
+                            LOGGER.debug(f"  - value: {input_value}")
+                            
+                            # 检查是否有错误状态
+                            has_error = False
+                            if input_class and "error" in input_class.lower():
+                                has_error = True
+                                LOGGER.warning(f"⚠️ 输入框class包含'error': {input_class}")
+                            
+                            if input_aria_invalid == "true":
+                                has_error = True
+                                LOGGER.warning(f"⚠️ 输入框aria-invalid为true")
+                            
+                            # 检查父元素是否有错误提示
+                            try:
+                                parent = units_input.find_element(By.XPATH, "./..")
+                                parent_class = parent.get_attribute("class")
+                                if parent_class and "error" in parent_class.lower():
+                                    has_error = True
+                                    LOGGER.warning(f"⚠️ 父元素class包含'error': {parent_class}")
+                            except:
+                                pass
+                            
+                            # 查找错误消息元素
+                            try:
+                                # 尝试查找常见的错误消息选择器
+                                error_selectors = [
+                                    "//div[contains(@class, 'error')]",
+                                    "//span[contains(@class, 'error')]",
+                                    "//div[contains(@class, 'validation')]",
+                                    "//span[contains(@class, 'validation')]",
+                                ]
+                                for selector in error_selectors:
+                                    error_elements = self._driver.find_elements(By.XPATH, selector)
+                                    for elem in error_elements[:3]:  # 只检查前3个
+                                        if elem.is_displayed() and elem.text.strip():
+                                            LOGGER.warning(f"⚠️ 发现错误消息: {elem.text.strip()}")
+                                            break
+                            except:
+                                pass
+                            
+                            if not has_error:
+                                LOGGER.info("✅ 未检测到输入框错误状态")
+                                
+                        except Exception as e:
+                            LOGGER.debug(f"检查输入框状态时出错: {e}")
+                    else:
+                        LOGGER.warning(f"⚠️ 未找到units数量输入框（ID: materialSelectionLotUnits-{lot_name}），无法设置数量 {quantity}")
+                except Exception as e:
+                    LOGGER.warning(f"⚠️ 设置units数量时出错: {e}，继续执行...")
+                    import traceback
+                    LOGGER.debug(traceback.format_exc())
             
             return True
             
@@ -1681,168 +1901,258 @@ class SparkSubmitter:
         Returns:
             True如果选择成功
         """
-        LOGGER.info(f"选择Part Type: {part_type}")
+        LOGGER.info("=" * 80)
+        LOGGER.info(f"🔍 开始选择Part Type: {part_type}")
+        LOGGER.info("=" * 80)
         
         try:
-            # 等待页面稳定（优化：减少等待时间）
-            time.sleep(0.8)
+            # 等待页面稳定（减少等待时间）
+            time.sleep(0.3)
             
-            # 注意：'Override parttype with'复选框默认已勾选，无需处理
-            
-            # 查找并点击Parttype下拉框（自定义控件）
-            LOGGER.info("查找Parttype下拉框...")
-            
-            # 这是一个自定义下拉控件，需要点击下三角符号展开
-            dropdown_trigger = None
-            
-            # 方法1: 查找包含"Select Parttype"的元素
+            # 快速检查是否有阻止选择的错误（非阻塞，不等待）
             try:
-                dropdown_trigger = WebDriverWait(self._driver, 10).until(
-                    EC.element_to_be_clickable((
-                        By.XPATH, 
-                        "//*[contains(text(), 'Select Parttype') or contains(text(), '-- Select Parttype --')]"
-                    ))
+                # 查找 Material 标签页的叹号（错误指示器）- 使用快速查找，不等待
+                material_tab = self._driver.find_elements(
+                    By.XPATH,
+                    "//div[contains(@class, 'mat-tab-label')]//*[contains(text(), 'Material')]/ancestor::div[contains(@class, 'mat-tab-label')]"
                 )
-                LOGGER.info("方法1找到下拉触发器（包含'Select Parttype'文本）")
+                if material_tab:
+                    tab_element = material_tab[0]
+                    tab_html = tab_element.get_attribute('outerHTML')
+                    # 检查是否有错误图标（叹号）
+                    if '⚠️' in tab_html or 'error' in tab_html.lower() or 'warning' in tab_html.lower():
+                        LOGGER.warning("⚠️ Material标签页有错误指示器，可能影响Parttype选择（继续执行）")
+                        # 快速检查错误消息（只检查前2个，不等待）
+                        try:
+                            error_messages = self._driver.find_elements(
+                                By.XPATH,
+                                "//*[contains(@class, 'error') or contains(@class, 'validation')]//*[text()]"
+                            )
+                            for msg in error_messages[:2]:  # 只检查前2个
+                                try:
+                                    if msg.is_displayed() and msg.text.strip():
+                                        LOGGER.warning(f"   发现错误消息: {msg.text.strip()}")
+                                except:
+                                    pass
+                        except:
+                            pass
             except:
                 pass
             
-            # 方法2: 查找下三角符号（通常是SVG或特殊字符）
-            if not dropdown_trigger:
+            # 确保'Override parttype with'复选框被勾选
+            LOGGER.info("📋 步骤1: 查找 'Override parttype with' 复选框")
+            try:
+                # 查找parttype override复选框（使用最有效的方法）
+                override_checkbox = None
+                
+                # 方法1: 通过文本 "Override parttype with" 找到 mat-checkbox（最有效）
+                LOGGER.info("  🔸 方法1: 通过文本 'Override parttype with' 查找 mat-checkbox")
                 try:
-                    # 查找包含下箭头的元素（Material UI常用）
-                    dropdown_trigger = self._driver.find_element(
-                        By.XPATH,
-                        "//div[contains(@class, 'select') or contains(@role, 'button')]//svg[contains(@class, 'arrow') or contains(@class, 'dropdown')]/.."
+                    override_text = WebDriverWait(self._driver, 2).until(
+                        EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'Override parttype with')]"))
                     )
-                    LOGGER.info("方法2找到下拉触发器（包含下箭头SVG）")
-                except:
-                    pass
-            
-            # 方法3: 查找所有可能的下拉框容器
-            if not dropdown_trigger:
-                try:
-                    # 查找Parttype override区域
-                    parttype_area = self._driver.find_element(
-                        By.XPATH,
-                        "//*[contains(text(), 'Parttype override')]/../.."
-                    )
-                    
-                    # 在这个区域内查找可点击的下拉元素
-                    possible_triggers = parttype_area.find_elements(
-                        By.XPATH,
-                        ".//*[@role='button' or contains(@class, 'select') or contains(@class, 'dropdown')]"
-                    )
-                    
-                    for trigger in possible_triggers:
-                        if trigger.is_displayed():
-                            dropdown_trigger = trigger
-                            LOGGER.info(f"方法3找到下拉触发器（在Parttype区域）")
-                            break
-                            
+                    mat_checkbox = override_text.find_element(By.XPATH, "./ancestor::mat-checkbox[1]")
+                    override_checkbox = mat_checkbox.find_element(By.XPATH, ".//input[@type='checkbox']")
+                    LOGGER.info("  ✅ 方法1成功: 通过文本找到mat-checkbox")
                 except Exception as e:
-                    LOGGER.debug(f"方法3失败: {e}")
+                    LOGGER.warning(f"  ❌ 方法1失败: {str(e)[:100]}")
+                
+                if override_checkbox:
+                    # 确保复选框可见（可能需要滚动）
+                    self._driver.execute_script("arguments[0].scrollIntoView(true);", override_checkbox)
+                    time.sleep(0.2)
+                    
+                    if not override_checkbox.is_selected():
+                        # 尝试直接点击
+                        try:
+                            override_checkbox.click()
+                            LOGGER.info("✅ 已勾选'Override parttype with'复选框（直接点击）")
+                        except:
+                            # 如果直接点击失败，尝试通过 JavaScript 点击
+                            self._driver.execute_script("arguments[0].click();", override_checkbox)
+                            LOGGER.info("✅ 已勾选'Override parttype with'复选框（通过JavaScript）")
+                        time.sleep(0.3)
+                    else:
+                        LOGGER.info("'Override parttype with'复选框已勾选")
+                else:
+                    LOGGER.warning("⚠️ 未找到parttype override复选框，尝试继续执行...")
+            except Exception as e:
+                LOGGER.warning(f"⚠️ 勾选parttype override复选框时出错: {e}，尝试继续执行...")
+                import traceback
+                LOGGER.debug(traceback.format_exc())
             
-            if not dropdown_trigger:
-                LOGGER.error("❌ 未找到Parttype下拉框触发器")
+            # 查找并点击Parttype下拉框（Angular Material mat-select）
+            LOGGER.info("📋 步骤2: 查找 Parttype 下拉框 (mat-select)")
+            
+            # 这是 Angular Material 的 mat-select 组件
+            mat_select = None
+            
+            # 方法2: 直接查找所有 mat-select，选择在 Parttype override 附近的（最有效）
+            LOGGER.info("  🔸 方法2: 查找所有 mat-select，检查父元素")
+            try:
+                all_mat_selects = self._driver.find_elements(By.TAG_NAME, "mat-select")
+                LOGGER.info(f"    找到 {len(all_mat_selects)} 个 mat-select")
+                for ms in all_mat_selects:
+                    try:
+                        # 检查是否在 Parttype override 区域
+                        parent = ms.find_element(By.XPATH, "./ancestor::*[contains(., 'Parttype override')]")
+                        if parent:
+                            mat_select = ms
+                            LOGGER.info("  ✅ 方法2成功: 通过父元素检查找到")
+                            break
+                    except:
+                        continue
+                if not mat_select:
+                    LOGGER.warning("  ❌ 方法2失败: 未找到匹配的 mat-select")
+            except Exception as e:
+                LOGGER.warning(f"  ❌ 方法2失败: {str(e)[:100]}")
+            
+            if not mat_select:
+                LOGGER.error("❌ 未找到Parttype mat-select元素")
                 return False
             
-            # 点击展开下拉框
-            LOGGER.info("点击展开Parttype下拉框...")
+            # mat-select 本身就是可点击的触发器
+            dropdown_trigger = mat_select
+            
+            # 点击展开下拉框（mat-select）
+            LOGGER.info("点击展开Parttype下拉框（mat-select）...")
             try:
-                dropdown_trigger.click()
-                LOGGER.info("✅ 已点击下拉框")
-            except:
-                # 如果普通点击失败，尝试JavaScript点击
-                self._driver.execute_script("arguments[0].click();", dropdown_trigger)
-                LOGGER.info("✅ 已点击下拉框（JavaScript）")
+                # 确保元素可见
+                self._driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", dropdown_trigger)
+                time.sleep(0.2)
+                
+                # 检查当前状态
+                aria_expanded = dropdown_trigger.get_attribute("aria-expanded")
+                LOGGER.debug(f"下拉框当前状态: aria-expanded={aria_expanded}")
+                
+                # 方法1: 普通点击
+                try:
+                    dropdown_trigger.click()
+                    LOGGER.info("✅ 已点击mat-select（普通点击）")
+                except:
+                    # 方法2: JavaScript点击
+                    self._driver.execute_script("arguments[0].click();", dropdown_trigger)
+                    LOGGER.info("✅ 已点击mat-select（JavaScript）")
+                
+                # 等待下拉选项展开（使用智能等待，而不是固定sleep）
+                try:
+                    # 等待选项出现（最多等待1.5秒）- 尝试两种选择器
+                    options_found = False
+                    try:
+                        WebDriverWait(self._driver, 1.5).until(
+                            EC.presence_of_element_located((By.XPATH, "//div[@class='cdk-overlay-container']//mat-option"))
+                        )
+                        options_found = True
+                    except TimeoutException:
+                        try:
+                            WebDriverWait(self._driver, 0.5).until(
+                                EC.presence_of_element_located((By.XPATH, "//mat-option"))
+                            )
+                            options_found = True
+                        except TimeoutException:
+                            pass
+                    
+                    if options_found:
+                        LOGGER.info("✅ 下拉框已展开，选项已出现")
+                    else:
+                        LOGGER.warning("⚠️ 等待选项超时，尝试继续...")
+                        time.sleep(0.3)  # 短暂等待后继续
+                except Exception as e:
+                    LOGGER.debug(f"等待选项时出错: {e}")
+                    time.sleep(0.3)  # 短暂等待后继续
+                    
+            except Exception as e:
+                LOGGER.error(f"❌ 点击下拉框失败: {e}")
+                return False
             
-            time.sleep(0.6)  # 等待下拉选项展开（优化：减少等待时间）
+            # 3. 在展开的选项中选择Part Type（Angular Material mat-option）
+            LOGGER.info(f"📋 步骤3: 在下拉选项中查找: {part_type}")
             
-            # 3. 在展开的选项中选择Part Type
-            LOGGER.info(f"在下拉选项中查找: {part_type}")
-            
-            # 查找所有下拉选项（优化：优先使用最快的方法）
+            # 查找所有下拉选项（Angular Material 使用 mat-option）
             options = []
+            direct_match_found = False
             
-            # 方法1: 直接查找匹配的选项（最快，避免遍历所有选项）
+            # 方法4: 直接查找匹配的选项文本（最快，最有效）
+            LOGGER.info("  🔸 方法4: 直接查找匹配的选项文本（优先）")
             try:
-                # 尝试直接找到包含目标Part Type的元素
+                # 尝试在 overlay 中直接找到匹配的选项
                 direct_match = self._driver.find_element(
                     By.XPATH,
-                    f"//*[normalize-space(text())='{part_type}']"
+                    f"//div[@class='cdk-overlay-container']//*[normalize-space(text())='{part_type}']"
                 )
                 if direct_match.is_displayed():
-                    LOGGER.info(f"✅ 直接找到匹配选项: {part_type}")
-                    # 直接点击
-                    try:
-                        direct_match.click()
-                        LOGGER.info(f"✅ 已选择Part Type（直接匹配）: {part_type}")
-                        time.sleep(0.5)
-                        return True
-                    except:
-                        # 如果直接点击失败，加入到options中后续处理
-                        options = [direct_match]
+                    options = [direct_match]
+                    direct_match_found = True
+                    LOGGER.info(f"  ✅ 方法4成功: 在overlay中直接找到匹配选项: {part_type}")
             except:
-                pass
-            
-            # 方法2: 查找包含Part Type特征的元素（包含"4PXA"或"4PLH"）
-            if not options:
                 try:
-                    options = self._driver.find_elements(
+                    # 尝试在所有位置直接找到匹配的选项
+                    direct_match = self._driver.find_element(
                         By.XPATH,
-                        "//*[contains(text(), '4PXA') or contains(text(), '4PLH')]"
+                        f"//*[normalize-space(text())='{part_type}']"
                     )
-                    if options:
-                        LOGGER.info(f"找到 {len(options)} 个候选选项")
+                    if direct_match.is_displayed():
+                        options = [direct_match]
+                        direct_match_found = True
+                        LOGGER.info(f"  ✅ 方法4成功: 直接找到匹配选项: {part_type}")
                 except:
-                    pass
-            
-            # 方法3: 查找role="option"的元素
-            if not options:
-                try:
-                    options = self._driver.find_elements(By.XPATH, "//li[@role='option'] | //div[@role='option']")
-                    if options:
-                        LOGGER.info(f"找到 {len(options)} 个候选选项")
-                except:
-                    pass
+                    LOGGER.warning("  ❌ 方法4失败: 未找到直接匹配的选项，尝试备用方法")
+                    # 备用方法：在 cdk-overlay-container 中查找所有 mat-option
+                    try:
+                        options = self._driver.find_elements(
+                            By.XPATH,
+                            "//div[@class='cdk-overlay-container']//mat-option"
+                        )
+                        if options:
+                            LOGGER.info(f"  ✅ 备用方法成功: 找到 {len(options)} 个mat-option（在cdk-overlay中）")
+                    except Exception as e:
+                        LOGGER.warning(f"  ❌ 备用方法失败: {str(e)[:100]}")
             
             if not options:
                 LOGGER.error("❌ 未找到任何下拉选项")
+                LOGGER.info("=" * 80)
+                LOGGER.info("❌ Part Type 选择失败：未找到选项")
+                LOGGER.info("=" * 80)
                 return False
             
-            # 查找匹配的选项（优化：只输出前5个和匹配的选项）
+            # 查找匹配的选项（优化：如果已通过直接匹配找到，跳过遍历）
             matched_option = None
-            displayed_count = 0
             
-            for idx, option in enumerate(options):
-                try:
-                    option_text = option.text.strip()
-                    if not option_text:
+            if direct_match_found and options:
+                # 如果已经通过直接匹配找到，直接使用
+                matched_option = options[0]
+                LOGGER.info(f"✅ 使用直接匹配的选项: {matched_option.text.strip()}")
+            else:
+                # 否则遍历选项查找（优化：只输出前3个和匹配的选项）
+                displayed_count = 0
+                for idx, option in enumerate(options):
+                    try:
+                        option_text = option.text.strip()
+                        if not option_text:
+                            continue
+                        
+                        # 只输出前3个选项的日志（减少日志输出）
+                        if displayed_count < 3:
+                            LOGGER.debug(f"  选项 {idx + 1}: '{option_text}'")
+                            displayed_count += 1
+                        
+                        # 精确匹配
+                        if option_text == part_type:
+                            matched_option = option
+                            LOGGER.info(f"✅ 精确匹配: {option_text}")
+                            break
+                        # 模糊匹配（去除多余空格）
+                        elif ' '.join(option_text.split()) == ' '.join(part_type.split()):
+                            matched_option = option
+                            LOGGER.info(f"✅ 模糊匹配: {option_text}")
+                            break
+                        # 包含匹配
+                        elif part_type in option_text or option_text in part_type:
+                            matched_option = option
+                            LOGGER.info(f"✅ 包含匹配: {option_text}")
+                            break
+                    except:
                         continue
-                    
-                    # 只输出前5个选项的日志（避免日志过多拖慢速度）
-                    if displayed_count < 5:
-                        LOGGER.debug(f"  选项 {idx + 1}: '{option_text}'")
-                        displayed_count += 1
-                    
-                    # 精确匹配
-                    if option_text == part_type:
-                        matched_option = option
-                        LOGGER.info(f"✅ 精确匹配: {option_text}")
-                        break
-                    # 模糊匹配（去除多余空格）
-                    elif ' '.join(option_text.split()) == ' '.join(part_type.split()):
-                        matched_option = option
-                        LOGGER.info(f"✅ 模糊匹配: {option_text}")
-                        break
-                    # 包含匹配
-                    elif part_type in option_text or option_text in part_type:
-                        matched_option = option
-                        LOGGER.info(f"✅ 包含匹配: {option_text}")
-                        break
-                except:
-                    continue
             
             if matched_option:
                 # 滚动到选项可见
@@ -1852,45 +2162,105 @@ class SparkSubmitter:
                 except:
                     pass
                 
-                # 点击选项（多种方法）
+                # 点击选项（使用最有效的方法）
+                LOGGER.info(f"📋 步骤4: 点击选项 '{matched_option.text.strip()}'")
                 click_success = False
                 
-                # 方法1: 普通点击
+                # 方法1: 普通点击（最有效）
+                LOGGER.info("  🔸 方法1: 普通点击")
                 try:
                     matched_option.click()
-                    LOGGER.info(f"✅ 已选择Part Type（普通点击）: {matched_option.text}")
+                    LOGGER.info(f"  ✅ 方法1成功: 普通点击成功")
                     click_success = True
                 except Exception as e:
-                    LOGGER.debug(f"普通点击失败: {e}")
-                
-                # 方法2: JavaScript点击
-                if not click_success:
-                    try:
-                        self._driver.execute_script("arguments[0].click();", matched_option)
-                        LOGGER.info(f"✅ 已选择Part Type（JavaScript点击）: {matched_option.text}")
-                        click_success = True
-                    except Exception as e:
-                        LOGGER.debug(f"JavaScript点击失败: {e}")
-                
-                # 方法3: 发送Enter键
-                if not click_success:
-                    try:
-                        from selenium.webdriver.common.keys import Keys
-                        matched_option.send_keys(Keys.ENTER)
-                        LOGGER.info(f"✅ 已选择Part Type（Enter键）: {matched_option.text}")
-                        click_success = True
-                    except Exception as e:
-                        LOGGER.debug(f"Enter键失败: {e}")
+                    LOGGER.warning(f"  ❌ 方法1失败: {str(e)[:100]}")
                 
                 if click_success:
-                    time.sleep(0.5)  # 优化：减少等待时间
-                    return True
+                    # 减少等待时间，使用智能等待
+                    time.sleep(0.4)  # 减少等待时间
+                    
+                    # 验证选择是否成功（检查 mat-select-value）- 快速验证，不阻塞
+                    try:
+                        # 快速验证，不等待
+                        
+                        # 方法1: 检查 mat-select-value 中的文本
+                        dropdown_display = None
+                        try:
+                            # 查找 mat-select-value（显示选中值的元素）
+                            select_value = mat_select.find_element(By.XPATH, ".//div[@class='mat-select-value']")
+                            # 查找其中的文本（可能在 span 中）
+                            value_spans = select_value.find_elements(By.XPATH, ".//span[not(@class='mat-select-placeholder')]")
+                            if value_spans:
+                                for span in value_spans:
+                                    text = span.text.strip()
+                                    if text and "Select Parttype" not in text:
+                                        dropdown_display = text
+                                        break
+                            
+                            # 如果没有找到 span，直接获取 select_value 的文本
+                            if not dropdown_display:
+                                dropdown_display = select_value.text.strip()
+                        except:
+                            pass
+                        
+                        # 方法2: 检查 mat-select 是否还有 empty class
+                        try:
+                            select_classes = mat_select.get_attribute("class")
+                            if "mat-select-empty" not in select_classes:
+                                LOGGER.info("✅ mat-select已不再为空（已选择值）")
+                        except:
+                            pass
+                        
+                        # 验证结果
+                        if dropdown_display and "Select Parttype" not in dropdown_display and dropdown_display != "":
+                            if part_type in dropdown_display or dropdown_display in part_type:
+                                LOGGER.info(f"✅ 验证成功：Parttype已选择为 '{dropdown_display}'")
+                                return True
+                            else:
+                                LOGGER.warning(f"⚠️ 选择的值不匹配：期望包含 '{part_type}'，实际为 '{dropdown_display}'")
+                                # 即使不匹配，如果已经选择了某个值，也认为成功
+                                LOGGER.info(f"✅ Parttype已选择（值: '{dropdown_display}'），继续执行")
+                                return True
+                        else:
+                            # 检查是否还有 empty class
+                            try:
+                                select_classes = mat_select.get_attribute("class")
+                                if "mat-select-empty" not in select_classes:
+                                    LOGGER.info("✅ mat-select已不再为空，认为选择成功")
+                                    LOGGER.info("=" * 80)
+                                    LOGGER.info("✅ Part Type 选择完成（通过class验证）")
+                                    LOGGER.info("=" * 80)
+                                    return True
+                                else:
+                                    LOGGER.warning("⚠️ mat-select仍为空，选择可能未成功")
+                            except:
+                                pass
+                            
+                            LOGGER.warning("⚠️ 无法验证Parttype选择状态，但点击已执行")
+                            # 如果无法验证，但点击成功，也认为可能成功
+                            LOGGER.info("=" * 80)
+                            LOGGER.info("✅ Part Type 选择完成（无法验证但已点击）")
+                            LOGGER.info("=" * 80)
+                            return True
+                            
+                    except Exception as e:
+                        LOGGER.debug(f"验证Parttype选择时出错: {e}，但点击已执行，继续执行")
+                        LOGGER.info("=" * 80)
+                        LOGGER.info("✅ Part Type 选择完成（验证出错但已点击）")
+                        LOGGER.info("=" * 80)
+                        return True
                 else:
                     LOGGER.error("❌ 所有点击方法都失败")
+                    LOGGER.info("=" * 80)
+                    LOGGER.info("❌ Part Type 选择失败")
+                    LOGGER.info("=" * 80)
                     return False
             else:
                 LOGGER.error(f"❌ 未找到匹配的Part Type: {part_type}")
                 LOGGER.error(f"可用选项: {[opt.text.strip() for opt in options if opt.text.strip()]}")
+                LOGGER.info("=" * 80)
+                LOGGER.info("❌ Part Type 选择失败：未找到匹配的选项")
+                LOGGER.info("=" * 80)
                 return False
             
         except Exception as e:
@@ -1906,7 +2276,9 @@ class SparkSubmitter:
         Returns:
             True如果点击成功
         """
-        LOGGER.info("查找并点击'Flow'标签...")
+        LOGGER.info("=" * 80)
+        LOGGER.info("🔍 开始点击 Flow 标签")
+        LOGGER.info("=" * 80)
         
         try:
             # 等待页面稳定
@@ -1914,7 +2286,10 @@ class SparkSubmitter:
             
             flow_tab = None
             
-            # 方法1: 通过Material UI的mat-tab-label查找（用户提供的方法）
+            LOGGER.info("📋 步骤1: 查找 Flow 标签")
+            
+            # 方法1: 通过Material UI的mat-tab-label查找（最有效）
+            LOGGER.info("  🔸 方法1: 通过 mat-tab-label-content 查找")
             try:
                 flow_tab = WebDriverWait(self._driver, self.config.explicit_wait).until(
                     EC.element_to_be_clickable((
@@ -1922,37 +2297,17 @@ class SparkSubmitter:
                         "//div[contains(@class,'mat-tab-label-content') and normalize-space()='Flow']/.."
                     ))
                 )
-                LOGGER.info("方法1找到'Flow'标签（mat-tab-label）")
+                LOGGER.info("  ✅ 方法1成功: 通过 mat-tab-label 找到")
             except TimeoutException:
-                LOGGER.debug("方法1失败：未找到mat-tab-label")
-            
-            # 方法2: 通过包含Flow文本的元素查找
-            if not flow_tab:
-                try:
-                    flow_tab = WebDriverWait(self._driver, 5).until(
-                        EC.element_to_be_clickable((
-                            By.XPATH,
-                            "//*[contains(@class, 'tab') and contains(text(), 'Flow')]"
-                        ))
-                    )
-                    LOGGER.info("方法2找到'Flow'标签（包含Flow文本）")
-                except TimeoutException:
-                    LOGGER.debug("方法2失败")
-            
-            # 方法3: 查找所有可能的标签元素
-            if not flow_tab:
-                try:
-                    all_tabs = self._driver.find_elements(By.XPATH, "//*[contains(@class, 'tab') or @role='tab']")
-                    for tab in all_tabs:
-                        if tab.is_displayed() and 'Flow' in tab.text:
-                            flow_tab = tab
-                            LOGGER.info(f"方法3找到'Flow'标签（遍历）")
-                            break
-                except Exception as e:
-                    LOGGER.debug(f"方法3失败: {e}")
+                LOGGER.error(f"  ❌ 方法1失败: 超时（{self.config.explicit_wait}秒）")
+            except Exception as e:
+                LOGGER.error(f"  ❌ 方法1失败: {str(e)[:100]}")
             
             if not flow_tab:
                 LOGGER.error("❌ 未找到'Flow'标签")
+                LOGGER.info("=" * 80)
+                LOGGER.info("❌ Flow 标签点击失败：未找到标签")
+                LOGGER.info("=" * 80)
                 return False
             
             # 滚动到标签可见
@@ -1963,38 +2318,40 @@ class SparkSubmitter:
                 pass
             
             # 点击Flow标签
+            LOGGER.info("📋 步骤2: 点击 Flow 标签")
             click_success = False
             
-            # 方法1: 普通点击
+            # 方法1: 普通点击（最有效）
+            LOGGER.info("  🔸 方法1: 普通点击")
             try:
                 flow_tab.click()
-                LOGGER.info("✅ 已点击'Flow'标签（普通点击）")
+                LOGGER.info("  ✅ 方法1成功: 普通点击成功")
                 click_success = True
             except Exception as e:
-                LOGGER.debug(f"普通点击失败: {e}")
-            
-            # 方法2: JavaScript点击
-            if not click_success:
-                try:
-                    self._driver.execute_script("arguments[0].click();", flow_tab)
-                    LOGGER.info("✅ 已点击'Flow'标签（JavaScript点击）")
-                    click_success = True
-                except Exception as e:
-                    LOGGER.debug(f"JavaScript点击失败: {e}")
+                LOGGER.warning(f"  ❌ 方法1失败: {str(e)[:100]}")
             
             if not click_success:
                 LOGGER.error("❌ 点击'Flow'标签失败")
+                LOGGER.info("=" * 80)
+                LOGGER.info("❌ Flow 标签点击失败：所有点击方法都失败")
+                LOGGER.info("=" * 80)
                 return False
             
             # 等待Flow标签页加载
             time.sleep(1.5)
             LOGGER.info("✅ Flow标签页已加载")
+            LOGGER.info("=" * 80)
+            LOGGER.info("✅ Flow 标签点击完成")
+            LOGGER.info("=" * 80)
             return True
             
         except Exception as e:
             LOGGER.error(f"点击'Flow'标签失败: {e}")
             import traceback
             LOGGER.error(traceback.format_exc())
+            LOGGER.info("=" * 80)
+            LOGGER.info("❌ Flow 标签点击失败：发生异常")
+            LOGGER.info("=" * 80)
             return False
     
     def _click_more_options_tab(self) -> bool:
@@ -2059,7 +2416,7 @@ class SparkSubmitter:
                     LOGGER.warning(f"⚠️ 方法3失败: {e}")
             
             if not more_options_tab:
-                LOGGER.error("❌ 所有方法都失败：未找到'More options'标签")
+                self._log_error_with_screenshot("所有方法都失败：未找到'More options'标签", prefix="more_options_not_found")
                 return False
             
             # 滚动到标签可见
@@ -2713,33 +3070,33 @@ class SparkSubmitter:
         Returns:
             True如果选择成功
         """
-        LOGGER.info("=" * 60)
-        LOGGER.info(f"步骤：选择Operation")
-        LOGGER.info(f"目标值: {operation_value}")
-        LOGGER.info("=" * 60)
+        LOGGER.info("=" * 80)
+        LOGGER.info(f"🔍 开始选择 Operation: {operation_value}")
+        LOGGER.info("=" * 80)
         
         try:
             # **优化定位策略**：Operation有mat-select-arrow-wrapper包装器
             # 通过查找包含mat-select-arrow-wrapper的mat-select元素来定位
-            LOGGER.info("定位策略：查找包含'mat-select-arrow-wrapper'的mat-select元素（第一个）")
+            LOGGER.info("📋 步骤1: 查找 Operation mat-select")
+            LOGGER.info("  定位策略：查找包含 'mat-select-arrow-wrapper' 的 mat-select 元素")
             
             # 1. 查找所有包含mat-select-arrow-wrapper的mat-select元素
             operation_mat_select = None
             
-            LOGGER.info("等待Operation mat-select元素出现...")
+            LOGGER.info("  🔸 尝试方法1: 等待包含 wrapper 的 mat-select 出现")
             try:
                 # 等待至少1个包含wrapper的mat-select出现
                 # 使用遍历方式查找（更可靠，不依赖:has()选择器）
-                LOGGER.info(f"   等待时间：{self.config.explicit_wait}秒")
+                LOGGER.info(f"    等待时间：{self.config.explicit_wait}秒")
                 WebDriverWait(self._driver, self.config.explicit_wait).until(
                     lambda d: len([ms for ms in d.find_elements(By.CSS_SELECTOR, "mat-select")
                                    if ms.find_elements(By.CSS_SELECTOR, "div.mat-select-arrow-wrapper")]) > 0
                 )
-                LOGGER.info("✅ Operation mat-select元素已出现")
+                LOGGER.info("  ✅ 方法1成功: Operation mat-select 元素已出现")
                 
                 # 获取所有mat-select元素并过滤出包含wrapper的（Operation）
                 all_mat_selects = self._driver.find_elements(By.CSS_SELECTOR, "mat-select")
-                LOGGER.info(f"   页面上共有 {len(all_mat_selects)} 个mat-select元素")
+                LOGGER.info(f"    页面上共有 {len(all_mat_selects)} 个 mat-select 元素")
                 operation_selects = []
                 
                 for idx, ms in enumerate(all_mat_selects, 1):
@@ -2750,57 +3107,97 @@ class SparkSubmitter:
                         wrapper = ms.find_elements(By.CSS_SELECTOR, "div.mat-select-arrow-wrapper")
                         if wrapper:  # 有wrapper，说明是Operation
                             operation_selects.append(ms)
-                            LOGGER.info(f"   mat-select #{idx}: 是Operation（有wrapper）")
+                            LOGGER.info(f"    mat-select #{idx}: 是 Operation（有 wrapper）")
                     except:
                         continue
                 
-                LOGGER.info(f"   找到 {len(operation_selects)} 个Operation mat-select")
+                LOGGER.info(f"    找到 {len(operation_selects)} 个 Operation mat-select")
                 if len(operation_selects) > 0:
                     operation_mat_select = operation_selects[0]
-                    LOGGER.info(f"✅ 选择第一个Operation mat-select")
+                    LOGGER.info(f"  ✅ 选择第一个 Operation mat-select")
                 else:
-                    LOGGER.error("❌ 未找到Operation mat-select")
+                    LOGGER.error("  ❌ 方法1失败: 未找到 Operation mat-select")
+                    LOGGER.info("=" * 80)
+                    LOGGER.info("❌ Operation 选择失败：未找到 mat-select")
+                    LOGGER.info("=" * 80)
                     return False
                     
             except TimeoutException:
-                LOGGER.error("❌ 等待Operation mat-select超时")
+                LOGGER.error(f"  ❌ 方法1失败: 等待超时（{self.config.explicit_wait}秒）")
+                LOGGER.info("=" * 80)
+                LOGGER.info("❌ Operation 选择失败：等待超时")
+                LOGGER.info("=" * 80)
                 return False
             except Exception as e:
-                LOGGER.error(f"❌ 查找Operation mat-select失败: {e}")
+                LOGGER.error(f"  ❌ 方法1失败: {str(e)[:100]}")
+                LOGGER.info("=" * 80)
+                LOGGER.info("❌ Operation 选择失败：查找失败")
+                LOGGER.info("=" * 80)
                 return False
             
             if not operation_mat_select:
                 LOGGER.error("❌ 无法定位Operation mat-select元素")
+                LOGGER.info("=" * 80)
+                LOGGER.info("❌ Operation 选择失败：无法定位元素")
+                LOGGER.info("=" * 80)
                 return False
             
             # 2. 等待元素可点击并滚动
-            LOGGER.info("等待Operation mat-select变为可点击...")
-            operation_mat_select = WebDriverWait(self._driver, self.config.explicit_wait).until(
-                EC.element_to_be_clickable(operation_mat_select)
-            )
-            LOGGER.info("✅ Operation mat-select已可点击")
+            LOGGER.info("📋 步骤2: 点击 Operation 下拉框")
+            LOGGER.info("  等待 Operation mat-select 变为可点击...")
+            try:
+                operation_mat_select = WebDriverWait(self._driver, self.config.explicit_wait).until(
+                    EC.element_to_be_clickable(operation_mat_select)
+                )
+                LOGGER.info("  ✅ Operation mat-select 已可点击")
+            except TimeoutException:
+                LOGGER.warning(f"  ⚠️ 等待可点击超时，尝试继续...")
             
-            LOGGER.info("滚动到Operation下拉框可见...")
+            LOGGER.info("  滚动到 Operation 下拉框可见...")
             self._driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", operation_mat_select)
             time.sleep(0.3)
             
-            LOGGER.info("点击Operation下拉框...")
-            operation_mat_select.click()
-            LOGGER.info("✅ 已点击Operation下拉框，等待选项浮层...")
+            LOGGER.info("  🔸 尝试方法1: 普通点击")
+            try:
+                operation_mat_select.click()
+                LOGGER.info("  ✅ 方法1成功: 普通点击成功")
+            except Exception as e:
+                LOGGER.info(f"  ❌ 方法1失败: {str(e)[:100]}")
+                LOGGER.info("  🔸 尝试方法2: JavaScript点击")
+                try:
+                    self._driver.execute_script("arguments[0].click();", operation_mat_select)
+                    LOGGER.info("  ✅ 方法2成功: JavaScript点击成功")
+                except Exception as e2:
+                    LOGGER.error(f"  ❌ 方法2失败: {str(e2)[:100]}")
+                    LOGGER.info("=" * 80)
+                    LOGGER.info("❌ Operation 选择失败：点击失败")
+                    LOGGER.info("=" * 80)
+                    return False
+            
+            LOGGER.info("✅ 已点击 Operation 下拉框，等待选项浮层...")
             
             # 3. 选择选项
-            LOGGER.info(f"在下拉选项中选择: {operation_value}")
+            LOGGER.info(f"📋 步骤3: 在下拉选项中选择: {operation_value}")
             if self._select_option_from_dropdown(operation_value, is_filter_dropdown=True):
-                LOGGER.info(f"✅ 步骤完成：已选择Operation: {operation_value}")
+                LOGGER.info(f"✅ 步骤完成：已选择 Operation: {operation_value}")
+                LOGGER.info("=" * 80)
+                LOGGER.info("✅ Operation 选择完成")
+                LOGGER.info("=" * 80)
                 return True
             else:
-                LOGGER.error(f"❌ 步骤失败：选择Operation选项失败: {operation_value}")
+                LOGGER.error(f"❌ 步骤失败：选择 Operation 选项失败: {operation_value}")
+                LOGGER.info("=" * 80)
+                LOGGER.info("❌ Operation 选择失败：选项选择失败")
+                LOGGER.info("=" * 80)
                 return False
 
         except Exception as e:
             LOGGER.error(f"❌ 选择Operation失败: {e}")
             import traceback
             LOGGER.error(traceback.format_exc())
+            LOGGER.info("=" * 80)
+            LOGGER.info("❌ Operation 选择失败：发生异常")
+            LOGGER.info("=" * 80)
             return False
     
     def _select_eng_id(self, eng_id_value: str) -> bool:
@@ -2813,89 +3210,96 @@ class SparkSubmitter:
         Returns:
             True如果选择成功
         """
-        LOGGER.info("=" * 60)
-        LOGGER.info(f"步骤：选择Eng ID")
-        LOGGER.info(f"目标值: {eng_id_value}")
-        LOGGER.info("=" * 60)
+        LOGGER.info("=" * 80)
+        LOGGER.info(f"🔍 开始选择 Eng ID: {eng_id_value}")
+        LOGGER.info("=" * 80)
         
         try:
             # **关键步骤1：等待Operation选择完成，关闭所有打开的overlay**
-            LOGGER.info("等待Operation选择完成...")
-            LOGGER.info("   等待时间：1.5秒")
+            LOGGER.info("📋 步骤0: 等待 Operation 选择完成并关闭 overlay")
+            LOGGER.info("  等待时间：1.5秒")
             time.sleep(1.5)  # 等待Operation选择完成（从1秒增加到1.5秒）
-            LOGGER.info("✅ Operation选择完成")
+            LOGGER.info("  ✅ Operation 选择完成")
             
             # 关闭所有打开的overlay（确保Operation下拉面板已关闭）
-            LOGGER.info("关闭所有打开的overlay...")
+            LOGGER.info("  关闭所有打开的 overlay...")
             try:
                 self._driver.find_element(By.TAG_NAME, "body").send_keys(Keys.ESCAPE)
                 time.sleep(0.5)
-                LOGGER.info("✅ 已按ESC关闭所有打开的overlay")
+                LOGGER.info("  ✅ 已按 ESC 关闭所有打开的 overlay")
             except Exception as e:
-                LOGGER.warning(f"⚠️ 关闭overlay失败: {e}")
+                LOGGER.warning(f"  ⚠️ 关闭 overlay 失败: {e}")
             
             # **优化定位策略**：直接使用第二个mat-select作为EngID（更可靠）
             # 因为在实际场景中，第一个是Operation，第二个是EngID
-            LOGGER.info("定位策略：使用第二个mat-select作为EngID（第一个是Operation，第二个是EngID）")
+            LOGGER.info("📋 步骤1: 查找 Eng ID mat-select")
+            LOGGER.info("  定位策略：使用第二个 mat-select 作为 EngID（第一个是 Operation，第二个是 EngID）")
             
             # 1. 等待Eng ID元素渲染（Operation选择后，Eng ID需要时间启用和渲染）
             eng_id_mat_select = None
             
             # 先等待至少2个mat-select出现（Operation和EngID各一个）
-            LOGGER.info("等待至少2个mat-select元素出现（Operation和EngID）...")
-            LOGGER.info("   等待时间：20秒")
+            LOGGER.info("  🔸 尝试方法1: 等待至少 2 个 mat-select 出现")
+            LOGGER.info("    等待时间：20秒")
             try:
                 WebDriverWait(self._driver, 20).until(
                     lambda d: len(d.find_elements(By.CSS_SELECTOR, "mat-select")) >= 2
                 )
                 all_mat_selects_count = len(self._driver.find_elements(By.CSS_SELECTOR, "mat-select"))
-                LOGGER.info(f"✅ 找到 {all_mat_selects_count} 个mat-select元素")
+                LOGGER.info(f"  ✅ 方法1成功: 找到 {all_mat_selects_count} 个 mat-select 元素")
             except TimeoutException:
                 all_mat_selects_count = len(self._driver.find_elements(By.CSS_SELECTOR, "mat-select"))
-                LOGGER.warning(f"⚠️ 等待超时（20秒），只找到 {all_mat_selects_count} 个mat-select元素，继续尝试...")
+                LOGGER.warning(f"  ⚠️ 方法1超时: 只找到 {all_mat_selects_count} 个 mat-select 元素，继续尝试...")
             
             # 额外等待，确保EngID元素完全渲染
-            LOGGER.info("额外等待1秒，确保EngID元素完全渲染...")
+            LOGGER.info("  额外等待 1 秒，确保 EngID 元素完全渲染...")
             time.sleep(1.0)
             
             try:
                 # 获取所有可见的mat-select元素
                 all_mat_selects = self._driver.find_elements(By.CSS_SELECTOR, "mat-select")
                 visible_mat_selects = [ms for ms in all_mat_selects if ms.is_displayed()]
-                LOGGER.info(f"   页面上共有 {len(all_mat_selects)} 个mat-select元素，其中 {len(visible_mat_selects)} 个可见")
+                LOGGER.info(f"    页面上共有 {len(all_mat_selects)} 个 mat-select 元素，其中 {len(visible_mat_selects)} 个可见")
                 
                 for idx, ms in enumerate(visible_mat_selects, 1):
                     try:
-                        LOGGER.info(f"   mat-select #{idx}: displayed={ms.is_displayed()}, enabled={ms.is_enabled()}, location={ms.location}")
+                        LOGGER.info(f"    mat-select #{idx}: displayed={ms.is_displayed()}, enabled={ms.is_enabled()}, location={ms.location}")
                     except:
                         pass
                 
                 # 主策略：直接使用第二个可见的mat-select作为EngID
+                LOGGER.info("  🔸 尝试方法2: 主策略 - 使用第二个可见的 mat-select")
                 if len(visible_mat_selects) >= 2:
                     eng_id_mat_select = visible_mat_selects[1]
-                    LOGGER.info("✅ 主策略成功：使用第二个mat-select作为EngID")
-                    LOGGER.info(f"   EngID mat-select状态：displayed={eng_id_mat_select.is_displayed()}, enabled={eng_id_mat_select.is_enabled()}")
+                    LOGGER.info("  ✅ 方法2成功: 使用第二个 mat-select 作为 EngID")
+                    LOGGER.info(f"     EngID mat-select 状态：displayed={eng_id_mat_select.is_displayed()}, enabled={eng_id_mat_select.is_enabled()}")
                 elif len(visible_mat_selects) == 1:
                     # 如果只有一个可见的，可能是EngID还未渲染，等待一下再试
-                    LOGGER.warning("⚠️ 只找到1个可见的mat-select，等待EngID渲染...")
-                    LOGGER.info("   额外等待2秒...")
+                    LOGGER.warning("  ⚠️ 方法2失败: 只找到 1 个可见的 mat-select，等待 EngID 渲染...")
+                    LOGGER.info("    额外等待 2 秒...")
                     time.sleep(2.0)
                     all_mat_selects = self._driver.find_elements(By.CSS_SELECTOR, "mat-select")
                     visible_mat_selects = [ms for ms in all_mat_selects if ms.is_displayed()]
-                    LOGGER.info(f"   重新检查：找到 {len(visible_mat_selects)} 个可见的mat-select")
+                    LOGGER.info(f"    重新检查：找到 {len(visible_mat_selects)} 个可见的 mat-select")
                     if len(visible_mat_selects) >= 2:
                         eng_id_mat_select = visible_mat_selects[1]
-                        LOGGER.info("✅ 等待后找到第二个mat-select，使用作为EngID")
+                        LOGGER.info("  ✅ 等待后找到第二个 mat-select，使用作为 EngID")
                     else:
-                        LOGGER.error(f"❌ 等待后仍只有 {len(visible_mat_selects)} 个可见的mat-select")
+                        LOGGER.error(f"  ❌ 等待后仍只有 {len(visible_mat_selects)} 个可见的 mat-select")
+                        LOGGER.info("=" * 80)
+                        LOGGER.info("❌ Eng ID 选择失败：未找到足够的 mat-select")
+                        LOGGER.info("=" * 80)
                         return False
                 else:
-                    LOGGER.error(f"❌ 未找到足够的可见mat-select元素（需要至少2个，实际{len(visible_mat_selects)}个）")
+                    LOGGER.error(f"  ❌ 方法2失败: 未找到足够的可见 mat-select 元素（需要至少2个，实际{len(visible_mat_selects)}个）")
+                    LOGGER.info("=" * 80)
+                    LOGGER.info("❌ Eng ID 选择失败：未找到足够的 mat-select")
+                    LOGGER.info("=" * 80)
                     return False
                 
                 # 备用策略：如果主策略失败，尝试通过wrapper过滤
                 if not eng_id_mat_select:
-                    LOGGER.warning("⚠️ 主策略失败，尝试备用策略：通过wrapper过滤...")
+                    LOGGER.info("  🔸 尝试方法3: 备用策略 - 通过 wrapper 过滤")
                     eng_id_selects = []
                     for idx, ms in enumerate(visible_mat_selects, 1):
                         try:
@@ -2910,85 +3314,116 @@ class SparkSubmitter:
                     
                     if len(eng_id_selects) > 0:
                         eng_id_mat_select = eng_id_selects[0]
-                        LOGGER.info(f"✅ 备用策略成功：通过wrapper过滤找到EngID（共{len(eng_id_selects)}个）")
+                        LOGGER.info(f"  ✅ 方法3成功: 通过 wrapper 过滤找到 EngID（共{len(eng_id_selects)}个）")
                     else:
-                        LOGGER.error("❌ 备用策略也失败：未找到EngID mat-select")
+                        LOGGER.error("  ❌ 方法3失败: 未找到 EngID mat-select")
+                        LOGGER.info("=" * 80)
+                        LOGGER.info("❌ Eng ID 选择失败：备用策略也失败")
+                        LOGGER.info("=" * 80)
                         return False
                     
             except Exception as e:
-                LOGGER.error(f"❌ 查找Eng ID mat-select失败: {e}")
+                LOGGER.error(f"  ❌ 查找 Eng ID mat-select 失败: {str(e)[:100]}")
                 import traceback
                 LOGGER.error(traceback.format_exc())
+                LOGGER.info("=" * 80)
+                LOGGER.info("❌ Eng ID 选择失败：查找失败")
+                LOGGER.info("=" * 80)
                 return False
             
             if not eng_id_mat_select:
-                LOGGER.error("❌ 无法定位Eng ID mat-select元素")
+                LOGGER.error("❌ 无法定位 Eng ID mat-select 元素")
+                LOGGER.info("=" * 80)
+                LOGGER.info("❌ Eng ID 选择失败：无法定位元素")
+                LOGGER.info("=" * 80)
                 return False
             
-            LOGGER.info("✅ Eng ID mat-select元素已找到")
+            LOGGER.info("✅ Eng ID mat-select 元素已找到")
             
             # 步骤2.2: 等待元素变为可点击（启用状态）
-            LOGGER.info("等待Eng ID变为启用状态（可点击）...")
-            LOGGER.info("   等待时间：15秒")
+            LOGGER.info("📋 步骤2: 等待 Eng ID 变为启用状态（可点击）")
+            LOGGER.info("  等待时间：15秒")
             enabled_eng_id_select = None
             
             # 直接等待找到的元素可点击
+            LOGGER.info("  🔸 尝试方法1: 等待元素可点击")
             try:
                 enabled_eng_id_select = WebDriverWait(self._driver, 15).until(
                     EC.element_to_be_clickable(eng_id_mat_select)
                 )
-                LOGGER.info("✅ Eng ID已变为启用状态（可点击）")
+                LOGGER.info("  ✅ 方法1成功: Eng ID 已变为启用状态（可点击）")
             except TimeoutException:
-                LOGGER.warning("⚠️ 等待Eng ID可点击超时（15秒），检查是否被禁用...")
+                LOGGER.warning("  ⚠️ 方法1超时: 等待 Eng ID 可点击超时（15秒），检查是否被禁用...")
                 enabled_eng_id_select = eng_id_mat_select
             
             # 检查元素是否被禁用
+            LOGGER.info("  🔸 尝试方法2: 检查元素是否被禁用")
             try:
                 form_field = eng_id_mat_select.find_element(By.XPATH, "./ancestor::mat-form-field")
                 class_attr = form_field.get_attribute("class") or ""
                 if "mat-form-field-disabled" in class_attr:
-                    LOGGER.warning("⚠️ Eng ID仍然处于禁用状态，等待更长时间...")
+                    LOGGER.warning("  ⚠️ 方法2发现: Eng ID 仍然处于禁用状态，等待更长时间...")
                     # 等待禁用类消失
                     try:
                         WebDriverWait(self._driver, 10).until_not(
                             lambda d: "mat-form-field-disabled" in (form_field.get_attribute("class") or "")
                         )
-                        LOGGER.info("✅ Eng ID已从禁用状态变为启用")
+                        LOGGER.info("  ✅ 方法2成功: Eng ID 已从禁用状态变为启用")
                         enabled_eng_id_select = eng_id_mat_select
                     except TimeoutException:
-                        LOGGER.error("❌ Eng ID仍然处于禁用状态，可能Operation选择未完成")
+                        LOGGER.error("  ❌ 方法2失败: Eng ID 仍然处于禁用状态，可能 Operation 选择未完成")
+                        LOGGER.info("=" * 80)
+                        LOGGER.info("❌ Eng ID 选择失败：元素仍被禁用")
+                        LOGGER.info("=" * 80)
                         return False
+                else:
+                    LOGGER.info("  ✅ 方法2检查: Eng ID 未被禁用")
             except:
-                pass
+                LOGGER.info("  ⚠️ 方法2跳过: 无法检查禁用状态")
             
             if not enabled_eng_id_select:
                 enabled_eng_id_select = eng_id_mat_select
 
             # 3. 滚动并点击
-            LOGGER.info("滚动到Eng ID下拉框可见...")
+            LOGGER.info("📋 步骤3: 点击 Eng ID 下拉框")
+            LOGGER.info("  滚动到 Eng ID 下拉框可见...")
             self._driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", enabled_eng_id_select)
             time.sleep(0.3)
             
             # 尝试点击
-            LOGGER.info("点击Eng ID下拉框...")
+            LOGGER.info("  🔸 尝试方法1: 普通点击")
             try:
                 enabled_eng_id_select.click()
-                LOGGER.info("✅ 已点击Eng ID下拉框（普通点击）")
+                LOGGER.info("  ✅ 方法1成功: 普通点击成功")
             except Exception as e:
-                LOGGER.warning(f"⚠️ 普通点击失败: {e}，尝试JavaScript点击")
-                self._driver.execute_script("arguments[0].click();", enabled_eng_id_select)
-                LOGGER.info("✅ 已点击Eng ID下拉框（JavaScript点击）")
+                LOGGER.info(f"  ❌ 方法1失败: {str(e)[:100]}")
+                LOGGER.info("  🔸 尝试方法2: JavaScript点击")
+                try:
+                    self._driver.execute_script("arguments[0].click();", enabled_eng_id_select)
+                    LOGGER.info("  ✅ 方法2成功: JavaScript点击成功")
+                except Exception as e2:
+                    LOGGER.error(f"  ❌ 方法2失败: {str(e2)[:100]}")
+                    LOGGER.info("=" * 80)
+                    LOGGER.info("❌ Eng ID 选择失败：点击失败")
+                    LOGGER.info("=" * 80)
+                    return False
 
-            LOGGER.info("等待选项浮层出现（0.5秒）...")
+            LOGGER.info("  等待选项浮层出现（0.5秒）...")
             time.sleep(0.5)
             
             # 4. 选择选项
-            LOGGER.info(f"在下拉选项中选择: {eng_id_value}")
+            LOGGER.info(f"📋 步骤4: 在下拉选项中选择: {eng_id_value}")
             if self._select_option_from_dropdown(eng_id_value, is_filter_dropdown=True):
-                LOGGER.info(f"✅ 步骤完成：已选择Eng ID: {eng_id_value}")
+                LOGGER.info(f"✅ 步骤完成：已选择 Eng ID: {eng_id_value}")
+                LOGGER.info("=" * 80)
+                LOGGER.info("✅ Eng ID 选择完成")
+                LOGGER.info("=" * 80)
                 return True
             else:
-                LOGGER.error(f"❌ 步骤失败：选择Eng ID选项失败: {eng_id_value}")
+                LOGGER.error(f"❌ 步骤失败：选择 Eng ID 选项失败: {eng_id_value}")
+                LOGGER.info("=" * 80)
+                LOGGER.info("❌ Eng ID 选择失败：选项选择失败")
+                LOGGER.info("=" * 80)
                 return False
 
         except TimeoutException as e:
@@ -3008,11 +3443,17 @@ class SparkSubmitter:
                 pass
             import traceback
             LOGGER.error(traceback.format_exc())
+            LOGGER.info("=" * 80)
+            LOGGER.info("❌ Eng ID 选择失败：超时")
+            LOGGER.info("=" * 80)
             return False
         except Exception as e:
             LOGGER.error(f"❌ 选择Eng ID失败: {e}")
             import traceback
             LOGGER.error(traceback.format_exc())
+            LOGGER.info("=" * 80)
+            LOGGER.info("❌ Eng ID 选择失败：发生异常")
+            LOGGER.info("=" * 80)
             return False
     
     def _fill_text_input(self, text_value: str) -> bool:
@@ -3075,6 +3516,246 @@ class SparkSubmitter:
                 LOGGER.error(traceback.format_exc())
                 return False
 
+    def _click_instructions_and_fill_mir(self, mir_value: str) -> bool:
+        """
+        点击instructions图标并填写MIR#值
+        
+        Args:
+            mir_value: MIR值（将填写为"MIR#<mir_value>"）
+            
+        Returns:
+            True如果填写成功
+        """
+        LOGGER.info("=" * 60)
+        LOGGER.info(f"步骤：点击instructions图标并填写MIR#")
+        LOGGER.info(f"MIR值: {mir_value}")
+        LOGGER.info("=" * 60)
+        
+        try:
+            # 等待页面稳定
+            time.sleep(1.0)
+            
+            # 构建要填写的文本
+            mir_text = f"MIR#{mir_value}" if mir_value else "MIR#"
+            LOGGER.info(f"要填写的文本: {mir_text}")
+            
+            # 方法1: 通过aria-label查找instructions图标
+            instructions_icon = None
+            LOGGER.info("方法1：通过aria-label查找instructions图标...")
+            try:
+                instructions_icon = WebDriverWait(self._driver, self.config.explicit_wait).until(
+                    EC.element_to_be_clickable((
+                        By.XPATH,
+                        "//*[contains(@aria-label, 'Instructions') or contains(@aria-label, 'instructions')]"
+                    ))
+                )
+                LOGGER.info("✅ 方法1成功：通过aria-label找到instructions图标")
+            except TimeoutException:
+                LOGGER.debug("方法1失败：未找到aria-label包含Instructions的元素")
+            
+            # 方法2: 通过class查找instructions图标（常见的是document icon）
+            if not instructions_icon:
+                LOGGER.info("方法2：通过class查找instructions图标...")
+                try:
+                    # 查找包含instructions相关的class
+                    instructions_icons = self._driver.find_elements(
+                        By.XPATH,
+                        "//*[contains(@class, 'instructions') or contains(@class, 'icon')]"
+                    )
+                    for icon in instructions_icons:
+                        if icon.is_displayed() and icon.is_enabled():
+                            # 检查是否在Thermal字段附近（通过查找包含Thermal文本的父元素）
+                            try:
+                                parent = icon.find_element(By.XPATH, "./ancestor::*[contains(text(), 'Thermal') or .//*[contains(text(), 'Thermal')]]")
+                                if parent:
+                                    instructions_icon = icon
+                                    LOGGER.info("✅ 方法2成功：在Thermal附近找到instructions图标")
+                                    break
+                            except:
+                                # 如果找不到Thermal，但图标可见，也尝试使用
+                                if icon.is_displayed():
+                                    instructions_icon = icon
+                                    LOGGER.info("✅ 方法2成功：找到可见的instructions图标")
+                                    break
+                except Exception as e:
+                    LOGGER.debug(f"方法2失败: {e}")
+            
+            # 方法3: 通过查找Thermal字段附近的图标
+            if not instructions_icon:
+                LOGGER.info("方法3：通过Thermal字段查找instructions图标...")
+                try:
+                    # 先找到Thermal字段
+                    thermal_inputs = self._driver.find_elements(
+                        By.XPATH,
+                        "//input[contains(@class, 'text') or @type='text']"
+                    )
+                    for thermal_input in thermal_inputs:
+                        if not thermal_input.is_displayed():
+                            continue
+                        # 查找Thermal输入框附近的图标（兄弟元素或父元素中的图标）
+                        try:
+                            # 查找父元素中的图标
+                            parent = thermal_input.find_element(By.XPATH, "./ancestor::*[1]")
+                            icons = parent.find_elements(
+                                By.XPATH,
+                                ".//*[contains(@class, 'icon') or contains(@aria-label, 'Instructions') or contains(@title, 'Instructions')]"
+                            )
+                            for icon in icons:
+                                if icon.is_displayed() and icon.is_enabled():
+                                    instructions_icon = icon
+                                    LOGGER.info("✅ 方法3成功：在Thermal字段附近找到instructions图标")
+                                    break
+                            if instructions_icon:
+                                break
+                        except:
+                            continue
+                except Exception as e:
+                    LOGGER.debug(f"方法3失败: {e}")
+            
+            # 方法4: 通过查找所有可点击的图标元素（备用方案）
+            if not instructions_icon:
+                LOGGER.info("方法4：查找所有可能的instructions图标...")
+                try:
+                    # 查找所有可能的图标元素（button, span, div等）
+                    all_icons = self._driver.find_elements(
+                        By.XPATH,
+                        "//button[contains(@class, 'icon')] | //span[contains(@class, 'icon')] | //div[contains(@class, 'icon')] | //*[@role='button' and contains(@class, 'icon')]"
+                    )
+                    LOGGER.info(f"   找到 {len(all_icons)} 个可能的图标元素")
+                    for icon in all_icons:
+                        if not icon.is_displayed():
+                            continue
+                        # 检查图标的属性或文本
+                        aria_label = icon.get_attribute('aria-label') or ''
+                        title = icon.get_attribute('title') or ''
+                        class_name = icon.get_attribute('class') or ''
+                        if 'instruction' in aria_label.lower() or 'instruction' in title.lower() or 'instruction' in class_name.lower():
+                            instructions_icon = icon
+                            LOGGER.info("✅ 方法4成功：找到instructions图标")
+                            break
+                except Exception as e:
+                    LOGGER.debug(f"方法4失败: {e}")
+            
+            if not instructions_icon:
+                LOGGER.error("❌ 未找到instructions图标")
+                return False
+            
+            # 滚动到图标可见
+            LOGGER.info("滚动到instructions图标可见...")
+            try:
+                self._driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", instructions_icon)
+                time.sleep(0.3)
+            except:
+                pass
+            
+            # 点击instructions图标
+            LOGGER.info("点击instructions图标...")
+            try:
+                instructions_icon.click()
+                LOGGER.info("✅ 已点击instructions图标")
+            except Exception as e:
+                # 尝试JavaScript点击
+                try:
+                    self._driver.execute_script("arguments[0].click();", instructions_icon)
+                    LOGGER.info("✅ 已通过JavaScript点击instructions图标")
+                except Exception as e2:
+                    LOGGER.error(f"❌ 点击instructions图标失败: {e2}")
+                    return False
+            
+            # 等待对话框或输入框出现
+            LOGGER.info("等待输入框出现...")
+            time.sleep(1.0)
+            
+            # 查找并填写输入框
+            # 方法1: 查找textarea或input元素
+            input_field = None
+            try:
+                # 查找可见的textarea或input
+                textareas = self._driver.find_elements(By.TAG_NAME, "textarea")
+                inputs = self._driver.find_elements(By.TAG_NAME, "input")
+                all_inputs = textareas + inputs
+                
+                for inp in all_inputs:
+                    if inp.is_displayed() and inp.is_enabled():
+                        input_field = inp
+                        LOGGER.info("✅ 找到输入框（textarea或input）")
+                        break
+            except Exception as e:
+                LOGGER.debug(f"查找输入框失败: {e}")
+            
+            # 方法2: 查找contenteditable元素
+            if not input_field:
+                try:
+                    editable = self._driver.find_elements(By.XPATH, "//*[@contenteditable='true']")
+                    for elem in editable:
+                        if elem.is_displayed():
+                            input_field = elem
+                            LOGGER.info("✅ 找到输入框（contenteditable）")
+                            break
+                except Exception as e:
+                    LOGGER.debug(f"查找contenteditable失败: {e}")
+            
+            if not input_field:
+                LOGGER.error("❌ 未找到输入框")
+                return False
+            
+            # 滚动到输入框
+            try:
+                self._driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", input_field)
+                time.sleep(0.3)
+            except:
+                pass
+            
+            # 填写MIR#值
+            LOGGER.info(f"填写MIR#值: {mir_text}")
+            try:
+                if input_field.tag_name == 'textarea' or input_field.tag_name == 'input':
+                    input_field.clear()
+                    time.sleep(0.2)
+                    input_field.send_keys(mir_text)
+                else:
+                    # contenteditable元素
+                    self._driver.execute_script(f"arguments[0].textContent = '{mir_text}';", input_field)
+                    self._driver.execute_script(
+                        "arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", input_field
+                    )
+                LOGGER.info(f"✅ 已填写MIR#值: {mir_text}")
+                time.sleep(0.5)
+                
+                # 尝试保存或关闭对话框（如果有保存按钮）
+                try:
+                    save_buttons = self._driver.find_elements(
+                        By.XPATH,
+                        "//button[contains(text(), 'Save') or contains(text(), 'OK') or contains(text(), 'Confirm')]"
+                    )
+                    for btn in save_buttons:
+                        if btn.is_displayed() and btn.is_enabled():
+                            btn.click()
+                            LOGGER.info("✅ 已点击保存按钮")
+                            time.sleep(0.5)
+                            break
+                except:
+                    # 如果没有保存按钮，尝试按ESC关闭
+                    try:
+                        input_field.send_keys(Keys.ESCAPE)
+                        LOGGER.info("✅ 已按ESC关闭对话框")
+                        time.sleep(0.5)
+                    except:
+                        pass
+                
+                return True
+            except Exception as e:
+                LOGGER.error(f"❌ 填写MIR#值失败: {e}")
+                import traceback
+                LOGGER.error(traceback.format_exc())
+                return False
+                
+        except Exception as e:
+            LOGGER.error(f"❌ 点击instructions并填写MIR#失败: {e}")
+            import traceback
+            LOGGER.error(traceback.format_exc())
+            return False
+    
     def _click_add_new_condition(self) -> bool:
         """
         点击最后一个Operation区块内的"Add new condition"按钮

@@ -39,6 +39,8 @@ try:
 except ImportError:
     win32clipboard = None
 
+from .utils.screenshot_helper import log_error_with_screen_screenshot, capture_screen_screenshot
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -59,10 +61,15 @@ class MoleConfig:
 class MoleSubmitter:
     """Mole工具数据提交器"""
     
-    def __init__(self, config: MoleConfig):
+    def __init__(self, config: MoleConfig, debug_dir: Optional[Path] = None):
         self.config = config
         self._app = None
         self._window = None
+        self.debug_dir = debug_dir or Path.cwd() / "output" / "05_Debug"
+    
+    def _log_error_with_screenshot(self, error_message: str, exception: Optional[Exception] = None, prefix: str = "mole_error") -> None:
+        """记录错误并自动截取屏幕"""
+        log_error_with_screen_screenshot(error_message, self.debug_dir, exception, prefix)
     
     def _ensure_application(self) -> None:
         """确保Mole应用程序已启动"""
@@ -731,6 +738,78 @@ class MoleSubmitter:
         if Application is None:
             raise RuntimeError("pywinauto 未安装，无法执行 UI 自动化")
         
+        # 首先检查是否已经有Units搜索对话框存在，如果有则先关闭
+        LOGGER.info("检查是否已有Units搜索对话框存在...")
+        existing_dialog_found = False
+        existing_dialogs_count = 0
+        
+        if win32gui:
+            try:
+                def enum_existing_dialog(hwnd, windows):
+                    try:
+                        if win32gui.IsWindowVisible(hwnd):
+                            window_text = win32gui.GetWindowText(hwnd)
+                            if "Import" in window_text and "Serial" in window_text:
+                                rect = win32gui.GetWindowRect(hwnd)
+                                width = rect[2] - rect[0]
+                                height = rect[3] - rect[1]
+                                if 300 < width < 1000 and 300 < height < 900:
+                                    windows.append(hwnd)
+                    except:
+                        pass
+                    return True
+                
+                existing_dialogs = []
+                win32gui.EnumWindows(enum_existing_dialog, existing_dialogs)
+                
+                if existing_dialogs:
+                    existing_dialogs_count = len(existing_dialogs)
+                    existing_dialog_found = True
+                    LOGGER.warning(f"发现 {existing_dialogs_count} 个已存在的Units搜索对话框，正在关闭...")
+                    for dialog_hwnd in existing_dialogs:
+                        try:
+                            # 尝试关闭对话框
+                            win32gui.PostMessage(dialog_hwnd, win32con.WM_CLOSE, 0, 0)
+                            LOGGER.info(f"已发送关闭消息到对话框（句柄: {dialog_hwnd}）")
+                            time.sleep(0.5)
+                        except Exception as e:
+                            LOGGER.warning(f"关闭对话框失败: {e}")
+                    
+                    # 等待对话框关闭
+                    time.sleep(1.5)  # 增加等待时间，确保对话框完全关闭
+                    LOGGER.info("已关闭现有对话框，准备打开新对话框")
+            except Exception as e:
+                LOGGER.debug(f"检查现有对话框时出错: {e}")
+        
+        # 也尝试使用pywinauto检查
+        if not existing_dialog_found:
+            try:
+                for backend in ["win32", "uia"]:
+                    try:
+                        dialog_app = Application(backend=backend).connect(
+                            title_re=".*Import.*Serial.*",
+                            visible_only=True,
+                            timeout=1
+                        )
+                        windows = dialog_app.windows()
+                        for win in windows:
+                            try:
+                                win_text = win.window_text()
+                                if "Import" in win_text and "Serial" in win_text:
+                                    LOGGER.warning(f"发现已存在的对话框（标题: '{win_text}'），正在关闭...")
+                                    try:
+                                        win.close()
+                                        time.sleep(0.5)
+                                        LOGGER.info("已关闭现有对话框")
+                                    except:
+                                        pass
+                            except:
+                                continue
+                    except:
+                        continue
+            except:
+                pass
+        
         LOGGER.info("点击'Search By Units'按钮...")
         
         button_clicked = False
@@ -749,10 +828,16 @@ class MoleSubmitter:
                     LOGGER.warning(f"设置窗口焦点失败: {e}")
             
             # 方法1: 直接查找标题为"Search By Units"的按钮
+            # 如果检测到已有对话框，先等待它们完全关闭，然后再点击
+            if existing_dialog_found:
+                LOGGER.info("等待已关闭的对话框完全消失...")
+                time.sleep(1.0)  # 额外等待，确保对话框完全关闭
+            
             try:
                 search_button = self._window.child_window(title="Search By Units", control_type="Button")
-                if search_button.exists():
+                if search_button.exists() and search_button.is_enabled():
                     LOGGER.info("找到'Search By Units'按钮（通过title）")
+                    # 只点击一次，确保不会重复点击
                     search_button.click_input()
                     time.sleep(0.5)
                     LOGGER.info("✅ 已点击'Search By Units'按钮（通过title）")
@@ -839,47 +924,102 @@ class MoleSubmitter:
                         send_thread.start()
                         send_thread.join(timeout=2.0)
 
-                        if send_thread.is_alive():
-                            LOGGER.warning("SendMessage 点击'Search By Units'超时，尝试其他方法...")
-                        elif send_result["success"]:
+                        # 检查SendMessage结果
+                        if send_result["success"]:
                             time.sleep(0.5)
                             LOGGER.info("✅ 已通过Windows API点击'Search By Units'按钮（SendMessage, 带超时保护）")
                             button_clicked = True
+                        elif send_thread.is_alive():
+                            # SendMessage超时，但可能已经成功触发了点击
+                            # 先等待一小段时间，检查对话框是否已经出现
+                            LOGGER.warning("SendMessage 点击'Search By Units'超时，检查是否已成功触发...")
+                            time.sleep(1.0)  # 等待对话框出现
+                            
+                            # 检查对话框是否已经出现
+                            dialog_already_opened = False
+                            try:
+                                def check_dialog_callback(hwnd, result):
+                                    try:
+                                        if win32gui.IsWindowVisible(hwnd):
+                                            window_text = win32gui.GetWindowText(hwnd)
+                                            if "Import" in window_text and "Serial" in window_text:
+                                                result.append(True)
+                                    except:
+                                        pass
+                                    return True
+                                
+                                dialog_check_result = []
+                                win32gui.EnumWindows(check_dialog_callback, dialog_check_result)
+                                if dialog_check_result:
+                                    dialog_already_opened = True
+                                    LOGGER.info("✅ 检测到对话框已打开，SendMessage已成功触发点击，无需再次点击")
+                                    button_clicked = True
+                            except:
+                                pass
+                            
+                            # 如果对话框没有出现，才尝试PostMessage
+                            if not dialog_already_opened:
+                                LOGGER.warning("对话框未出现，尝试PostMessage...")
+                                try:
+                                    win32gui.PostMessage(button_hwnd, win32con.BM_CLICK, 0, 0)
+                                    time.sleep(0.5)
+                                    LOGGER.info("✅ 已通过Windows API点击'Search By Units'按钮（PostMessage）")
+                                    button_clicked = True
+                                except Exception as e2:
+                                    LOGGER.warning(f"PostMessage也失败: {e2}，尝试pywinauto包装器...")
+                                    if not button_clicked:
+                                        try:
+                                            from pywinauto.controls.hwndwrapper import HwndWrapper
+                                            HwndWrapper(button_hwnd).click_input()
+                                            time.sleep(0.5)
+                                            LOGGER.info("✅ 已通过pywinauto包装器点击'Search By Units'按钮")
+                                            button_clicked = True
+                                        except Exception as e3:
+                                            LOGGER.warning(f"pywinauto包装器点击失败: {e3}，尝试鼠标点击...")
+                                            if not button_clicked:
+                                                try:
+                                                    import pyautogui
+                                                    rect = win32gui.GetWindowRect(button_hwnd)
+                                                    center_x = (rect[0] + rect[2]) // 2
+                                                    center_y = (rect[1] + rect[3]) // 2
+                                                    pyautogui.click(center_x, center_y)
+                                                    time.sleep(0.5)
+                                                    LOGGER.info(f"✅ 已通过鼠标点击'Search By Units'按钮（坐标: {center_x}, {center_y}）")
+                                                    button_clicked = True
+                                                except Exception as e4:
+                                                    LOGGER.warning(f"鼠标点击也失败: {e4}")
                         else:
-                            LOGGER.warning(f"SendMessage失败: {send_result['error']}，尝试其他方法...")
-
-                        if not button_clicked:
-                            try:
-                                win32gui.PostMessage(button_hwnd, win32con.BM_CLICK, 0, 0)
-                                time.sleep(0.5)
-                                LOGGER.info("✅ 已通过Windows API点击'Search By Units'按钮（PostMessage）")
-                                button_clicked = True
-                            except Exception as e2:
-                                LOGGER.warning(f"PostMessage也失败: {e2}，尝试pywinauto包装器...")
-
-                        if not button_clicked:
-                            try:
-                                from pywinauto.controls.hwndwrapper import HwndWrapper
-
-                                HwndWrapper(button_hwnd).click_input()
-                                time.sleep(0.5)
-                                LOGGER.info("✅ 已通过pywinauto包装器点击'Search By Units'按钮")
-                                button_clicked = True
-                            except Exception as e3:
-                                LOGGER.warning(f"pywinauto包装器点击失败: {e3}，尝试鼠标点击...")
-
-                        if not button_clicked:
-                            try:
-                                import pyautogui
-                                rect = win32gui.GetWindowRect(button_hwnd)
-                                center_x = (rect[0] + rect[2]) // 2
-                                center_y = (rect[1] + rect[3]) // 2
-                                pyautogui.click(center_x, center_y)
-                                time.sleep(0.5)
-                                LOGGER.info(f"✅ 已通过鼠标点击'Search By Units'按钮（坐标: {center_x}, {center_y}）")
-                                button_clicked = True
-                            except Exception as e4:
-                                LOGGER.warning(f"鼠标点击也失败: {e4}")
+                            # SendMessage失败，尝试PostMessage
+                            LOGGER.warning(f"SendMessage失败: {send_result['error']}，尝试PostMessage...")
+                            if not button_clicked:
+                                try:
+                                    win32gui.PostMessage(button_hwnd, win32con.BM_CLICK, 0, 0)
+                                    time.sleep(0.5)
+                                    LOGGER.info("✅ 已通过Windows API点击'Search By Units'按钮（PostMessage）")
+                                    button_clicked = True
+                                except Exception as e2:
+                                    LOGGER.warning(f"PostMessage也失败: {e2}，尝试pywinauto包装器...")
+                                    if not button_clicked:
+                                        try:
+                                            from pywinauto.controls.hwndwrapper import HwndWrapper
+                                            HwndWrapper(button_hwnd).click_input()
+                                            time.sleep(0.5)
+                                            LOGGER.info("✅ 已通过pywinauto包装器点击'Search By Units'按钮")
+                                            button_clicked = True
+                                        except Exception as e3:
+                                            LOGGER.warning(f"pywinauto包装器点击失败: {e3}，尝试鼠标点击...")
+                                            if not button_clicked:
+                                                try:
+                                                    import pyautogui
+                                                    rect = win32gui.GetWindowRect(button_hwnd)
+                                                    center_x = (rect[0] + rect[2]) // 2
+                                                    center_y = (rect[1] + rect[3]) // 2
+                                                    pyautogui.click(center_x, center_y)
+                                                    time.sleep(0.5)
+                                                    LOGGER.info(f"✅ 已通过鼠标点击'Search By Units'按钮（坐标: {center_x}, {center_y}）")
+                                                    button_clicked = True
+                                                except Exception as e4:
+                                                    LOGGER.warning(f"鼠标点击也失败: {e4}")
                     else:
                         LOGGER.debug("Windows API未找到'Search By Units'按钮")
                 except Exception as e3:
@@ -1999,6 +2139,9 @@ class MoleSubmitter:
         Args:
             ui_config: UI配置数据，包含units_info（用户粘贴的units信息）
         """
+        # 确保使用全局的win32con变量
+        global win32con
+        
         if Application is None:
             raise RuntimeError("pywinauto 未安装，无法执行 UI 自动化")
         
@@ -2154,32 +2297,34 @@ class MoleSubmitter:
 
         LOGGER.info("开始填写Units搜索对话框...")
 
-        # 获取units信息
-        units_info = ui_config.get('units_info', '').strip()
-        if not units_info:
-            raise RuntimeError("units_info 为空，请在配置UI中粘贴Units信息")
-
-        # Mole 的多行输入控件对 CRLF 的兼容性更好，确保换行格式统一
-        normalized_units_info = units_info.replace("\r\n", "\n").replace("\n", "\r\n")
-
-        LOGGER.info(f"Units信息长度: {len(units_info)} 字符")
-        LOGGER.debug(f"Units信息预览: {units_info[:100]}...")
-
-        # 复制units信息到剪贴板
+        # 包裹整个填写和搜索过程在try块中
         try:
-            import pyperclip
-            pyperclip.copy(normalized_units_info)
-            LOGGER.info("已复制Units信息到剪贴板")
-        except ImportError:
+            # 获取units信息
+            units_info = ui_config.get('units_info', '').strip()
+            if not units_info:
+                raise RuntimeError("units_info 为空，请在配置UI中粘贴Units信息")
+
+            # Mole 的多行输入控件对 CRLF 的兼容性更好，确保换行格式统一
+            normalized_units_info = units_info.replace("\r\n", "\n").replace("\n", "\r\n")
+
+            LOGGER.info(f"Units信息长度: {len(units_info)} 字符")
+            LOGGER.debug(f"Units信息预览: {units_info[:100]}...")
+
+            # 复制units信息到剪贴板
             try:
-                import win32clipboard
-                win32clipboard.OpenClipboard()
-                win32clipboard.EmptyClipboard()
-                win32clipboard.SetClipboardText(normalized_units_info, win32clipboard.CF_UNICODETEXT)
-                win32clipboard.CloseClipboard()
-                LOGGER.info("已复制Units信息到剪贴板（使用win32clipboard）")
+                import pyperclip
+                pyperclip.copy(normalized_units_info)
+                LOGGER.info("已复制Units信息到剪贴板")
             except ImportError:
-                LOGGER.warning("无法复制到剪贴板，将直接输入文本")
+                try:
+                    import win32clipboard
+                    win32clipboard.OpenClipboard()
+                    win32clipboard.EmptyClipboard()
+                    win32clipboard.SetClipboardText(normalized_units_info, win32clipboard.CF_UNICODETEXT)
+                    win32clipboard.CloseClipboard()
+                    LOGGER.info("已复制Units信息到剪贴板（使用win32clipboard）")
+                except ImportError:
+                    LOGGER.warning("无法复制到剪贴板，将直接输入文本")
             
             # 先点击对话框空白处，确保对话框有焦点（用户反馈需要这一步）
             try:
@@ -2199,167 +2344,13 @@ class MoleSubmitter:
                 LOGGER.debug(f"点击对话框空白处失败: {e}")
             
             # 查找多行文本框（Serial Numbers输入框）
-            # 方法1: 查找Edit控件（多行）
+            # 优化：优先使用Windows API方法，因为这是最可靠的方法（根据日志验证）
             text_field_filled = False
             
-            try:
-                # 查找所有Edit控件
-                edit_controls = units_dialog.descendants(control_type="Edit")
-                LOGGER.info(f"找到 {len(edit_controls)} 个Edit控件")
-                
-                # 查找最大的Edit控件（通常是多行文本框）
-                target_edit = None
-                target_rect = None
-                max_size = 0
-                all_edits_info = []
-                
-                for edit in edit_controls:
-                    try:
-                        if edit.is_visible() and edit.is_enabled():
-                            rect = edit.rectangle()
-                            size = rect.width() * rect.height()
-                            all_edits_info.append(f"Edit控件: 大小={size}, 位置=({rect.left},{rect.top}), 尺寸={rect.width()}x{rect.height()}")
-                            # 多行文本框通常比较大（降低阈值，至少 100x50）
-                            if size > max_size and size > 5000:
-                                max_size = size
-                                target_edit = edit
-                                target_rect = rect
-                    except Exception as e:
-                        LOGGER.debug(f"检查Edit控件时出错: {e}")
-                        continue
-                
-                if all_edits_info:
-                    LOGGER.info("所有Edit控件信息:")
-                    for info in all_edits_info:
-                        LOGGER.info(f"  - {info}")
-                
-                if target_edit:
-                    LOGGER.info(f"找到Serial Numbers文本框（大小: {max_size}, 位置: {target_rect.left},{target_rect.top}）")
-                    # 使用鼠标点击文本框中心（更可靠的方法）
-                    try:
-                        import pyautogui
-                        center_x = target_rect.left + target_rect.width() // 2
-                        center_y = target_rect.top + target_rect.height() // 2
-
-                        # 先点击文本框，确保获得焦点
-                        LOGGER.info(f"点击文本框中心位置: ({center_x}, {center_y})")
-                        pyautogui.click(center_x, center_y)
-                        time.sleep(0.8)  # 增加等待时间，确保焦点切换
-
-                        # 再次点击，确保文本框获得焦点
-                        pyautogui.click(center_x, center_y)
-                        time.sleep(0.5)
-
-                        # 清除现有内容
-                        LOGGER.info("清除现有内容...")
-                        pyautogui.hotkey('ctrl', 'a')
-                        time.sleep(0.3)
-
-                        # 验证剪贴板内容
-                        try:
-                            import pyperclip
-                            clipboard_content = pyperclip.paste()
-                            LOGGER.info(f"剪贴板内容预览: {clipboard_content[:50]}... (长度: {len(clipboard_content)})")
-                        except Exception:
-                            pass
-
-                        # 为后续多次写入准备一个可靠的文本写入辅助方法
-                        def _force_write_text(edit_control) -> bool:
-                            """确保文本框包含Units文本，无论粘贴是否被拦截"""
-                            write_attempts = [
-                                ("set_edit_text", lambda: edit_control.set_edit_text(normalized_units_info)),
-                                ("set_value", lambda: edit_control.set_value(normalized_units_info)),
-                                ("type_keys", lambda: (
-                                    edit_control.set_focus(),
-                                    time.sleep(0.3),
-                                    edit_control.type_keys("^a{BACKSPACE}"),
-                                    time.sleep(0.3),
-                                    edit_control.type_keys(normalized_units_info, with_spaces=True, pause=0.01)
-                                )),
-                            ]
-
-                            for write_name, write_action in write_attempts:
-                                try:
-                                    write_action()
-                                    time.sleep(0.5)
-                                    try:
-                                        current_text = edit_control.window_text()
-                                        if current_text:
-                                            LOGGER.info(
-                                                f"✅ 通过 {write_name} 写入Units文本，长度: {len(current_text)} 字符"
-                                            )
-                                            LOGGER.debug(f"内容预览: {current_text[:100]}...")
-                                            return True
-                                    except Exception as read_exc:
-                                        LOGGER.debug(f"读取文本内容以验证失败（{write_name}）：{read_exc}")
-                                        return True
-                                except Exception as write_exc:
-                                    LOGGER.debug(f"通过 {write_name} 写入失败: {write_exc}")
-                            return False
-
-                        # 粘贴内容
-                        LOGGER.info("粘贴Units信息...")
-                        pyautogui.hotkey('ctrl', 'v')
-                        time.sleep(1.0)  # 增加等待时间，确保粘贴完成
-
-                        # 验证粘贴是否成功（尝试读取文本框内容），失败则强制写入
-                        paste_success = False
-                        try:
-                            current_text = target_edit.window_text()
-                            if current_text:
-                                paste_success = True
-                                LOGGER.info(f"✅ 文本框内容已更新，长度: {len(current_text)} 字符")
-                                LOGGER.debug(f"内容预览: {current_text[:100]}...")
-                            else:
-                                LOGGER.warning("⚠️ 文本框内容为空，粘贴可能失败，尝试直接写入文本")
-                        except Exception as read_exc:
-                            LOGGER.debug(f"无法读取文本框内容进行验证: {read_exc}")
-
-                        if not paste_success:
-                            paste_success = _force_write_text(target_edit)
-
-                        text_field_filled = paste_success
-                        if paste_success:
-                            LOGGER.info("✅ 已通过鼠标点击填写Serial Numbers文本框")
-                        else:
-                            LOGGER.warning("粘贴和直接写入都未确认成功，将继续尝试其他方法")
-                    except ImportError:
-                        LOGGER.warning("pyautogui未安装，尝试使用pywinauto")
-                        # 回退到pywinauto方法
-                        try:
-                            target_edit.set_focus()
-                            time.sleep(0.8)
-
-                            # 清除现有内容
-                            target_edit.type_keys("^a")
-                            time.sleep(0.3)
-
-                            # 粘贴内容
-                            if pyperclip or win32clipboard:
-                                target_edit.type_keys("^v")
-                            else:
-                                # 如果没有剪贴板，直接输入（可能很慢）
-                                LOGGER.warning("没有剪贴板库，将直接输入文本（可能很慢）")
-                                target_edit.type_keys(normalized_units_info)
-
-                            time.sleep(0.5)
-                            text_field_filled = True
-                            LOGGER.info("✅ 已填写Serial Numbers文本框（pywinauto）")
-                        except Exception as e:
-                            LOGGER.error(f"使用pywinauto填写失败: {e}")
-                            raise
-                else:
-                    LOGGER.warning(f"未找到足够大的Edit控件（最大: {max_size}，阈值: 5000）")
-                
-            except Exception as e:
-                LOGGER.error(f"查找Edit控件失败: {e}")
-                import traceback
-                LOGGER.debug(traceback.format_exc())
-            
-            # 方法2: 使用Windows API查找文本框
+            # 方法1: 使用Windows API查找文本框（最优先，已验证成功）
             if not text_field_filled and win32gui:
                 try:
-                    LOGGER.info("使用Windows API查找Serial Numbers文本框...")
+                    LOGGER.info("使用Windows API查找Serial Numbers文本框（最优先方法）...")
                     dialog_hwnd = units_dialog.handle if hasattr(units_dialog, 'handle') else None
                     if dialog_hwnd:
                         def enum_edit_proc(hwnd_child, lParam):
@@ -2369,7 +2360,7 @@ class MoleSubmitter:
                                     rect = win32gui.GetWindowRect(hwnd_child)
                                     width = rect[2] - rect[0]
                                     height = rect[3] - rect[1]
-                                    # 降低阈值，多行文本框通常比较大
+                                    # 多行文本框通常比较大
                                     if width > 150 and height > 80:
                                         lParam.append((hwnd_child, width, height, rect))
                             except:
@@ -2390,7 +2381,7 @@ class MoleSubmitter:
                             
                             LOGGER.info(f"选择最大的文本框（Windows API）: {edit_width}x{edit_height}, hwnd={edit_hwnd}")
                             
-                            # 方法2a: 使用鼠标点击和粘贴
+                            # 使用鼠标点击和粘贴（已验证成功的方法）
                             try:
                                 import pyautogui
                                 center_x = (edit_rect[0] + edit_rect[2]) // 2
@@ -2417,33 +2408,259 @@ class MoleSubmitter:
                                 LOGGER.info("✅ 已通过Windows API + 鼠标点击填写Serial Numbers文本框")
                             except ImportError:
                                 LOGGER.warning("pyautogui未安装，尝试使用SendMessage")
-                            
-                            # 方法2b: 使用SendMessage直接发送文本（备用方法）
-                            if not text_field_filled:
+                                # 如果pyautogui未安装，使用SendMessage
                                 try:
-                                    import win32con
-                                    import win32api
+                                    if not win32con:
+                                        raise ImportError("win32con未安装")
                                     
-                                    LOGGER.info("使用SendMessage直接发送文本到文本框...")
-                                    
-                                    # 先设置焦点
                                     win32gui.SetFocus(edit_hwnd)
                                     time.sleep(0.3)
-                                    
-                                    # 发送WM_SETTEXT消息设置文本
-                                    # 注意：对于多行文本框，可能需要使用EM_REPLACESEL
-                                    # 先清除现有内容
                                     win32gui.SendMessage(edit_hwnd, win32con.EM_SETSEL, 0, -1)
                                     time.sleep(0.1)
-                                    
-                                    # 替换选中内容
                                     win32gui.SendMessage(edit_hwnd, win32con.EM_REPLACESEL, True, units_info)
                                     time.sleep(0.5)
-                                    
                                     text_field_filled = True
                                     LOGGER.info("✅ 已通过SendMessage填写Serial Numbers文本框")
                                 except Exception as e:
                                     LOGGER.warning(f"SendMessage方法失败: {e}")
+                except Exception as e:
+                    LOGGER.debug(f"Windows API方法失败: {e}")
+            
+            # 方法2: 使用pywinauto查找Edit控件（备用方法）
+            if not text_field_filled:
+                try:
+                    LOGGER.info("使用pywinauto查找Serial Numbers文本框（备用方法）...")
+                    edit_controls = units_dialog.descendants(control_type="Edit")
+                    LOGGER.info(f"找到 {len(edit_controls)} 个Edit控件")
+                    
+                    # 查找最大的Edit控件（通常是多行文本框）
+                    target_edit = None
+                    target_rect = None
+                    max_size = 0
+                    
+                    for edit in edit_controls:
+                        try:
+                            if edit.is_visible() and edit.is_enabled():
+                                rect = edit.rectangle()
+                                size = rect.width() * rect.height()
+                                # 多行文本框通常比较大（降低阈值，至少 100x50）
+                                if size > max_size and size > 5000:
+                                    max_size = size
+                                    target_edit = edit
+                                    target_rect = rect
+                        except Exception as e:
+                            LOGGER.debug(f"检查Edit控件时出错: {e}")
+                            continue
+                    
+                    if target_edit:
+                        LOGGER.info(f"找到Serial Numbers文本框（大小: {max_size}, 位置: {target_rect.left},{target_rect.top}）")
+                        # 使用鼠标点击文本框中心（更可靠的方法）
+                        try:
+                            import pyautogui
+                            center_x = target_rect.left + target_rect.width() // 2
+                            center_y = target_rect.top + target_rect.height() // 2
+
+                            # 先点击文本框，确保获得焦点
+                            LOGGER.info(f"点击文本框中心位置: ({center_x}, {center_y})")
+                            pyautogui.click(center_x, center_y)
+                            time.sleep(0.8)  # 增加等待时间，确保焦点切换
+
+                            # 再次点击，确保文本框获得焦点
+                            pyautogui.click(center_x, center_y)
+                            time.sleep(0.5)
+
+                            # 清除现有内容
+                            LOGGER.info("清除现有内容...")
+                            pyautogui.hotkey('ctrl', 'a')
+                            time.sleep(0.3)
+
+                            # 验证剪贴板内容
+                            try:
+                                import pyperclip
+                                clipboard_content = pyperclip.paste()
+                                LOGGER.info(f"剪贴板内容预览: {clipboard_content[:50]}... (长度: {len(clipboard_content)})")
+                            except Exception:
+                                pass
+
+                            # 为后续多次写入准备一个可靠的文本写入辅助方法
+                            def _force_write_text(edit_control) -> bool:
+                                """确保文本框包含Units文本，无论粘贴是否被拦截"""
+                                write_attempts = [
+                                    ("set_edit_text", lambda: edit_control.set_edit_text(normalized_units_info)),
+                                    ("set_value", lambda: edit_control.set_value(normalized_units_info)),
+                                    ("type_keys", lambda: (
+                                        edit_control.set_focus(),
+                                        time.sleep(0.3),
+                                        edit_control.type_keys("^a{BACKSPACE}"),
+                                        time.sleep(0.3),
+                                        edit_control.type_keys(normalized_units_info, with_spaces=True, pause=0.01)
+                                    )),
+                                ]
+
+                                for write_name, write_action in write_attempts:
+                                    try:
+                                        write_action()
+                                        time.sleep(0.5)
+                                        try:
+                                            current_text = edit_control.window_text()
+                                            if current_text:
+                                                LOGGER.info(
+                                                    f"✅ 通过 {write_name} 写入Units文本，长度: {len(current_text)} 字符"
+                                                )
+                                                LOGGER.debug(f"内容预览: {current_text[:100]}...")
+                                                return True
+                                        except Exception as read_exc:
+                                            LOGGER.debug(f"读取文本内容以验证失败（{write_name}）：{read_exc}")
+                                            return True
+                                    except Exception as write_exc:
+                                        LOGGER.debug(f"通过 {write_name} 写入失败: {write_exc}")
+                                return False
+
+                            # 粘贴内容
+                            LOGGER.info("粘贴Units信息...")
+                            pyautogui.hotkey('ctrl', 'v')
+                            time.sleep(1.0)  # 增加等待时间，确保粘贴完成
+
+                            # 验证粘贴是否成功（尝试读取文本框内容），失败则强制写入
+                            paste_success = False
+                            try:
+                                current_text = target_edit.window_text()
+                                if current_text:
+                                    paste_success = True
+                                    LOGGER.info(f"✅ 文本框内容已更新，长度: {len(current_text)} 字符")
+                                    LOGGER.debug(f"内容预览: {current_text[:100]}...")
+                                else:
+                                    LOGGER.warning("⚠️ 文本框内容为空，粘贴可能失败，尝试直接写入文本")
+                            except Exception as read_exc:
+                                LOGGER.debug(f"无法读取文本框内容进行验证: {read_exc}")
+
+                            if not paste_success:
+                                paste_success = _force_write_text(target_edit)
+
+                            text_field_filled = paste_success
+                            if paste_success:
+                                LOGGER.info("✅ 已通过鼠标点击填写Serial Numbers文本框")
+                            else:
+                                LOGGER.warning("粘贴和直接写入都未确认成功，将继续尝试其他方法")
+                        except ImportError:
+                            LOGGER.warning("pyautogui未安装，尝试使用pywinauto")
+                            # 回退到pywinauto方法
+                            try:
+                                target_edit.set_focus()
+                                time.sleep(0.8)
+
+                                # 清除现有内容
+                                target_edit.type_keys("^a")
+                                time.sleep(0.3)
+
+                                # 粘贴内容
+                                if pyperclip or win32clipboard:
+                                    target_edit.type_keys("^v")
+                                else:
+                                    # 如果没有剪贴板，直接输入（可能很慢）
+                                    LOGGER.warning("没有剪贴板库，将直接输入文本（可能很慢）")
+                                    target_edit.type_keys(normalized_units_info)
+
+                                time.sleep(0.5)
+                                text_field_filled = True
+                                LOGGER.info("✅ 已填写Serial Numbers文本框（pywinauto）")
+                            except Exception as e:
+                                LOGGER.error(f"使用pywinauto填写失败: {e}")
+                                raise
+                        else:
+                            LOGGER.warning(f"未找到足够大的Edit控件（最大: {max_size}，阈值: 5000）")
+                except Exception as e:
+                    LOGGER.debug(f"使用pywinauto查找Edit控件失败: {e}")
+            
+            # 方法3: 使用Windows API查找文本框（如果方法2失败）
+            if not text_field_filled and win32gui:
+                try:
+                    LOGGER.info("使用Windows API查找Serial Numbers文本框...")
+                    dialog_hwnd = units_dialog.handle if hasattr(units_dialog, 'handle') else None
+                    if dialog_hwnd:
+                        def enum_edit_proc(hwnd_child, lParam):
+                            try:
+                                class_name = win32gui.GetClassName(hwnd_child)
+                                if "EDIT" in class_name.upper():
+                                    rect = win32gui.GetWindowRect(hwnd_child)
+                                    width = rect[2] - rect[0]
+                                    height = rect[3] - rect[1]
+                                    # 降低阈值，多行文本框通常比较大
+                                    if width > 150 and height > 80:
+                                        lParam.append((hwnd_child, width, height, rect))
+                            except:
+                                pass
+                            return True
+                    
+                    edit_list = []
+                    win32gui.EnumChildWindows(dialog_hwnd, enum_edit_proc, edit_list)
+                    
+                    LOGGER.info(f"Windows API找到 {len(edit_list)} 个Edit控件")
+                    for i, (hwnd, w, h, rect) in enumerate(edit_list):
+                        LOGGER.info(f"  Edit {i+1}: hwnd={hwnd}, 大小={w}x{h}, 位置=({rect[0]},{rect[1]})")
+                    
+                    if edit_list:
+                        # 选择最大的文本框
+                        edit_list.sort(key=lambda x: x[1] * x[2], reverse=True)
+                        edit_hwnd, edit_width, edit_height, edit_rect = edit_list[0]
+                        
+                        LOGGER.info(f"选择最大的文本框（Windows API）: {edit_width}x{edit_height}, hwnd={edit_hwnd}")
+                        
+                        # 方法2a: 使用鼠标点击和粘贴
+                        try:
+                            import pyautogui
+                            center_x = (edit_rect[0] + edit_rect[2]) // 2
+                            center_y = (edit_rect[1] + edit_rect[3]) // 2
+                            
+                            LOGGER.info(f"点击文本框中心: ({center_x}, {center_y})")
+                            pyautogui.click(center_x, center_y)
+                            time.sleep(0.8)
+                            
+                            # 再次点击确保焦点
+                            pyautogui.click(center_x, center_y)
+                            time.sleep(0.5)
+                            
+                            # 清除并粘贴
+                            LOGGER.info("清除现有内容...")
+                            pyautogui.hotkey('ctrl', 'a')
+                            time.sleep(0.3)
+                            
+                            LOGGER.info("粘贴Units信息...")
+                            pyautogui.hotkey('ctrl', 'v')
+                            time.sleep(1.0)
+                            
+                            text_field_filled = True
+                            LOGGER.info("✅ 已通过Windows API + 鼠标点击填写Serial Numbers文本框")
+                        except ImportError:
+                            LOGGER.warning("pyautogui未安装，尝试使用SendMessage")
+                        
+                        # 方法2b: 使用SendMessage直接发送文本（备用方法）
+                        if not text_field_filled:
+                            try:
+                                # win32con和win32api已在文件顶部导入
+                                if not win32con:
+                                    raise ImportError("win32con未安装")
+                                
+                                LOGGER.info("使用SendMessage直接发送文本到文本框...")
+                                
+                                # 先设置焦点
+                                win32gui.SetFocus(edit_hwnd)
+                                time.sleep(0.3)
+                                
+                                # 发送WM_SETTEXT消息设置文本
+                                # 注意：对于多行文本框，可能需要使用EM_REPLACESEL
+                                # 先清除现有内容
+                                win32gui.SendMessage(edit_hwnd, win32con.EM_SETSEL, 0, -1)
+                                time.sleep(0.1)
+                                
+                                # 替换选中内容
+                                win32gui.SendMessage(edit_hwnd, win32con.EM_REPLACESEL, True, units_info)
+                                time.sleep(0.5)
+                                
+                                text_field_filled = True
+                                LOGGER.info("✅ 已通过SendMessage填写Serial Numbers文本框")
+                            except Exception as e:
+                                LOGGER.warning(f"SendMessage方法失败: {e}")
                 
                 except Exception as e:
                     LOGGER.error(f"Windows API方法失败: {e}")
@@ -2498,70 +2715,280 @@ class MoleSubmitter:
             # 等待一下，确保内容已填写
             time.sleep(0.5)
             
-            # 点击Search按钮
+            # 点击Search按钮（优化：优先使用uia backend，因为这是最可靠的方法）
             LOGGER.info("点击Search按钮...")
+            
+            # 确保对话框有焦点
+            try:
+                units_dialog.set_focus()
+                time.sleep(0.3)
+            except:
+                pass
+            
             search_clicked = False
             
-            # 方法1: 直接查找标题为"Search"的按钮
-            try:
-                search_button = units_dialog.child_window(title="Search", control_type="Button")
-                if search_button.exists() and search_button.is_enabled():
-                    LOGGER.info("找到Search按钮（通过title）")
-                    search_button.click_input()
-                    time.sleep(0.5)
-                    search_clicked = True
-                    LOGGER.info("✅ 已点击Search按钮（通过title）")
-            except Exception as e1:
-                LOGGER.debug(f"方法1失败: {e1}")
-            
-            # 方法2: 遍历所有按钮查找Search
+            # 方法1: 优先使用uia backend（这是最可靠的方法，根据日志显示这是成功的方法）
             if not search_clicked:
                 try:
-                    all_buttons = units_dialog.descendants(control_type="Button")
-                    LOGGER.info(f"找到 {len(all_buttons)} 个按钮")
-                    for button in all_buttons:
-                        try:
-                            button_text = button.window_text().strip()
-                            if "SEARCH" in button_text.upper():
-                                LOGGER.info(f"找到Search按钮（文本: '{button_text}'）")
-                                if button.is_visible() and button.is_enabled():
-                                    button.click_input()
-                                    time.sleep(0.5)
-                                    search_clicked = True
-                                    LOGGER.info("✅ 已点击Search按钮（遍历按钮）")
-                                    break
-                        except:
-                            continue
-                except Exception as e2:
-                    LOGGER.debug(f"方法2失败: {e2}")
-            
-            # 方法3: 使用Windows API查找Search按钮
-            if not search_clicked and win32gui:
-                try:
+                    LOGGER.info("尝试使用uia backend查找Search按钮（最优先方法）...")
                     dialog_hwnd = units_dialog.handle if hasattr(units_dialog, 'handle') else None
                     if dialog_hwnd:
-                        def enum_button_proc(hwnd_child, lParam):
+                        try:
+                            uia_app = Application(backend="uia").connect(handle=dialog_hwnd)
+                            uia_dialog = uia_app.window(handle=dialog_hwnd)
+                            if uia_dialog.exists():
+                                search_button = uia_dialog.child_window(title="Search", control_type="Button")
+                                if search_button.exists() and search_button.is_enabled():
+                                    LOGGER.info("使用uia backend找到Search按钮")
+                                    search_button.click_input()
+                                    time.sleep(0.3)
+                                    search_clicked = True
+                                    LOGGER.info("✅ 已通过uia backend点击Search按钮")
+                        except Exception as e:
+                            LOGGER.debug(f"uia backend方法失败: {e}")
+                except Exception as e3:
+                    LOGGER.debug(f"uia backend查找失败: {e3}")
+            
+            # 方法2: 使用win32 backend查找（如果uia失败）
+            if not search_clicked:
+                try:
+                    search_button = units_dialog.child_window(title="Search", control_type="Button")
+                    if search_button.exists():
+                        LOGGER.info("找到Search按钮（通过title，win32 backend）")
+                        if search_button.is_enabled() and search_button.is_visible():
+                            try:
+                                search_button.click_input()
+                                time.sleep(0.3)
+                                search_clicked = True
+                                LOGGER.info("✅ 已通过鼠标点击Search按钮（通过title，使用click_input）")
+                            except Exception as e:
+                                LOGGER.warning(f"click_input()失败: {e}")
+                                # 如果click_input()失败，尝试使用坐标点击
+                                try:
+                                    button_rect = search_button.rectangle()
+                                    button_center_x = button_rect.left + (button_rect.right - button_rect.left) // 2
+                                    button_center_y = button_rect.top + (button_rect.bottom - button_rect.top) // 2
+                                    import pyautogui
+                                    pyautogui.moveTo(button_center_x, button_center_y, duration=0.2)
+                                    time.sleep(0.1)
+                                    pyautogui.click(button_center_x, button_center_y, clicks=1)
+                                    time.sleep(0.3)
+                                    search_clicked = True
+                                    LOGGER.info(f"✅ 已通过坐标鼠标点击Search按钮（位置: {button_center_x}, {button_center_y}）")
+                                except Exception as e2:
+                                    LOGGER.warning(f"坐标点击也失败: {e2}")
+                except Exception as e1:
+                    LOGGER.debug(f"通过title查找Search按钮失败: {e1}")
+            
+            # 方法3: 遍历所有按钮查找Search（备用方法）
+            if not search_clicked:
+                try:
+                    LOGGER.info("尝试使用uia backend查找Search按钮...")
+                    # 重新连接对话框使用uia backend
+                    if win32gui:
+                        dialog_hwnd = units_dialog.handle if hasattr(units_dialog, 'handle') else None
+                        if dialog_hwnd:
+                            try:
+                                uia_app = Application(backend="uia").connect(handle=dialog_hwnd)
+                                uia_dialog = uia_app.window(handle=dialog_hwnd)
+                                if uia_dialog.exists():
+                                    search_button = uia_dialog.child_window(title="Search", control_type="Button")
+                                    if search_button.exists() and search_button.is_enabled():
+                                        LOGGER.info("使用uia backend找到Search按钮")
+                                        search_button.click_input()
+                                        search_clicked = True
+                                        LOGGER.info("✅ 已通过uia backend点击Search按钮")
+                            except Exception as e:
+                                LOGGER.debug(f"uia backend方法失败: {e}")
+                except Exception as e3:
+                    LOGGER.debug(f"uia backend查找失败: {e3}")
+            
+            # 方法4: 使用Windows API查找按钮（递归查找所有子窗口）
+            if not search_clicked and win32gui and win32con:
+                try:
+                    LOGGER.info("使用Windows API查找Search按钮（递归查找所有子窗口）...")
+                    dialog_hwnd = units_dialog.handle if hasattr(units_dialog, 'handle') else None
+                    if dialog_hwnd:
+                        button_found = [False]  # 使用列表以便在回调中修改
+                        button_hwnd = [None]
+                        all_buttons = []  # 记录所有找到的按钮，用于调试
+                        
+                        def enum_child_proc(hwnd_child, lParam):
+                            """枚举子窗口，查找Search按钮"""
                             try:
                                 window_text = win32gui.GetWindowText(hwnd_child)
                                 class_name = win32gui.GetClassName(hwnd_child)
-                                if "BUTTON" in class_name.upper() and "SEARCH" in window_text.upper():
-                                    lParam.append(hwnd_child)
-                                    return False
+                                
+                                # 记录所有BUTTON控件，用于调试
+                                if "BUTTON" in class_name.upper():
+                                    all_buttons.append((hwnd_child, window_text, class_name))
+                                    
+                                    # 查找包含"Search"的按钮（不区分大小写）
+                                    if "Search" in window_text or "search" in window_text.lower():
+                                        LOGGER.info(f"通过Windows API找到Search按钮: '{window_text}' (类名: {class_name}, hwnd={hwnd_child})")
+                                        button_found[0] = True
+                                        button_hwnd[0] = hwnd_child
+                                        return False  # 找到后停止枚举
+                                return True
                             except:
-                                pass
-                            return True
+                                return True
                         
-                        button_list = []
-                        win32gui.EnumChildWindows(dialog_hwnd, enum_button_proc, button_list)
+                        # EnumChildWindows 会自动递归查找所有子窗口
+                        win32gui.EnumChildWindows(dialog_hwnd, enum_child_proc, None)
                         
-                        if button_list:
-                            button_hwnd = button_list[0]
-                            win32gui.SendMessage(button_hwnd, win32con.BM_CLICK, 0, 0)
-                            time.sleep(0.5)
+                        # 如果没找到，尝试在主窗口中查找（Search按钮可能在主窗口中，不在对话框内）
+                        if not button_found[0] and self._window:
+                            try:
+                                main_hwnd = self._window.handle if hasattr(self._window, 'handle') else None
+                                if main_hwnd and main_hwnd != dialog_hwnd:
+                                    LOGGER.info("在对话框子窗口中未找到Search按钮，尝试在主窗口中查找...")
+                                    win32gui.EnumChildWindows(main_hwnd, enum_child_proc, None)
+                            except Exception as main_err:
+                                LOGGER.debug(f"在主窗口中查找失败: {main_err}")
+                        
+                        # 输出所有找到的按钮，用于调试
+                        if all_buttons:
+                            LOGGER.info(f"Windows API找到 {len(all_buttons)} 个按钮:")
+                            for hwnd, text, cls in all_buttons:
+                                LOGGER.info(f"  按钮: '{text}' (类名: {cls}, hwnd={hwnd})")
+                        else:
+                            LOGGER.warning("Windows API未找到任何按钮控件")
+                        
+                        if button_found[0] and button_hwnd[0]:
+                            # 找到了按钮，尝试点击
+                            try:
+                                # 先尝试 SendMessage（同步，更可靠）
+                                win32gui.SendMessage(button_hwnd[0], win32con.BM_CLICK, 0, 0)
+                                time.sleep(0.5)
+                                search_clicked = True
+                                LOGGER.info("✅ 已通过Windows API点击Search按钮（SendMessage）")
+                            except Exception as send_err:
+                                LOGGER.warning(f"SendMessage失败: {send_err}，尝试PostMessage...")
+                                try:
+                                    # 如果 SendMessage 失败，尝试 PostMessage
+                                    win32gui.PostMessage(button_hwnd[0], win32con.BM_CLICK, 0, 0)
+                                    time.sleep(0.5)
+                                    search_clicked = True
+                                    LOGGER.info("✅ 已通过Windows API点击Search按钮（PostMessage）")
+                                except Exception as post_err:
+                                    LOGGER.warning(f"PostMessage也失败: {post_err}")
+                        else:
+                            LOGGER.warning("Windows API未找到Search按钮")
+                            
+                            # 如果没找到Search按钮，尝试通过位置查找（Search按钮通常在对话框右下角）
+                            if all_buttons:
+                                LOGGER.info("尝试通过位置查找Search按钮（通常在对话框右下角）...")
+                                dialog_rect = units_dialog.rectangle()
+                                dialog_right = dialog_rect.left + dialog_rect.width()
+                                dialog_bottom = dialog_rect.top + dialog_rect.height()
+                                
+                                # 查找位置最接近右下角的按钮
+                                best_button = None
+                                min_distance = float('inf')
+                                
+                                for btn_hwnd, btn_text, btn_class in all_buttons:
+                                    try:
+                                        btn_rect = win32gui.GetWindowRect(btn_hwnd)
+                                        btn_center_x = (btn_rect[0] + btn_rect[2]) // 2
+                                        btn_center_y = (btn_rect[1] + btn_rect[3]) // 2
+                                        
+                                        # 计算按钮中心到对话框右下角的距离
+                                        distance = ((btn_center_x - dialog_right) ** 2 + (btn_center_y - dialog_bottom) ** 2) ** 0.5
+                                        
+                                        # 如果按钮在对话框右下角区域（右下角80%区域内）
+                                        if (btn_center_x > dialog_rect.left + dialog_rect.width() * 0.6 and 
+                                            btn_center_y > dialog_rect.top + dialog_rect.height() * 0.7):
+                                            if distance < min_distance:
+                                                min_distance = distance
+                                                best_button = (btn_hwnd, btn_text, btn_class, btn_center_x, btn_center_y)
+                                    except:
+                                        continue
+                                
+                                if best_button:
+                                    btn_hwnd, btn_text, btn_class, btn_x, btn_y = best_button
+                                    LOGGER.info(f"找到最接近右下角的按钮: '{btn_text}' (位置: {btn_x}, {btn_y}, 距离右下角: {min_distance:.1f}像素)")
+                                    try:
+                                        win32gui.SendMessage(btn_hwnd, win32con.BM_CLICK, 0, 0)
+                                        time.sleep(0.5)
+                                        search_clicked = True
+                                        LOGGER.info("✅ 已通过Windows API点击右下角按钮（可能是Search按钮）")
+                                    except Exception as pos_err:
+                                        LOGGER.warning(f"点击右下角按钮失败: {pos_err}，尝试PostMessage...")
+                                        try:
+                                            win32gui.PostMessage(btn_hwnd, win32con.BM_CLICK, 0, 0)
+                                            time.sleep(0.5)
+                                            search_clicked = True
+                                            LOGGER.info("✅ 已通过Windows API点击右下角按钮（PostMessage）")
+                                        except Exception as post_err:
+                                            LOGGER.warning(f"PostMessage也失败: {post_err}")
+                                else:
+                                    # 如果位置查找失败，尝试点击最后一个按钮作为备用
+                                    LOGGER.info("位置查找失败，尝试点击最后一个按钮作为备用...")
+                                    if len(all_buttons) > 0:
+                                        last_button_hwnd, last_button_text, last_button_class = all_buttons[-1]
+                                        LOGGER.info(f"尝试点击最后一个按钮: '{last_button_text}' (类名: {last_button_class}, hwnd={last_button_hwnd})")
+                                        try:
+                                            win32gui.SendMessage(last_button_hwnd, win32con.BM_CLICK, 0, 0)
+                                            time.sleep(0.5)
+                                            search_clicked = True
+                                            LOGGER.info("✅ 已通过Windows API点击最后一个按钮（备用方法）")
+                                        except Exception as last_err:
+                                            LOGGER.warning(f"点击最后一个按钮失败: {last_err}，尝试PostMessage...")
+                                            try:
+                                                win32gui.PostMessage(last_button_hwnd, win32con.BM_CLICK, 0, 0)
+                                                time.sleep(0.5)
+                                                search_clicked = True
+                                                LOGGER.info("✅ 已通过Windows API点击最后一个按钮（PostMessage）")
+                                            except Exception as post_err:
+                                                LOGGER.warning(f"PostMessage也失败: {post_err}")
+                except Exception as e4:
+                    LOGGER.warning(f"使用Windows API查找按钮失败: {e4}")
+                    import traceback
+                    LOGGER.debug(traceback.format_exc())
+            
+            # 方法5: 备用方法 - 使用鼠标点击估算位置
+            if not search_clicked:
+                try:
+                    LOGGER.warning("所有标准方法都失败，尝试使用鼠标点击估算位置...")
+                    import pyautogui
+                    dialog_rect = units_dialog.rectangle()
+                    
+                    LOGGER.info(f"对话框位置: left={dialog_rect.left}, top={dialog_rect.top}, width={dialog_rect.width()}, height={dialog_rect.height()}")
+                    
+                    # Search按钮通常在对话框的右下角或底部中间
+                    # 根据对话框布局，尝试更多可能的位置
+                    possible_positions = [
+                        (dialog_rect.left + dialog_rect.width() * 0.85, dialog_rect.top + dialog_rect.height() * 0.85),  # 右下角
+                        (dialog_rect.left + dialog_rect.width() * 0.80, dialog_rect.top + dialog_rect.height() * 0.90),  # 右下角偏上
+                        (dialog_rect.left + dialog_rect.width() * 0.75, dialog_rect.top + dialog_rect.height() * 0.88),  # 右下角偏左
+                        (dialog_rect.left + dialog_rect.width() * 0.50, dialog_rect.top + dialog_rect.height() * 0.85),  # 底部中间
+                        (dialog_rect.left + dialog_rect.width() * 0.70, dialog_rect.top + dialog_rect.height() * 0.82),  # 右下角偏上更多
+                    ]
+                    
+                    for pos_idx, (x, y) in enumerate(possible_positions):
+                        try:
+                            LOGGER.info(f"尝试位置 {pos_idx + 1}: ({int(x)}, {int(y)})")
+                            # 先移动鼠标到位置
+                            pyautogui.moveTo(int(x), int(y), duration=0.2)
+                            time.sleep(0.1)
+                            # 点击
+                            pyautogui.click(int(x), int(y))
+                            time.sleep(0.8)  # 等待点击响应
+                            
+                            # 不检查对话框是否存在，因为即使点击成功，对话框也可能不会立即关闭
+                            # 直接假设点击成功，让后续流程验证
                             search_clicked = True
-                            LOGGER.info("✅ 已通过Windows API点击Search按钮")
-                except Exception as e3:
-                    LOGGER.debug(f"方法3失败: {e3}")
+                            LOGGER.info(f"✅ 已通过位置点击Search按钮（位置 {pos_idx + 1}），假设点击成功")
+                            break
+                        except Exception as pos_err:
+                            LOGGER.warning(f"位置 {pos_idx + 1} 点击失败: {pos_err}")
+                            continue
+                except ImportError:
+                    LOGGER.warning("pyautogui未安装，无法使用备用方法")
+                except Exception as e5:
+                    LOGGER.warning(f"备用方法失败: {e5}")
+                    import traceback
+                    LOGGER.debug(traceback.format_exc())
             
             if not search_clicked:
                 raise RuntimeError("无法点击Search按钮，已尝试所有方法")
@@ -2574,32 +3001,47 @@ class MoleSubmitter:
             LOGGER.error(f"填写Units搜索对话框失败: {e}")
             raise RuntimeError(f"无法填写Units搜索对话框: {e}")
     
-    def _check_row_status_and_select(self, ui_config: dict = None) -> None:
+    def _check_row_status_and_select(self, ui_config: dict = None, use_available_rows: bool = False) -> dict:
         """
-        点击"Select Visible Rows"按钮，添加到Summary，并切换到Summary标签
+        点击选择按钮，添加到Summary，并切换到Summary标签
         
-        流程：
-        1. 点击 Select Visible Rows
-        2. 点击 Add to Summary
-        3. 点击 3. View Summary 标签
+        Args:
+            ui_config: UI配置
+            use_available_rows: 如果为True，使用"Select Available Rows"；否则使用"Select Visible Rows"
+        
+        Returns:
+            包含选择信息的字典
         """
+        result_info = {}
+        
         if Application is None:
-            return
+            return result_info
         
         LOGGER.info("执行选择和添加流程...")
         
         # 等待搜索结果加载（给数据一些时间加载）
         time.sleep(2)
         
-        # 步骤1: 点击"Select Visible Rows"按钮
-        LOGGER.info("步骤1: 点击 'Select Visible Rows'")
-        self._click_select_visible_rows_button()
+        # 步骤1: 点击选择按钮
+        if use_available_rows:
+            LOGGER.info("步骤1: 点击 'Select Available Rows'")
+            self._click_select_available_rows_button()
+        else:
+            LOGGER.info("步骤1: 点击 'Select Visible Rows'")
+            self._click_select_visible_rows_button()
         time.sleep(1)
         
         # 步骤2: 点击"Add to summary"按钮
         LOGGER.info("步骤2: 点击 'Add to Summary'")
         self._click_add_to_summary_button()
-        time.sleep(1.5)  # 给一点时间让Add操作完成
+        # Units模式需要更长的等待时间（比VPOs模式长）
+        if use_available_rows:
+            # VPOs模式：使用较短的等待时间
+            time.sleep(1.5)
+        else:
+            # Units模式：等待10秒，让Add to Summary操作完全完成
+            LOGGER.info("Units模式：等待Add to Summary操作完成（等待10秒）...")
+            time.sleep(10.0)  # Units模式需要等待10秒
         
         # 步骤3: 点击"3. View Summary"标签
         LOGGER.info("步骤3: 点击 '3. View Summary' 标签")
@@ -2612,6 +3054,7 @@ class MoleSubmitter:
         time.sleep(0.5)
         
         LOGGER.info("✅ 已完成选择和添加操作，并切换到Summary标签，已填写Comments")
+        return result_info
     
     def _click_select_visible_rows_button(self) -> None:
         """点击左侧的'Select Visible Rows'按钮"""
@@ -2747,6 +3190,1151 @@ class MoleSubmitter:
         except Exception as e:
             LOGGER.error(f"点击'Select Visible Rows'按钮失败: {e}")
             raise RuntimeError(f"无法点击'Select Visible Rows'按钮: {e}")
+    
+    def _click_select_available_rows_button(self) -> None:
+        """点击左侧的'Select Available Rows'按钮"""
+        if Application is None:
+            return
+        
+        LOGGER.info("查找并点击'Select Available Rows'按钮...")
+        
+        try:
+            # 确保主窗口有焦点
+            self._window.set_focus()
+            time.sleep(0.5)
+            
+            # 方法1: 通过按钮文本查找（精确匹配）
+            try:
+                select_button = self._window.child_window(title="Select Available Rows", control_type="Button")
+                if select_button.exists(timeout=2):
+                    if select_button.is_enabled() and select_button.is_visible():
+                        LOGGER.info("找到'Select Available Rows'按钮（通过title）")
+                        select_button.click_input()
+                        time.sleep(0.5)
+                        LOGGER.info("✅ 已点击'Select Available Rows'按钮")
+                        return
+            except Exception as e:
+                LOGGER.debug(f"通过title查找按钮失败: {e}")
+            
+            # 方法2: 通过部分文本匹配查找
+            try:
+                select_button = self._window.child_window(title_re=".*Select Available.*", control_type="Button")
+                if select_button.exists(timeout=2):
+                    if select_button.is_enabled() and select_button.is_visible():
+                        LOGGER.info("找到'Select Available Rows'按钮（通过正则title）")
+                        select_button.click_input()
+                        time.sleep(0.5)
+                        LOGGER.info("✅ 已点击'Select Available Rows'按钮")
+                        return
+            except Exception as e:
+                LOGGER.debug(f"通过正则title查找按钮失败: {e}")
+            
+            # 方法3: 遍历所有按钮查找（包含所有后代元素）
+            try:
+                all_buttons = self._window.descendants(control_type="Button")
+                LOGGER.debug(f"找到 {len(list(all_buttons))} 个按钮，开始搜索...")
+                for button in all_buttons:
+                    try:
+                        button_text = button.window_text().strip()
+                        LOGGER.debug(f"检查按钮文本: '{button_text}'")
+                        if button_text and ("SELECT AVAILABLE ROWS" in button_text.upper() or 
+                                          "SELECT AVAILABLE" in button_text.upper() or
+                                          "AVAILABLE ROWS" in button_text.upper()):
+                            LOGGER.info(f"找到'Select Available Rows'按钮（文本: '{button_text}'）")
+                            if button.is_enabled() and button.is_visible():
+                                button.click_input()
+                                time.sleep(0.5)
+                                LOGGER.info(f"✅ 已点击'Select Available Rows'按钮")
+                                return
+                    except Exception as e:
+                        LOGGER.debug(f"检查按钮时出错: {e}")
+                        continue
+            except Exception as e:
+                LOGGER.debug(f"遍历按钮查找失败: {e}")
+            
+            # 方法4: 使用win32gui查找按钮（备用方法）
+            if win32gui:
+                try:
+                    def find_button_by_text(hwnd, buttons):
+                        try:
+                            if not win32gui.IsWindowVisible(hwnd):
+                                return True
+                            text = win32gui.GetWindowText(hwnd)
+                            class_name = win32gui.GetClassName(hwnd)
+                            if "BUTTON" in class_name.upper() and text:
+                                text_upper = text.upper()
+                                if "SELECT AVAILABLE" in text_upper or "AVAILABLE ROWS" in text_upper:
+                                    buttons.append((hwnd, text))
+                        except:
+                            pass
+                        return True
+                    
+                    buttons = []
+                    win32gui.EnumChildWindows(self._window.handle, find_button_by_text, buttons)
+                    
+                    if buttons:
+                        hwnd, text = buttons[0]
+                        LOGGER.info(f"通过win32gui找到按钮: '{text}'")
+                        win32gui.SetForegroundWindow(hwnd)
+                        time.sleep(0.2)
+                        win32gui.SendMessage(hwnd, win32con.BM_CLICK, 0, 0)
+                        time.sleep(0.5)
+                        LOGGER.info("✅ 已点击'Select Available Rows'按钮（win32gui方法）")
+                        return
+                except Exception as e:
+                    LOGGER.debug(f"win32gui方法失败: {e}")
+            
+            LOGGER.warning("未找到'Select Available Rows'按钮")
+            
+        except Exception as e:
+            LOGGER.error(f"点击'Select Available Rows'按钮失败: {e}")
+            import traceback
+            LOGGER.error(traceback.format_exc())
+            raise RuntimeError(f"无法点击'Select Available Rows'按钮: {e}")
+    
+    def _click_export_to_excel_button(self) -> None:
+        """点击左侧的'Export to Excel'按钮"""
+        if Application is None:
+            return
+        
+        LOGGER.info("查找并点击'Export to Excel'按钮...")
+        
+        try:
+            self._window.set_focus()
+            time.sleep(0.5)
+            
+            # 方法1: 通过按钮文本查找（精确匹配）
+            try:
+                export_button = self._window.child_window(title="Export to Excel", control_type="Button")
+                if export_button.exists(timeout=2):
+                    if export_button.is_enabled() and export_button.is_visible():
+                        LOGGER.info("找到'Export to Excel'按钮（通过title）")
+                        export_button.click_input()
+                        time.sleep(1.0)  # 等待导出对话框
+                        LOGGER.info("✅ 已点击'Export to Excel'按钮")
+                        return
+            except Exception as e:
+                LOGGER.debug(f"通过title查找按钮失败: {e}")
+            
+            # 方法2: 通过部分文本匹配查找
+            try:
+                export_button = self._window.child_window(title_re=".*Export.*Excel.*", control_type="Button")
+                if export_button.exists(timeout=2):
+                    if export_button.is_enabled() and export_button.is_visible():
+                        LOGGER.info("找到'Export to Excel'按钮（通过正则title）")
+                        export_button.click_input()
+                        time.sleep(1.0)
+                        LOGGER.info("✅ 已点击'Export to Excel'按钮")
+                        return
+            except Exception as e:
+                LOGGER.debug(f"通过正则title查找按钮失败: {e}")
+            
+            # 方法3: 遍历所有按钮查找（包含图标的情况）
+            try:
+                all_buttons = self._window.descendants(control_type="Button")
+                LOGGER.debug(f"找到 {len(list(all_buttons))} 个按钮，开始搜索...")
+                for button in all_buttons:
+                    try:
+                        button_text = button.window_text().strip()
+                        LOGGER.debug(f"检查按钮文本: '{button_text}'")
+                        if button_text and ("EXPORT" in button_text.upper() and "EXCEL" in button_text.upper()):
+                            LOGGER.info(f"找到'Export to Excel'按钮（文本: '{button_text}'）")
+                            if button.is_enabled() and button.is_visible():
+                                button.click_input()
+                                time.sleep(1.0)
+                                LOGGER.info(f"✅ 已点击'Export to Excel'按钮")
+                                return
+                    except Exception as e:
+                        LOGGER.debug(f"检查按钮时出错: {e}")
+                        continue
+            except Exception as e:
+                LOGGER.debug(f"遍历按钮查找失败: {e}")
+            
+            # 方法4: 使用win32gui查找按钮（备用方法）
+            if win32gui:
+                try:
+                    def find_button_by_text(hwnd, buttons):
+                        try:
+                            if not win32gui.IsWindowVisible(hwnd):
+                                return True
+                            text = win32gui.GetWindowText(hwnd)
+                            class_name = win32gui.GetClassName(hwnd)
+                            if "BUTTON" in class_name.upper() and text:
+                                text_upper = text.upper()
+                                if "EXPORT" in text_upper and "EXCEL" in text_upper:
+                                    buttons.append((hwnd, text))
+                        except:
+                            pass
+                        return True
+                    
+                    buttons = []
+                    win32gui.EnumChildWindows(self._window.handle, find_button_by_text, buttons)
+                    
+                    if buttons:
+                        hwnd, text = buttons[0]
+                        LOGGER.info(f"通过win32gui找到按钮: '{text}'")
+                        win32gui.SetForegroundWindow(hwnd)
+                        time.sleep(0.2)
+                        win32gui.SendMessage(hwnd, win32con.BM_CLICK, 0, 0)
+                        time.sleep(1.0)
+                        LOGGER.info("✅ 已点击'Export to Excel'按钮（win32gui方法）")
+                        return
+                except Exception as e:
+                    LOGGER.debug(f"win32gui方法失败: {e}")
+            
+            LOGGER.warning("未找到'Export to Excel'按钮")
+            
+        except Exception as e:
+            LOGGER.error(f"点击'Export to Excel'按钮失败: {e}")
+            import traceback
+            LOGGER.error(traceback.format_exc())
+            raise RuntimeError(f"无法点击'Export to Excel'按钮: {e}")
+    
+    def _select_available_and_export_to_excel(self) -> None:
+        """
+        先点击 'Select Available Rows'，然后点击 'Export to Excel'
+        确保操作顺序正确
+        """
+        LOGGER.info("开始执行: 先选择可用行，再导出到Excel")
+        
+        # 步骤1: 点击 Select Available Rows
+        LOGGER.info("步骤1: 点击 'Select Available Rows'")
+        self._click_select_available_rows_button()
+        time.sleep(1.0)  # 等待选择操作完成
+        
+        # 步骤2: 点击 Export to Excel
+        LOGGER.info("步骤2: 点击 'Export to Excel'")
+        self._click_export_to_excel_button()
+        time.sleep(1.0)  # 等待导出对话框出现
+        
+        LOGGER.info("✅ 已完成: 选择可用行并触发导出")
+    
+    def _select_visible_and_export_to_excel(self) -> None:
+        """
+        先点击 'Select Visible Rows'，然后点击 'Export to Excel'
+        确保操作顺序正确
+        """
+        LOGGER.info("开始执行: 先选择可见行，再导出到Excel")
+        
+        # 步骤1: 点击 Select Visible Rows
+        LOGGER.info("步骤1: 点击 'Select Visible Rows'")
+        self._click_select_visible_rows_button()
+        time.sleep(1.0)  # 等待选择操作完成
+        
+        # 步骤2: 点击 Export to Excel
+        LOGGER.info("步骤2: 点击 'Export to Excel'")
+        self._click_export_to_excel_button()
+        time.sleep(1.0)  # 等待导出对话框出现
+        
+        LOGGER.info("✅ 已完成: 选择可见行并触发导出")
+    
+    def _handle_excel_opened_file(self, output_path: Path, max_wait_time: int = 30) -> Optional[Path]:
+        """
+        处理 Excel 直接打开文件的情况（没有保存对话框）
+        
+        Args:
+            output_path: 希望保存到的文件路径
+            max_wait_time: 最大等待时间（秒）
+        
+        Returns:
+            实际保存的文件路径，如果失败返回None
+        """
+        LOGGER.info("检测到 Excel 直接打开了文件，尝试从 Excel 窗口获取文件路径...")
+        
+        try:
+            start_time = time.time()
+            excel_window = None
+            excel_file_path = None
+            
+            # 等待 Excel 窗口出现
+            while time.time() - start_time < max_wait_time:
+                try:
+                    # 方法1: 使用 pywinauto 查找 Excel 窗口
+                    if Application:
+                        try:
+                            excel_app = Application(backend="uia").connect(class_name="XLMAIN")
+                            excel_windows = excel_app.windows()
+                            
+                            # 查找最近打开的 Excel 窗口（标题可能包含文件名）
+                            for window in excel_windows:
+                                try:
+                                    title = window.window_text()
+                                    # Excel 窗口标题通常格式为: "文件名 - Excel" 或 "文件名.xlsx - Excel"
+                                    if "Excel" in title and ("Compatibility Mode" in title or ".xls" in title or ".xlsx" in title):
+                                        excel_window = window
+                                        # 尝试从标题提取文件路径
+                                        # 标题格式可能是: "MIR_12252025_84828_AM.xls - Compatibility Mode - Saved to this PC"
+                                        if " - " in title:
+                                            potential_filename = title.split(" - ")[0].strip()
+                                            # 检查是否是完整路径
+                                            if "\\" in potential_filename or "/" in potential_filename:
+                                                excel_file_path = potential_filename
+                                            else:
+                                                # 只是文件名，需要查找完整路径
+                                                LOGGER.debug(f"从标题提取的文件名: {potential_filename}")
+                                        LOGGER.info(f"找到 Excel 窗口: {title}")
+                                        break
+                                except:
+                                    continue
+                            
+                            if excel_window:
+                                break
+                        except:
+                            pass
+                    
+                    # 方法2: 使用 win32gui 查找 Excel 窗口
+                    if win32gui and not excel_window:
+                        def find_excel_window(hwnd, windows):
+                            try:
+                                if not win32gui.IsWindowVisible(hwnd):
+                                    return True
+                                class_name = win32gui.GetClassName(hwnd)
+                                title = win32gui.GetWindowText(hwnd)
+                                
+                                # Excel 主窗口类名通常是 "XLMAIN"
+                                if "XLMAIN" in class_name.upper() or "EXCEL" in class_name.upper():
+                                    if title and ("Excel" in title or ".xls" in title or ".xlsx" in title):
+                                        windows.append((hwnd, title))
+                            except:
+                                pass
+                            return True
+                        
+                        excel_windows = []
+                        win32gui.EnumWindows(find_excel_window, excel_windows)
+                        
+                        if excel_windows:
+                            hwnd, title = excel_windows[0]  # 使用第一个找到的窗口
+                            LOGGER.info(f"找到 Excel 窗口（win32gui）: {title}")
+                            
+                            # 尝试从标题提取文件路径
+                            if " - " in title:
+                                potential_filename = title.split(" - ")[0].strip()
+                                if "\\" in potential_filename or "/" in potential_filename:
+                                    excel_file_path = potential_filename
+                                else:
+                                    LOGGER.debug(f"从标题提取的文件名: {potential_filename}")
+                            
+                            # 尝试使用 COM 对象获取完整路径
+                            try:
+                                import win32com.client
+                                excel_app = win32com.client.GetActiveObject("Excel.Application")
+                                if excel_app and excel_app.Workbooks.Count > 0:
+                                    workbook = excel_app.ActiveWorkbook
+                                    if workbook:
+                                        full_path = workbook.FullName
+                                        if full_path:
+                                            excel_file_path = full_path
+                                            LOGGER.info(f"通过 COM 对象获取文件路径: {excel_file_path}")
+                            except Exception as e:
+                                LOGGER.debug(f"使用 COM 对象获取路径失败: {e}")
+                            
+                            break
+                    
+                    time.sleep(0.5)
+                except Exception as e:
+                    LOGGER.debug(f"查找 Excel 窗口时出错: {e}")
+                    time.sleep(0.5)
+            
+            if excel_file_path and Path(excel_file_path).exists():
+                LOGGER.info(f"✅ 检测到 Excel 打开的文件: {excel_file_path}")
+                
+                result_path = None
+                
+                # 如果文件路径与目标路径不同，需要保存到目标路径
+                if str(excel_file_path) != str(output_path):
+                    LOGGER.info(f"文件路径不同，需要保存到: {output_path}")
+                    
+                    # 方法1: 使用 COM 对象保存
+                    try:
+                        import win32com.client
+                        excel_app = win32com.client.GetActiveObject("Excel.Application")
+                        if excel_app and excel_app.Workbooks.Count > 0:
+                            workbook = excel_app.ActiveWorkbook
+                            if workbook:
+                                # 保存到目标路径
+                                workbook.SaveAs(str(output_path))
+                                LOGGER.info(f"✅ 已通过 COM 对象保存文件到: {output_path}")
+                                
+                                if output_path.exists():
+                                    result_path = output_path
+                                    # 关闭 Excel 工作簿
+                                    try:
+                                        workbook.Close(False)  # False = 不保存（因为已经保存过了）
+                                        LOGGER.info("✅ 已关闭 Excel 工作簿")
+                                    except Exception as e:
+                                        LOGGER.debug(f"关闭工作簿时出错: {e}")
+                    except Exception as e:
+                        LOGGER.debug(f"使用 COM 对象保存失败: {e}")
+                    
+                    # 方法2: 使用 Excel 的 Save As 功能（通过快捷键）
+                    if not result_path:
+                        try:
+                            if excel_window:
+                                excel_window.set_focus()
+                                time.sleep(0.5)
+                                
+                                # 按 F12 打开 Save As 对话框
+                                import pyautogui
+                                pyautogui.hotkey('f12')
+                                time.sleep(1.0)
+                                
+                                # 现在应该出现 Save As 对话框，使用现有的保存对话框处理方法
+                                result_path = self._handle_export_save_dialog(output_path, max_wait_time=10)
+                                # 保存对话框处理完成后，关闭 Excel
+                                if result_path:
+                                    self._close_excel_window()
+                        except Exception as e:
+                            LOGGER.debug(f"使用 Save As 快捷键失败: {e}")
+                    
+                    # 方法3: 直接复制文件
+                    if not result_path:
+                        try:
+                            import shutil
+                            shutil.copy2(excel_file_path, output_path)
+                            LOGGER.info(f"✅ 已复制文件到: {output_path}")
+                            if output_path.exists():
+                                result_path = output_path
+                                # 关闭 Excel 窗口
+                                self._close_excel_window()
+                        except Exception as e:
+                            LOGGER.warning(f"复制文件失败: {e}")
+                else:
+                    # 文件路径相同，直接返回
+                    result_path = Path(excel_file_path)
+                    # 关闭 Excel 窗口
+                    self._close_excel_window()
+                
+                return result_path
+            elif excel_window:
+                # 找到了 Excel 窗口但无法获取文件路径
+                LOGGER.warning("⚠️ 找到了 Excel 窗口但无法获取文件路径")
+                
+                # 方法1: 尝试从窗口标题提取文件名，然后在临时目录中搜索
+                potential_filename = None
+                if excel_window:
+                    try:
+                        title = excel_window.window_text() if hasattr(excel_window, 'window_text') else None
+                        if not title and win32gui:
+                            # 如果 excel_window 是 hwnd，使用 win32gui 获取标题
+                            if isinstance(excel_window, int):
+                                title = win32gui.GetWindowText(excel_window)
+                            elif hasattr(excel_window, 'handle'):
+                                title = win32gui.GetWindowText(excel_window.handle)
+                        
+                        if title and " - " in title:
+                            potential_filename = title.split(" - ")[0].strip()
+                            LOGGER.info(f"从窗口标题提取的文件名: {potential_filename}")
+                    except Exception as e:
+                        LOGGER.debug(f"提取文件名失败: {e}")
+                
+                # 在临时目录中搜索文件
+                if potential_filename:
+                    LOGGER.info(f"在临时目录中搜索文件: {potential_filename}")
+                    import tempfile
+                    import os
+                    
+                    # 常见的临时目录
+                    temp_dirs = [
+                        Path(tempfile.gettempdir()),
+                        Path(os.environ.get('TEMP', '')),
+                        Path(os.environ.get('TMP', '')),
+                        Path.home() / 'AppData' / 'Local' / 'Temp',
+                        Path.home() / 'AppData' / 'Roaming' / 'Microsoft' / 'Excel',
+                    ]
+                    
+                    # 也在输出目录的父目录中搜索
+                    temp_dirs.append(output_path.parent)
+                    
+                    found_file = None
+                    for temp_dir in temp_dirs:
+                        if not temp_dir or not temp_dir.exists():
+                            continue
+                        try:
+                            # 搜索文件名（不区分大小写）
+                            for file_path in temp_dir.rglob(potential_filename):
+                                if file_path.is_file():
+                                    found_file = file_path
+                                    LOGGER.info(f"✅ 在临时目录中找到文件: {found_file}")
+                                    break
+                            if found_file:
+                                break
+                        except Exception as e:
+                            LOGGER.debug(f"搜索目录 {temp_dir} 失败: {e}")
+                    
+                    if found_file:
+                        # 复制文件到目标位置
+                        try:
+                            import shutil
+                            shutil.copy2(found_file, output_path)
+                            LOGGER.info(f"✅ 已复制文件到: {output_path}")
+                            if output_path.exists():
+                                return output_path
+                        except Exception as e:
+                            LOGGER.warning(f"复制文件失败: {e}")
+                
+                # 方法2: 尝试使用 COM 对象获取文件路径
+                LOGGER.info("尝试使用 COM 对象获取文件路径...")
+                try:
+                    import win32com.client
+                    excel_app = win32com.client.GetActiveObject("Excel.Application")
+                    if excel_app and excel_app.Workbooks.Count > 0:
+                        workbook = excel_app.ActiveWorkbook
+                        if workbook:
+                            full_path = workbook.FullName
+                            if full_path:
+                                LOGGER.info(f"✅ 通过 COM 对象获取文件路径: {full_path}")
+                                
+                                # 如果路径不同，保存到目标路径
+                                if str(full_path) != str(output_path):
+                                    workbook.SaveAs(str(output_path))
+                                    LOGGER.info(f"✅ 已保存文件到: {output_path}")
+                                
+                                if output_path.exists():
+                                    # 关闭 Excel 工作簿
+                                    try:
+                                        workbook.Close(False)  # False = 不保存（因为已经保存过了）
+                                        LOGGER.info("✅ 已关闭 Excel 工作簿")
+                                    except Exception as e:
+                                        LOGGER.debug(f"关闭工作簿时出错: {e}")
+                                    return output_path
+                except Exception as e:
+                    LOGGER.debug(f"使用 COM 对象失败: {e}")
+                
+                # 方法3: 尝试使用 Excel 的 Save As 功能（通过快捷键）
+                if excel_window:
+                    try:
+                        LOGGER.info("尝试使用 Excel Save As 功能...")
+                        if hasattr(excel_window, 'set_focus'):
+                            excel_window.set_focus()
+                        elif win32gui:
+                            hwnd = excel_window if isinstance(excel_window, int) else getattr(excel_window, 'handle', None)
+                            if hwnd:
+                                win32gui.SetForegroundWindow(hwnd)
+                                win32gui.BringWindowToTop(hwnd)
+                        
+                        time.sleep(0.5)
+                        
+                        # 按 F12 打开 Save As 对话框
+                        import pyautogui
+                        pyautogui.hotkey('f12')
+                        time.sleep(1.5)
+                        
+                        # 现在应该出现 Save As 对话框，使用现有的保存对话框处理方法
+                        saved_file = self._handle_export_save_dialog(output_path, max_wait_time=10)
+                        if saved_file and saved_file.exists():
+                            # 关闭 Excel 窗口
+                            self._close_excel_window()
+                            return saved_file
+                    except Exception as e:
+                        LOGGER.debug(f"使用 Save As 快捷键失败: {e}")
+            
+            # 如果无法自动处理，提示用户手动保存
+            LOGGER.warning("⚠️ 无法自动获取或保存 Excel 文件")
+            LOGGER.info(f"请手动将 Excel 文件保存到: {output_path}")
+            LOGGER.info(f"等待 {max_wait_time} 秒...")
+            
+            time.sleep(max_wait_time)
+            
+            if output_path.exists():
+                LOGGER.info(f"✅ 检测到文件已保存: {output_path}")
+                # 关闭 Excel 窗口
+                self._close_excel_window()
+                return output_path
+            
+            # 即使失败也尝试关闭 Excel 窗口
+            self._close_excel_window()
+            return None
+            
+        except Exception as e:
+            LOGGER.error(f"处理 Excel 打开的文件时出错: {e}")
+            import traceback
+            LOGGER.error(traceback.format_exc())
+            return None
+    
+    def _handle_export_save_dialog(self, output_path: Path, max_wait_time: int = 30) -> Optional[Path]:
+        """
+        处理导出保存对话框
+        
+        Args:
+            output_path: 保存文件的路径
+            max_wait_time: 最大等待时间（秒）
+        
+        Returns:
+            实际保存的文件路径，如果失败返回None
+        """
+        if Application is None:
+            return None
+        
+        LOGGER.info(f"等待导出保存对话框出现，准备保存到: {output_path}")
+        
+        try:
+            start_time = time.time()
+            
+            # 等待保存对话框出现
+            save_dialog = None
+            dialog_found = False
+            
+            # 方法1: 使用UIA查找对话框
+            while time.time() - start_time < max_wait_time:
+                # 检查 ESC 键
+                try:
+                    from .utils.keyboard_listener import is_esc_pressed
+                    if is_esc_pressed():
+                        LOGGER.warning("⚠️ 检测到 ESC 键，停止等待对话框")
+                        return None
+                except:
+                    pass
+                
+                try:
+                    app = Application(backend="uia")
+                    save_dialog = app.window(title_re=".*保存.*|.*Save.*|.*另存为.*|.*Save As.*")
+                    
+                    if save_dialog.exists(timeout=1):
+                        LOGGER.info("找到保存对话框（UIA方法）")
+                        dialog_found = True
+                        break
+                except:
+                    pass
+                
+                # 方法2: 使用win32gui查找对话框
+                if win32gui:
+                    try:
+                        def find_save_dialog(hwnd, dialogs):
+                            try:
+                                if not win32gui.IsWindowVisible(hwnd):
+                                    return True
+                                title = win32gui.GetWindowText(hwnd)
+                                class_name = win32gui.GetClassName(hwnd)
+                                if title and ("#32770" in class_name or "Dialog" in class_name):
+                                    title_upper = title.upper()
+                                    if any(keyword in title_upper for keyword in ["SAVE", "保存", "另存为", "SAVE AS"]):
+                                        dialogs.append(hwnd)
+                            except:
+                                pass
+                            return True
+                        
+                        dialogs = []
+                        win32gui.EnumWindows(find_save_dialog, dialogs)
+                        if dialogs:
+                            save_dialog_hwnd = dialogs[0]
+                            LOGGER.info(f"找到保存对话框（win32gui方法，句柄: {save_dialog_hwnd}）")
+                            dialog_found = True
+                            # 激活对话框
+                            win32gui.SetForegroundWindow(save_dialog_hwnd)
+                            win32gui.BringWindowToTop(save_dialog_hwnd)
+                            time.sleep(0.5)
+                            
+                            # 查找文件名输入框（ComboBox或Edit）
+                            def find_filename_edit(hwnd, edits):
+                                try:
+                                    class_name = win32gui.GetClassName(hwnd)
+                                    if "EDIT" in class_name.upper() or "COMBOBOX" in class_name.upper():
+                                        edits.append(hwnd)
+                                except:
+                                    pass
+                                return True
+                            
+                            edits = []
+                            win32gui.EnumChildWindows(save_dialog_hwnd, find_filename_edit, edits)
+                            
+                            if edits:
+                                edit_hwnd = edits[0]
+                                # 输入文件路径
+                                win32gui.SendMessage(edit_hwnd, win32con.WM_SETTEXT, 0, str(output_path))
+                                time.sleep(0.5)
+                                LOGGER.info(f"已输入文件路径: {output_path}")
+                                
+                                # 查找保存按钮
+                                def find_save_button(hwnd, buttons):
+                                    try:
+                                        text = win32gui.GetWindowText(hwnd)
+                                        class_name = win32gui.GetClassName(hwnd)
+                                        if "BUTTON" in class_name.upper():
+                                            text_upper = text.upper()
+                                            if any(keyword in text_upper for keyword in ["SAVE", "保存", "OK", "确定"]):
+                                                buttons.append(hwnd)
+                                    except:
+                                        pass
+                                    return True
+                                
+                                buttons = []
+                                win32gui.EnumChildWindows(save_dialog_hwnd, find_save_button, buttons)
+                                
+                                if buttons:
+                                    button_hwnd = buttons[0]
+                                    LOGGER.info(f"找到保存按钮，准备点击...")
+                                    
+                                    # 点击保存按钮（尝试多种方法）
+                                    click_success = False
+                                    try:
+                                        # 方法1: 使用 SendMessage
+                                        win32gui.SendMessage(button_hwnd, win32con.BM_CLICK, 0, 0)
+                                        click_success = True
+                                        LOGGER.info("已通过 SendMessage 点击保存按钮")
+                                    except Exception as e:
+                                        LOGGER.debug(f"SendMessage 失败: {e}")
+                                    
+                                    if not click_success:
+                                        try:
+                                            # 方法2: 使用 PostMessage
+                                            win32gui.PostMessage(button_hwnd, win32con.BM_CLICK, 0, 0)
+                                            click_success = True
+                                            LOGGER.info("已通过 PostMessage 点击保存按钮")
+                                        except Exception as e:
+                                            LOGGER.debug(f"PostMessage 失败: {e}")
+                                    
+                                    if not click_success:
+                                        try:
+                                            # 方法3: 使用 pyautogui 点击按钮位置
+                                            import pyautogui
+                                            rect = win32gui.GetWindowRect(button_hwnd)
+                                            center_x = (rect[0] + rect[2]) // 2
+                                            center_y = (rect[1] + rect[3]) // 2
+                                            pyautogui.click(center_x, center_y)
+                                            click_success = True
+                                            LOGGER.info(f"已通过 pyautogui 点击保存按钮（坐标: {center_x}, {center_y}）")
+                                        except Exception as e:
+                                            LOGGER.debug(f"pyautogui 点击失败: {e}")
+                                    
+                                    # 等待对话框关闭和文件保存
+                                    LOGGER.info("等待文件保存...")
+                                    max_wait = 10  # 最多等待10秒
+                                    wait_interval = 0.5
+                                    waited = 0
+                                    
+                                    while waited < max_wait:
+                                        # 检查对话框是否已关闭
+                                        try:
+                                            if not win32gui.IsWindow(save_dialog_hwnd) or not win32gui.IsWindowVisible(save_dialog_hwnd):
+                                                LOGGER.info("保存对话框已关闭")
+                                                time.sleep(1.0)  # 再等待1秒确保文件写入完成
+                                                break
+                                        except:
+                                            pass
+                                        
+                                        # 检查文件是否已保存
+                                        if output_path.exists():
+                                            LOGGER.info(f"✅ 检测到文件已保存: {output_path}")
+                                            return output_path
+                                        
+                                        time.sleep(wait_interval)
+                                        waited += wait_interval
+                                    
+                                    # 再次检查文件是否存在
+                                    if output_path.exists():
+                                        LOGGER.info(f"✅ 已保存导出文件到: {output_path}")
+                                        return output_path
+                                    else:
+                                        LOGGER.warning(f"⚠️ 点击保存按钮后，文件仍未保存: {output_path}")
+                                else:
+                                    LOGGER.warning("未找到保存按钮，尝试按Enter键")
+                                    # 尝试按Enter键
+                                    win32gui.SendMessage(edit_hwnd, win32con.WM_KEYDOWN, win32con.VK_RETURN, 0)
+                                    time.sleep(3.0)
+                                    if output_path.exists():
+                                        LOGGER.info(f"✅ 已通过Enter键保存文件: {output_path}")
+                                        return output_path
+                            break
+                    except Exception as e:
+                        LOGGER.debug(f"win32gui方法查找对话框失败: {e}")
+                
+                time.sleep(0.5)
+            
+            # 如果找到了对话框但UIA方法可用，尝试UIA方法
+            if save_dialog and save_dialog.exists():
+                try:
+                    # 查找文件名输入框
+                    filename_edit = save_dialog.child_window(control_type="Edit", found_index=0)
+                    if not filename_edit.exists():
+                        # 尝试ComboBox
+                        filename_edit = save_dialog.child_window(control_type="ComboBox", found_index=0)
+                    
+                    if filename_edit.exists():
+                        # 输入完整路径
+                        filename_edit.set_text(str(output_path))
+                        time.sleep(0.5)
+                        LOGGER.info(f"已输入文件路径: {output_path}")
+                        
+                        # 点击保存按钮
+                        save_button = None
+                        # 尝试不同的按钮文本
+                        for button_text in ["保存", "Save", "确定", "OK"]:
+                            try:
+                                save_button = save_dialog.child_window(title=button_text, control_type="Button")
+                                if save_button.exists():
+                                    break
+                            except:
+                                continue
+                        
+                        if save_button and save_button.exists():
+                            save_button.click()
+                            time.sleep(2.0)  # 等待文件保存
+                            LOGGER.info(f"✅ 已保存导出文件到: {output_path}")
+                            
+                            # 检查文件是否已保存
+                            if output_path.exists():
+                                return output_path
+                        else:
+                            LOGGER.warning("未找到保存按钮，尝试按Enter键")
+                            # 尝试按Enter键
+                            filename_edit.type_keys("{ENTER}")
+                            time.sleep(2.0)
+                            if output_path.exists():
+                                return output_path
+                except Exception as e:
+                    LOGGER.warning(f"自动保存失败: {e}")
+            
+            # 如果自动保存失败，提示用户手动保存
+            if not dialog_found:
+                LOGGER.warning("⚠️ 未检测到保存对话框，可能已自动保存或需要手动操作")
+            else:
+                LOGGER.warning("⚠️ 无法自动处理保存对话框，请手动保存文件")
+            
+            LOGGER.info(f"请将文件保存到: {output_path}")
+            LOGGER.info(f"等待 {max_wait_time} 秒...")
+            
+            # 等待用户手动保存
+            time.sleep(max_wait_time)
+            
+            # 检查文件是否已保存
+            if output_path.exists():
+                LOGGER.info(f"✅ 检测到文件已保存: {output_path}")
+                return output_path
+            
+            return None
+            
+        except Exception as e:
+            LOGGER.error(f"处理导出对话框失败: {e}")
+            import traceback
+            LOGGER.error(traceback.format_exc())
+            return None
+    
+    def _find_latest_export_file_in_mir_folder(self, max_wait_time: int = 30) -> Optional[Path]:
+        """
+        在 C:\MIR 目录中查找最新的导出文件
+        
+        Args:
+            max_wait_time: 最大等待时间（秒）
+        
+        Returns:
+            最新文件的路径，如果未找到返回None
+        """
+        mir_folder = Path("C:/MIR")
+        
+        if not mir_folder.exists():
+            LOGGER.warning(f"MIR文件夹不存在: {mir_folder}")
+            return None
+        
+        LOGGER.info(f"在 {mir_folder} 目录中查找最新的导出文件...")
+        
+        try:
+            # 等待文件出现（最多等待max_wait_time秒）
+            start_time = time.time()
+            latest_file = None
+            latest_mtime = 0
+            
+            while time.time() - start_time < max_wait_time:
+                try:
+                    # 查找所有 .xls 和 .xlsx 文件
+                    excel_files = list(mir_folder.glob("*.xls")) + list(mir_folder.glob("*.xlsx"))
+                    
+                    if excel_files:
+                        # 找到最新的文件
+                        for file in excel_files:
+                            try:
+                                mtime = file.stat().st_mtime
+                                if mtime > latest_mtime:
+                                    latest_mtime = mtime
+                                    latest_file = file
+                            except Exception as e:
+                                LOGGER.debug(f"无法获取文件 {file} 的修改时间: {e}")
+                                continue
+                        
+                        if latest_file:
+                            # 检查文件是否在最近几秒内被修改（说明是新导出的）
+                            time_since_modify = time.time() - latest_mtime
+                            if time_since_modify < max_wait_time:
+                                LOGGER.info(f"✅ 找到最新的导出文件: {latest_file}")
+                                LOGGER.info(f"   文件修改时间: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(latest_mtime))}")
+                                return latest_file
+                except Exception as e:
+                    LOGGER.debug(f"查找文件时出错: {e}")
+                
+                time.sleep(1.0)
+            
+            # 如果等待超时，返回找到的最新文件（即使不是最近修改的）
+            if latest_file:
+                LOGGER.info(f"⚠️ 超时，返回找到的最新文件: {latest_file}")
+                return latest_file
+            
+            LOGGER.warning(f"在 {mir_folder} 中未找到导出文件")
+            return None
+            
+        except Exception as e:
+            LOGGER.error(f"查找MIR文件夹中的文件时出错: {e}")
+            import traceback
+            LOGGER.error(traceback.format_exc())
+            return None
+    
+    def _get_actual_units_count_from_export(
+        self, 
+        expected_units: list, 
+        temp_export_dir: Path,
+        source_lot: str = None,
+        use_visible_rows: bool = False
+    ) -> dict:
+        """
+        通过导出Excel文件获取实际可用的units数量
+        
+        Args:
+            expected_units: 期望的units列表
+            temp_export_dir: 临时导出目录
+            source_lot: Source Lot值（用于日志）
+        
+        Returns:
+            包含实际数量信息的字典:
+            {
+                'expected_count': int,
+                'actual_count': int or None,
+                'actual_units': list,
+                'missing_units': list,
+                'count_match': bool,
+                'export_file': Path or None,
+                'success': bool
+            }
+        """
+        result_info = {
+            'expected_count': len(expected_units),
+            'actual_count': None,
+            'actual_units': [],
+            'missing_units': [],
+            'count_match': False,
+            'export_file': None,
+            'success': False
+        }
+        
+        try:
+            # 创建临时导出目录
+            temp_export_dir.mkdir(parents=True, exist_ok=True)
+            
+            # 生成临时文件名
+            from datetime import datetime
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            source_lot_suffix = f"_{source_lot}" if source_lot else ""
+            temp_export_file = temp_export_dir / f"available_units_export{source_lot_suffix}_{timestamp}.xlsx"
+            
+            LOGGER.info("=" * 80)
+            LOGGER.info("开始获取实际可用units数量...")
+            if source_lot:
+                LOGGER.info(f"Source Lot: {source_lot}")
+            LOGGER.info(f"期望数量: {len(expected_units)}")
+            LOGGER.info("=" * 80)
+            
+            # 步骤1和2: 先选择行，再导出到Excel
+            if use_visible_rows:
+                self._select_visible_and_export_to_excel()
+            else:
+                self._select_available_and_export_to_excel()
+            
+            # 步骤3: 等待文件保存到 C:\MIR 目录
+            LOGGER.info("步骤3: 等待文件保存到 C:\\MIR 目录...")
+            time.sleep(3.0)  # 等待文件保存
+            
+            # 从 C:\MIR 目录查找最新的导出文件
+            saved_file = self._find_latest_export_file_in_mir_folder(max_wait_time=25)
+            
+            if not saved_file or not saved_file.exists():
+                LOGGER.warning("⚠️ 无法在 C:\\MIR 目录中找到导出文件，尝试其他方法...")
+                
+                # 备用方法：尝试处理保存对话框或Excel直接打开
+                time.sleep(2.0)
+                saved_file = self._handle_export_save_dialog(temp_export_file, max_wait_time=5)
+                
+                if not saved_file or not saved_file.exists():
+                    LOGGER.info("未检测到保存对话框，尝试处理 Excel 直接打开的情况...")
+                    saved_file = self._handle_excel_opened_file(temp_export_file, max_wait_time=20)
+            
+            if not saved_file or not saved_file.exists():
+                LOGGER.warning("⚠️ 无法获取导出文件，跳过实际数量统计")
+                return result_info
+            
+            # 如果文件不在目标目录中，将其复制到目标目录
+            if saved_file.parent != temp_export_dir:
+                import shutil
+                from datetime import datetime
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                source_lot_suffix = f"_{source_lot}" if source_lot else ""
+                # 保持原始文件的扩展名（.xls 或 .xlsx）
+                original_suffix = saved_file.suffix
+                target_file = temp_export_dir / f"available_units_export{source_lot_suffix}_{timestamp}{original_suffix}"
+                try:
+                    shutil.copy2(saved_file, target_file)
+                    LOGGER.info(f"✅ 已将导出文件复制到output目录: {target_file}")
+                    saved_file = target_file
+                except Exception as e:
+                    LOGGER.warning(f"⚠️ 复制文件到output目录失败: {e}，使用原始文件路径")
+            
+            result_info['export_file'] = saved_file
+            
+            # 步骤4: 读取导出的Excel文件
+            LOGGER.info(f"步骤4: 读取导出文件: {saved_file}")
+            from .data_reader import read_excel_file
+            
+            try:
+                export_df = read_excel_file(saved_file)
+                LOGGER.info(f"导出文件包含 {len(export_df)} 行数据")
+                LOGGER.debug(f"导出文件列名: {export_df.columns.tolist()}")
+                
+                # 查找 Unit Name 列（支持多种可能的列名）
+                unit_name_col = None
+                for col in export_df.columns:
+                    col_upper = str(col).strip().upper()
+                    if col_upper in ['UNIT NAME', 'UNITNAME', 'UNIT_NAME', 'UNIT', 'UNITS', 'UNIT ID', 'UNITID']:
+                        unit_name_col = col
+                        LOGGER.info(f"找到 Unit Name 列: '{col}'")
+                        break
+                
+                if unit_name_col:
+                    # 提取实际可用的units
+                    actual_units = export_df[unit_name_col].dropna().astype(str).tolist()
+                    actual_units = [u.strip() for u in actual_units if u.strip()]
+                    result_info['actual_units'] = actual_units
+                    result_info['actual_count'] = len(actual_units)
+                    
+                    # 找出缺失的units
+                    expected_set = set(str(u).strip() for u in expected_units)
+                    actual_set = set(actual_units)
+                    result_info['missing_units'] = list(expected_set - actual_set)
+                    
+                    # 检查数量是否匹配
+                    result_info['count_match'] = (result_info['expected_count'] == result_info['actual_count'])
+                    result_info['success'] = True
+                    
+                    LOGGER.info("=" * 80)
+                    LOGGER.info("实际可用units统计结果:")
+                    LOGGER.info(f"  期望数量: {result_info['expected_count']}")
+                    LOGGER.info(f"  实际可用数量: {result_info['actual_count']}")
+                    LOGGER.info(f"  数量匹配: {'✅ 是' if result_info['count_match'] else '❌ 否'}")
+                    
+                    if result_info['missing_units']:
+                        LOGGER.warning(f"  缺失的units ({len(result_info['missing_units'])} 个):")
+                        for missing in result_info['missing_units'][:10]:  # 只显示前10个
+                            LOGGER.warning(f"    - {missing}")
+                        if len(result_info['missing_units']) > 10:
+                            LOGGER.warning(f"    ... 还有 {len(result_info['missing_units']) - 10} 个")
+                    else:
+                        LOGGER.info("  ✅ 所有units都可用")
+                    LOGGER.info("=" * 80)
+                else:
+                    LOGGER.warning("⚠️ 在导出文件中未找到 Unit Name 列")
+                    LOGGER.warning(f"可用列: {export_df.columns.tolist()}")
+                    
+            except Exception as e:
+                LOGGER.error(f"读取导出文件失败: {e}")
+                import traceback
+                LOGGER.error(traceback.format_exc())
+            
+            # 步骤5: 关闭自动打开的 Excel 窗口
+            if saved_file and saved_file.exists():
+                LOGGER.info("步骤5: 关闭自动打开的 Excel 窗口...")
+                self._close_excel_window()
+            
+        except Exception as e:
+            LOGGER.error(f"获取实际units数量失败: {e}")
+            import traceback
+            LOGGER.error(traceback.format_exc())
+        
+        return result_info
+    
+    def _close_excel_window(self) -> None:
+        """
+        关闭自动打开的 Excel 窗口
+        
+        查找并关闭最近打开的 Excel 窗口（通过窗口标题识别）
+        """
+        try:
+            LOGGER.info("查找并关闭 Excel 窗口...")
+            
+            if not win32gui:
+                LOGGER.warning("win32gui不可用，无法关闭Excel窗口")
+                return
+            
+            # 查找 Excel 窗口
+            excel_windows = []
+            
+            def find_excel_window(hwnd, windows):
+                try:
+                    if not win32gui.IsWindowVisible(hwnd):
+                        return True
+                    class_name = win32gui.GetClassName(hwnd)
+                    title = win32gui.GetWindowText(hwnd)
+                    
+                    # Excel 主窗口类名通常是 "XLMAIN"
+                    if "XLMAIN" in class_name.upper() or "EXCEL" in class_name.upper():
+                        if title and ("Excel" in title or ".xls" in title or ".xlsx" in title):
+                            windows.append((hwnd, title))
+                except:
+                    pass
+                return True
+            
+            win32gui.EnumWindows(find_excel_window, excel_windows)
+            
+            if excel_windows:
+                # 关闭找到的 Excel 窗口（可能有多个，关闭所有）
+                for hwnd, title in excel_windows:
+                    try:
+                        LOGGER.info(f"关闭 Excel 窗口: {title}")
+                        
+                        # 激活窗口
+                        win32gui.SetForegroundWindow(hwnd)
+                        win32gui.BringWindowToTop(hwnd)
+                        time.sleep(0.3)
+                        
+                        # 方法1: 使用 Alt+F4 关闭
+                        try:
+                            import pyautogui
+                            pyautogui.hotkey('alt', 'f4')
+                            LOGGER.info("✅ 已发送 Alt+F4 关闭 Excel 窗口")
+                            time.sleep(0.5)
+                        except Exception as e:
+                            LOGGER.debug(f"Alt+F4 失败: {e}")
+                            
+                            # 方法2: 使用 WM_CLOSE
+                            try:
+                                win32gui.PostMessage(hwnd, win32con.WM_CLOSE, 0, 0)
+                                LOGGER.info("✅ 已发送 WM_CLOSE 关闭 Excel 窗口")
+                                time.sleep(0.5)
+                            except Exception as e2:
+                                LOGGER.warning(f"WM_CLOSE 失败: {e2}")
+                                
+                                # 方法3: 使用 COM 对象关闭
+                                try:
+                                    import win32com.client
+                                    excel_app = win32com.client.GetActiveObject("Excel.Application")
+                                    if excel_app:
+                                        workbook = excel_app.ActiveWorkbook
+                                        if workbook and workbook.FullName:
+                                            workbook.Close(False)  # False = 不保存
+                                            LOGGER.info("✅ 已通过 COM 对象关闭 Excel 工作簿")
+                                except Exception as e3:
+                                    LOGGER.debug(f"COM 对象关闭失败: {e3}")
+                        
+                        # 验证窗口是否已关闭
+                        time.sleep(0.5)
+                        if not win32gui.IsWindow(hwnd) or not win32gui.IsWindowVisible(hwnd):
+                            LOGGER.info("✅ Excel 窗口已关闭")
+                        else:
+                            LOGGER.warning("⚠️ Excel 窗口可能未完全关闭")
+                            
+                    except Exception as e:
+                        LOGGER.warning(f"关闭 Excel 窗口失败: {e}")
+            else:
+                LOGGER.debug("未找到需要关闭的 Excel 窗口")
+                
+        except Exception as e:
+            LOGGER.warning(f"关闭 Excel 窗口时出错: {e}")
+            import traceback
+            LOGGER.debug(traceback.format_exc())
     
     def _click_add_to_summary_button(self) -> None:
         """点击左下角的'Add to summary'按钮"""
@@ -3355,6 +4943,175 @@ class MoleSubmitter:
             LOGGER.error(f"处理确认对话框时出错: {e}")
             LOGGER.warning("请手动点击所有确认对话框的Yes按钮")
     
+    def _handle_inactive_source_lots_dialog(self, max_wait_time: int = 10) -> bool:
+        """
+        处理 "Inactive Source Lots" 对话框
+        
+        对话框标题: "Inactive Source Lots"
+        内容: "Following units are not active for correlation: ... Please check that units are in: 'PNG-CPU'."
+        按钮: "Copy Inactive & Close" 和 "Close"
+        
+        点击 "Copy Inactive & Close" 按钮
+        
+        Args:
+            max_wait_time: 最大等待时间（秒），等待对话框出现
+        
+        Returns:
+            bool: 如果找到并处理了对话框返回True，否则返回False
+        """
+        try:
+            LOGGER.info("检查是否存在 'Inactive Source Lots' 对话框...")
+            
+            if not win32gui:
+                LOGGER.warning("win32gui不可用，无法处理对话框")
+                return False
+            
+            # 循环等待对话框出现
+            dialog_hwnd = None
+            dialog_title = None
+            start_time = time.time()
+            
+            def enum_inactive_dialog(hwnd, dialogs):
+                try:
+                    if not win32gui.IsWindowVisible(hwnd):
+                        return True
+                    
+                    window_text = win32gui.GetWindowText(hwnd)
+                    if "Inactive Source Lots" in window_text:
+                        class_name = win32gui.GetClassName(hwnd)
+                        LOGGER.info(f"找到 'Inactive Source Lots' 对话框: '{window_text}' (类名: {class_name})")
+                        dialogs.append((hwnd, window_text))
+                except:
+                    pass
+                return True
+            
+            # 等待对话框出现（最多等待max_wait_time秒）
+            while time.time() - start_time < max_wait_time:
+                inactive_dialogs = []
+                win32gui.EnumWindows(enum_inactive_dialog, inactive_dialogs)
+                
+                if inactive_dialogs:
+                    dialog_hwnd, dialog_title = inactive_dialogs[0]
+                    LOGGER.info(f"✅ 找到 'Inactive Source Lots' 对话框 (句柄: {dialog_hwnd})")
+                    break
+                
+                # 如果还没找到，等待一下再试
+                time.sleep(0.5)
+            
+            if not dialog_hwnd:
+                LOGGER.debug(f"等待 {max_wait_time} 秒后未找到 'Inactive Source Lots' 对话框，可能不存在")
+                return False
+            
+            dialog_hwnd, dialog_title = inactive_dialogs[0]
+            LOGGER.info(f"✅ 找到 'Inactive Source Lots' 对话框 (句柄: {dialog_hwnd})")
+            
+            # 激活对话框
+            win32gui.SetForegroundWindow(dialog_hwnd)
+            win32gui.BringWindowToTop(dialog_hwnd)
+            time.sleep(0.5)
+            
+            # 查找 "Copy Inactive & Close" 按钮
+            def find_copy_inactive_button(hwnd_child, button_info):
+                try:
+                    text = win32gui.GetWindowText(hwnd_child).strip()
+                    class_name = win32gui.GetClassName(hwnd_child)
+                    
+                    if "BUTTON" in class_name.upper():
+                        LOGGER.debug(f"  扫描到按钮: '{text}' (类名: {class_name})")
+                        # 去掉&符号后比较
+                        clean_text = text.replace("&", "").upper()
+                        if "COPY INACTIVE" in clean_text and "CLOSE" in clean_text:
+                            button_info["hwnd"] = hwnd_child
+                            button_info["rect"] = win32gui.GetWindowRect(hwnd_child)
+                            LOGGER.info(f"  ✅ 匹配到 'Copy Inactive & Close' 按钮！原始文本: '{text}'")
+                            return False  # 找到了，停止遍历
+                except:
+                    pass
+                return True
+            
+            button_info = {"hwnd": None, "rect": None}
+            win32gui.EnumChildWindows(dialog_hwnd, find_copy_inactive_button, button_info)
+            
+            if button_info["hwnd"] and button_info["rect"]:
+                # 点击按钮
+                rect = button_info["rect"]
+                center_x = (rect[0] + rect[2]) // 2
+                center_y = (rect[1] + rect[3]) // 2
+                
+                LOGGER.info(f"✅ 找到 'Copy Inactive & Close' 按钮! 屏幕坐标: ({center_x}, {center_y})")
+                
+                try:
+                    import pyautogui
+                    # 确保对话框在最前面
+                    win32gui.SetForegroundWindow(dialog_hwnd)
+                    win32gui.BringWindowToTop(dialog_hwnd)
+                    time.sleep(0.2)
+                    
+                    # 方法1: 使用坐标直接点击
+                    click_success = False
+                    try:
+                        pyautogui.click(center_x, center_y)
+                        LOGGER.info("🖱️ 已点击 'Copy Inactive & Close' 按钮（方法1：直接坐标点击）")
+                        time.sleep(0.5)
+                        click_success = True
+                    except Exception as e:
+                        LOGGER.warning(f"方法1失败: {e}，尝试方法2...")
+                        
+                        # 方法2: 先移动再点击
+                        try:
+                            pyautogui.moveTo(center_x, center_y, duration=0.2)
+                            time.sleep(0.1)
+                            pyautogui.click()
+                            LOGGER.info("🖱️ 已点击 'Copy Inactive & Close' 按钮（方法2：移动后点击）")
+                            time.sleep(0.5)
+                            click_success = True
+                        except Exception as e2:
+                            LOGGER.warning(f"方法2失败: {e2}，尝试方法3...")
+                            
+                            # 方法3: 使用Windows API点击按钮
+                            try:
+                                if win32gui and win32con:
+                                    win32gui.SetForegroundWindow(dialog_hwnd)
+                                    time.sleep(0.1)
+                                    win32gui.SendMessage(button_info["hwnd"], win32con.BM_CLICK, 0, 0)
+                                    LOGGER.info("🖱️ 已点击 'Copy Inactive & Close' 按钮（方法3：SendMessage）")
+                                    time.sleep(0.3)
+                                    # 如果SendMessage后对话框还在，尝试PostMessage
+                                    if win32gui.IsWindow(dialog_hwnd) and win32gui.IsWindowVisible(dialog_hwnd):
+                                        win32gui.PostMessage(button_info["hwnd"], win32con.BM_CLICK, 0, 0)
+                                        LOGGER.info("🖱️ 已点击 'Copy Inactive & Close' 按钮（方法3b：PostMessage）")
+                                        time.sleep(0.3)
+                                    click_success = True
+                            except Exception as e3:
+                                LOGGER.warning(f"方法3失败: {e3}")
+                    
+                    # 验证对话框是否关闭
+                    time.sleep(0.5)
+                    if not win32gui.IsWindow(dialog_hwnd) or not win32gui.IsWindowVisible(dialog_hwnd):
+                        LOGGER.info("✅ 'Inactive Source Lots' 对话框已关闭")
+                        return True
+                    elif click_success:
+                        LOGGER.info("✅ 已执行点击操作（对话框可能稍后关闭）")
+                        return True
+                    else:
+                        LOGGER.warning("⚠️ 点击操作可能未成功，对话框仍然存在")
+                        return False
+                        
+                except Exception as e:
+                    LOGGER.error(f"点击 'Copy Inactive & Close' 按钮失败: {e}")
+                    import traceback
+                    LOGGER.error(traceback.format_exc())
+                    return False
+            else:
+                LOGGER.warning("⚠️ 未找到 'Copy Inactive & Close' 按钮")
+                return False
+                
+        except Exception as e:
+            LOGGER.error(f"处理 'Inactive Source Lots' 对话框时出错: {e}")
+            import traceback
+            LOGGER.error(traceback.format_exc())
+            return False
+    
     def _handle_final_success_dialog_and_get_mir(self) -> str:
         """
         处理最终的Submit MIR Request成功对话框
@@ -3368,11 +5125,15 @@ class MoleSubmitter:
             str: MIR号码，例如"2965268"
         """
         try:
-            LOGGER.info("等待最终成功对话框出现...")
-            time.sleep(3.0)  # 等待对话框弹出（增加到3秒，确保对话框完全弹出）
+            LOGGER.info("等待最终成功对话框出现（轮询等待，直到对话框弹出）...")
             
-            # 查找"Submit MIR Request"对话框
-            for attempt in range(5):
+            # 轮询等待对话框出现（一直等待直到对话框出现，每2秒检查一次）
+            # 不设置最大等待时间，一直等待直到对话框出现
+            check_interval = 2  # 每2秒检查一次
+            max_attempts = 1000  # 设置一个很大的数字，实际会一直等待直到找到对话框
+            
+            dialog_hwnd = None
+            for attempt in range(max_attempts):
                 if win32gui:
                     def enum_success_dialog(hwnd, dialogs):
                         try:
@@ -3382,7 +5143,6 @@ class MoleSubmitter:
                             window_text = win32gui.GetWindowText(hwnd)
                             if window_text == "Submit MIR Request":
                                 class_name = win32gui.GetClassName(hwnd)
-                                LOGGER.info(f"找到成功对话框: '{window_text}' (类名: {class_name})")
                                 dialogs.append(hwnd)
                         except:
                             pass
@@ -3393,15 +5153,36 @@ class MoleSubmitter:
                     
                     if success_dialogs:
                         dialog_hwnd = success_dialogs[0]
-                        LOGGER.info(f"✅ 找到成功对话框 (句柄: {dialog_hwnd})")
+                        LOGGER.info(f"✅ 找到成功对话框 (等待了 {(attempt+1)*check_interval} 秒)")
+                        break
+                    else:
+                        if (attempt + 1) % 5 == 0:  # 每10秒（5次检查）输出一次日志
+                            LOGGER.info(f"等待对话框中... (已等待 {(attempt+1)*check_interval} 秒，将继续等待直到对话框出现)")
                         
-                        # 激活对话框
-                        win32gui.SetForegroundWindow(dialog_hwnd)
-                        win32gui.BringWindowToTop(dialog_hwnd)
-                        time.sleep(0.5)
+                        # 检查 ESC 键
+                        try:
+                            from .utils.keyboard_listener import is_esc_pressed
+                            if is_esc_pressed():
+                                LOGGER.warning("⚠️ 检测到 ESC 键，停止等待对话框")
+                                return None
+                        except:
+                            pass
                         
-                        # 查找"Copy MIR & Close"按钮
-                        def find_copy_button(hwnd_child, button_info):
+                        time.sleep(check_interval)
+                else:
+                    # 如果没有win32gui，使用固定等待
+                    time.sleep(check_interval)
+            
+            if dialog_hwnd:
+                LOGGER.info(f"✅ 找到成功对话框 (句柄: {dialog_hwnd})")
+                
+                # 激活对话框
+                win32gui.SetForegroundWindow(dialog_hwnd)
+                win32gui.BringWindowToTop(dialog_hwnd)
+                time.sleep(0.5)
+                
+                # 查找"Copy MIR & Close"按钮
+                def find_copy_button(hwnd_child, button_info):
                             try:
                                 text = win32gui.GetWindowText(hwnd_child).strip()
                                 class_name = win32gui.GetClassName(hwnd_child)
@@ -3418,11 +5199,11 @@ class MoleSubmitter:
                             except:
                                 pass
                             return True
-                        
-                        button_info = {"hwnd": None, "rect": None}
-                        win32gui.EnumChildWindows(dialog_hwnd, find_copy_button, button_info)
-                        
-                        if button_info["hwnd"] and button_info["rect"]:
+                
+                button_info = {"hwnd": None, "rect": None}
+                win32gui.EnumChildWindows(dialog_hwnd, find_copy_button, button_info)
+                
+                if button_info["hwnd"] and button_info["rect"]:
                             # 点击按钮
                             rect = button_info["rect"]
                             center_x = (rect[0] + rect[2]) // 2
@@ -3542,15 +5323,31 @@ class MoleSubmitter:
                                 import traceback
                                 LOGGER.error(traceback.format_exc())
                                 return ""
-                        else:
-                            LOGGER.warning("未找到Copy MIR & Close按钮，等待1秒后重试...")
-                            time.sleep(1.0)
+                else:
+                    LOGGER.warning("未找到Copy MIR & Close按钮，等待1秒后重试...")
+                    time.sleep(1.0)
+                    # 重新查找对话框（可能对话框已更新）
+                    def enum_success_dialog_retry(hwnd, dialogs):
+                        try:
+                            if not win32gui.IsWindowVisible(hwnd):
+                                return True
+                            window_text = win32gui.GetWindowText(hwnd)
+                            if window_text == "Submit MIR Request":
+                                dialogs.append(hwnd)
+                        except:
+                            pass
+                        return True
+                    success_dialogs = []
+                    win32gui.EnumWindows(enum_success_dialog_retry, success_dialogs)
+                    if success_dialogs:
+                        dialog_hwnd = success_dialogs[0]
                     else:
-                        if attempt < 4:
-                            LOGGER.info(f"未找到成功对话框，等待1秒后重试... (尝试 {attempt+1}/5)")
-                            time.sleep(1.0)
-                        else:
-                            LOGGER.warning("未找到成功对话框")
+                        LOGGER.warning("对话框已消失")
+                        return ""
+            else:
+                # 理论上不应该到达这里，因为会一直等待直到找到对话框
+                LOGGER.error(f"等待了 {(max_attempts)*check_interval} 秒后仍未找到成功对话框，请手动检查")
+                return ""
             
             LOGGER.warning("无法处理最终成功对话框，请手动点击Copy MIR & Close")
             return ""
@@ -3947,8 +5744,45 @@ class MoleSubmitter:
                         continue
                 
                 if not has_submit_button:
-                    LOGGER.warning("⚠️ 未找到Submit按钮，但继续尝试填写Requestor Comments（可能检查逻辑有问题）")
-                    # 不再直接返回，而是继续尝试填写
+                    LOGGER.warning("⚠️ 未找到Submit按钮，可能页面还未加载完成，重新点击View Summary并等待页面加载...")
+                    # 重新点击View Summary标签，确保页面已跳转
+                    self._click_summary_tab()
+                    
+                    # 轮询等待页面加载完成（等待Submit按钮出现，最多等待10秒）
+                    LOGGER.info("等待View Summary页面加载完成（轮询等待Submit按钮出现）...")
+                    max_wait_time = 10  # 最多等待10秒
+                    check_interval = 1  # 每1秒检查一次
+                    max_attempts = max_wait_time // check_interval
+                    
+                    has_submit_button_retry = False
+                    for attempt in range(max_attempts):
+                        time.sleep(check_interval)
+                        # 检查Submit按钮是否存在
+                        try:
+                            submit_buttons_retry = self._window.descendants(control_type="Button")
+                            for btn in submit_buttons_retry:
+                                try:
+                                    if btn.is_visible() and btn.is_enabled():
+                                        btn_text = btn.window_text().strip()
+                                        if btn_text == "Submit" or "Submit" in btn_text:
+                                            has_submit_button_retry = True
+                                            LOGGER.info(f"✅ 找到Submit按钮，页面已加载完成（等待了 {(attempt+1)*check_interval} 秒）")
+                                            break
+                                except:
+                                    continue
+                            
+                            if has_submit_button_retry:
+                                break
+                            
+                            if (attempt + 1) % 3 == 0:  # 每3秒输出一次日志
+                                LOGGER.info(f"等待页面加载中... (已等待 {(attempt+1)*check_interval} 秒)")
+                        except Exception as e:
+                            LOGGER.debug(f"检查Submit按钮时出错: {e}")
+                            continue
+                    
+                    if not has_submit_button_retry:
+                        LOGGER.warning(f"⚠️ 等待 {max_wait_time} 秒后仍未找到Submit按钮，但继续尝试填写Requestor Comments")
+                    # 继续尝试填写
             except Exception as e:
                 # 如果检查失败，继续执行（可能是检查逻辑有问题）
                 LOGGER.debug(f"检查Submit按钮时出错: {e}，继续执行填写comments")

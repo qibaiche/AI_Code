@@ -11,3 +11,6 @@ automation/test-data-auto-analysis/reports/
 automation/test-data-auto-analysis/logs/
 automation/auto-vpo/outputs/
 automation/auto-vpo/workflow_automation/logs/workflow_automation.log
+automation/auto-vpo/workflow_automation/logs/workflow_automation.log
+automation/test-data-auto-analysis/Lot info.txt
+automation/test-data-auto-analysis/logs/unified_automation.log

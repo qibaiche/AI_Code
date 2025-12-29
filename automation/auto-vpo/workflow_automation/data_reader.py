@@ -3,7 +3,6 @@ import logging
 from pathlib import Path
 from typing import Optional
 import pandas as pd
-import pandas as pd
 
 LOGGER = logging.getLogger(__name__)
 
@@ -33,7 +32,66 @@ def read_excel_file(file_path: str | Path) -> pd.DataFrame:
         # 读取Excel文件
         LOGGER.info(f"正在读取Excel文件: {file_path}")
         try:
-            df = pd.read_excel(file_path)
+            # 根据文件扩展名选择引擎
+            if file_ext == '.xls':
+                # .xls 文件需要使用 xlrd 1.x 直接读取（因为 pandas 要求 xlrd >= 2.0，但 2.0+ 不支持 .xls）
+                try:
+                    import xlrd
+                    # 检查 xlrd 版本
+                    xlrd_version = xlrd.__version__
+                    LOGGER.info(f"检测到 xlrd 版本: {xlrd_version}")
+                    
+                    # 如果版本 >= 2.0，提示用户
+                    try:
+                        from packaging import version
+                        if version.parse(xlrd_version) >= version.parse('2.0.0'):
+                            raise ValueError(
+                                f"xlrd {xlrd_version} 不支持 .xls 格式。请安装 xlrd 1.x: pip install 'xlrd<2.0.0'"
+                            )
+                    except ImportError:
+                        # 如果没有 packaging 库，简单检查版本字符串
+                        if xlrd_version.startswith('2.'):
+                            raise ValueError(
+                                f"xlrd {xlrd_version} 不支持 .xls 格式。请安装 xlrd 1.x: pip install 'xlrd<2.0.0'"
+                            )
+                    
+                    # 使用 xlrd 直接读取
+                    workbook = xlrd.open_workbook(file_path)
+                    sheet = workbook.sheet_by_index(0)
+                    
+                    # 读取表头
+                    headers = [sheet.cell_value(0, col) for col in range(sheet.ncols)]
+                    
+                    # 读取数据
+                    data = []
+                    for row_idx in range(1, sheet.nrows):
+                        row_data = []
+                        for col_idx in range(sheet.ncols):
+                            cell = sheet.cell(row_idx, col_idx)
+                            # 处理不同的数据类型
+                            if cell.ctype == xlrd.XL_CELL_DATE:
+                                # 日期类型需要特殊处理
+                                try:
+                                    date_value = xlrd.xldate_as_datetime(cell.value, workbook.datemode)
+                                    row_data.append(date_value)
+                                except:
+                                    row_data.append(cell.value)
+                            else:
+                                row_data.append(cell.value)
+                        data.append(row_data)
+                    
+                    # 创建 DataFrame
+                    df = pd.DataFrame(data, columns=headers)
+                    
+                except ImportError:
+                    raise ValueError(
+                        "读取 .xls 文件需要 xlrd 库。请安装: pip install 'xlrd<2.0.0'\n"
+                        "注意：xlrd 2.0+ 版本不再支持 .xls 格式，需要使用 xlrd 1.x 版本"
+                    )
+            else:
+                # .xlsx 文件使用 openpyxl 引擎
+                df = pd.read_excel(file_path, engine='openpyxl')
+            
             LOGGER.info(f"成功读取Excel文件: {len(df)} 行，{len(df.columns)} 列")
             LOGGER.debug(f"列名: {df.columns.tolist()}")
             
